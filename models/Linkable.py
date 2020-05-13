@@ -22,6 +22,17 @@ class Linkable(BPMNElement):
             linkable.incoming.append(self)
 
     def serialize(self):
-        linkableElement = et.Element('linkable')
-        # can u hear me? yo? 
+        linkableElement = et.Element(self.__class__.__name__.lower())
+
+        lists = [
+            { 'name': 'incoming', 'list': self.incoming },
+            { 'name': 'outgoing', 'list': self.outgoing }
+        ]
+
+        for setting in lists:
+            for item in setting['list']:
+                inElement = et.Element(setting['name'])
+                inElement.text = str (item.id)
+                linkableElement.append(inElement)
+
         return linkableElement
