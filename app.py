@@ -36,20 +36,31 @@ c.add('linkables', l2)
 # e = l1.serialize()
 # print (md.parseString(et.tostring(e)).toprettyxml())
 
-lane1 = Lane(id="l1")
-lane2 = Lane(id="l2")
-lane3 = Lane(id="l3")
-
 process = Process(id="p1")
 process2 = Process(id="p2")
 
-process.add('linkables', l1)
-process.add('linkables', l2)
-process.add('linkables', l3)
+lane1 = Lane(id="l1", process=process)
+lane2 = Lane(id="l2")
+lane3 = Lane(id="l3")
 
-process2.add_lane(lane1)
-process2.add_lane(lane2)
+link1 = Linkable(id='act1')
+link2 = Linkable(id='act2')
+link3 = Linkable(id='act3')
 
+link1.add_link(link2)
+
+lane1.add('linkable', link1)
+lane1.add('linkable', link2)
+lane1.add('linkable', link3)
+
+process.add('lane', lane1)
+
+# lane1.add('linkable', l1)
+# lane1.add('linkable', l2)
+# process.add('linkable', l3)
+
+# process2.add_lane(lane1)
+# process2.add_lane(lane2)
 
 # lane serialization test
 # ls = lane1.serialize()
@@ -66,3 +77,4 @@ process2.add_lane(lane2)
 
 p = process.serialize()
 print(md.parseString(et.tostring(p)).toprettyxml())
+# print(md.parseString(et.tostring(lane1.serialize())).toprettyxml())
