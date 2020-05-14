@@ -1,7 +1,6 @@
 import enum
 
 class GatewayType(enum.Enum):
-    Default = 0
     Exclusive = 1
     Inclusive = 2
     EventBased = 3
