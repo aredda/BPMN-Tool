@@ -1,5 +1,7 @@
 from models.BPMNElement import BPMNElement
 
+import xml.etree.ElementTree as et
+
 
 class Flow(BPMNElement):
 
@@ -10,4 +12,10 @@ class Flow(BPMNElement):
         self.target = self.expects(args, "target")
 
     def serialize(self):
-        pass
+        def toLowerFirst(s): return s[:1].lower() + s[1:] if s else ''
+
+        flowElement = et.Element(toLowerFirst(self.__class__.__name__))
+        flowElement.attrib["sourceRef"] = self.source.id
+        flowElement.attrib["targetRef"] = self.target.id
+
+        return flowElement
