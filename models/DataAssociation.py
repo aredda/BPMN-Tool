@@ -13,7 +13,7 @@ class DataAssociation(Association):
 
     def serialize(self):
         dataAssociationElement = et.Element(
-            'data' + ('Input' if self.direction == DataAssocDirection.IN else 'output') + 'Association')
+            'data' + ('Input' if self.direction == DataAssocDirection.IN else 'Output') + 'Association')
 
         # if assoc is OUT => source = objectReference AND target = property
         # if assoc is IN => target = objectReference

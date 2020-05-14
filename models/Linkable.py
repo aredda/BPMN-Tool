@@ -13,6 +13,7 @@ class Linkable(BPMNElement):
 
         self.incoming = []
         self.outgoing = []
+        self.defaultFlow = self.expects(args, 'defaultFlow')
 
     def add_link(self, linkable, direction=IN):
         if direction == Linkable.IN:
@@ -24,6 +25,9 @@ class Linkable(BPMNElement):
 
     def serialize(self):
         linkableElement = et.Element(self.__class__.__name__.lower())
+        # If there is a default flow, then add it to the element as an attribute
+        if self.defaultFlow != None:
+            linkableElement.attrib['default'] = str (self.defaultFlow.id)
 
         lists = [
             {'name': 'incoming', 'list': self.incoming},

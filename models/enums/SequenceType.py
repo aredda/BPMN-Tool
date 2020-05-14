@@ -2,6 +2,6 @@ from enum import Enum
 
 
 class SequenceType(Enum):
-    normal = 0
-    default = 1
-    conditional = 2
+    NORMAL = 0
+    DEFAULT = 1
+    CONDITIONAL = 2
