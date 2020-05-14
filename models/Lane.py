@@ -12,6 +12,11 @@ class Lane(Container):
 
     def serialize(self):
         laneElement = et.Element("lane")
-        laneElement.attrib["id"] = self.id
+
+        if "linkables" in self.elements:
+            for element in self.elements["linkables"]:
+                el = et.Element("flowNodeRef")
+                el.text = element.id
+                laneElement.append(el)
 
         return laneElement

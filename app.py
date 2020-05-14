@@ -43,26 +43,26 @@ lane3 = Lane(id="l3")
 process = Process(id="p1")
 process2 = Process(id="p2")
 
-lane1.add('linkables', l1)
-lane2.add('linkables', l2)
-lane1.add('linkables', l3)
+process.add('linkables', l1)
+process.add('linkables', l2)
+process.add('linkables', l3)
 
 process2.add_lane(lane1)
 process2.add_lane(lane2)
 
 
-"""lane serialization test
-    ls = lane1.serialize()
-    ls2 = lane3.serialize()
-    print(et.tostring(ls))
-    print(et.tostring(ls2))"""
+# lane serialization test
+# ls = lane1.serialize()
+# ls3 = lane3.serialize()
+# print(et.tostring(ls))
+# print(et.tostring(ls3))
 
 # for lane in process2.lanes:
-#     for element in lane1.elements["linkables"]:
-#         print(element)
+#       for element in lane1.elements["linkables"]:
+#           print(element)
 
 # for lane in process.lanes:
 #     print(lane)
 
-p = process2.serialize()
+p = process.serialize()
 print(md.parseString(et.tostring(p)).toprettyxml())
