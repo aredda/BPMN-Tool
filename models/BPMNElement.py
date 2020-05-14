@@ -1,4 +1,6 @@
 from models.XMLSerializable import XMLSerializable
+from helpers.StringHelper import camelCase
+import xml.etree.ElementTree as et
 
 class BPMNElement(XMLSerializable):
 
@@ -11,3 +13,11 @@ class BPMNElement(XMLSerializable):
 
     def __str__(self):
         return str (self.id);
+
+    def serialize(self):
+        e = et.Element(camelCase(self.__class__.__name__))
+        # Foreach property in class, add it as an attribute to the element
+        for attr in vars(self):
+            if getattr(self, attr) != None:
+                e.attrib[attr] = str (getattr(self, attr))
+        return e

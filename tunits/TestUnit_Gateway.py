@@ -7,4 +7,3 @@ def run():
 
     for gt in list(GatewayType):
         print (toPrettyXml(Gateway(type=gt).serialize()))
-    
