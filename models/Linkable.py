@@ -8,6 +8,7 @@ from models.Property import Property
 from models.DataAssociation import DataAssociation
 from models.SequenceFlow import SequenceFlow
 
+
 class Linkable(Container):
 
     IN = 1
@@ -31,7 +32,8 @@ class Linkable(Container):
             • SequenceFlow
         """
         # initialize an empty sequence
-        seqFlow = SequenceFlow(id=f'seqFlow_{self.id}_{linkable.id}', source=linkable, target=self)
+        seqFlow = SequenceFlow(
+            id=f'seqFlow_{self.id}_{linkable.id}', source=linkable, target=self)
         # adjust link
         if direction == Linkable.IN:
             self.incoming.append(linkable)
@@ -58,7 +60,8 @@ class Linkable(Container):
         # If the direction is in then
         if direction == DataAssocDirection.IN:
             pty = Property()
-            assoc = DataAssociation(id=f'dtAssoc_{self.id}_{data.id}', source=ref, target=pty, direction=direction)
+            assoc = DataAssociation(
+                id=f'dtAssoc_{self.id}_{data.id}', source=ref, target=pty, direction=direction)
             pty.id = 'pty_' + assoc.id
             self.add('property', pty)
         # add assoc to elements
@@ -69,7 +72,7 @@ class Linkable(Container):
         linkableElement = Container.serialize(self)
         # If there is a default flow, then add it to the element as an attribute
         if self.defaultFlow != None:
-            linkableElement.attrib['default'] = str (self.defaultFlow.id)
+            linkableElement.attrib['default'] = str(self.defaultFlow.id)
 
         lists = [
             {'name': 'incoming', 'list': self.incoming},

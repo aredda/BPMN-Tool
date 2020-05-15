@@ -26,9 +26,9 @@ class BPMNElement(XMLSerializable):
         # Foreach property in class, add it as an attribute to the element
         for attr in vars(self):
             if getattr(self, attr) != None:
-                e.attrib[attr] = str (getattr(self, attr))
+                e.attrib[attr] = str(getattr(self, attr))
         return e
 
     # toString
     def __str__(self):
-        return str (self.id);
+        return str(self.id)

@@ -6,23 +6,23 @@ from tunits.TestUnit_DefaultSeq import run as seq_test
 from tunits.TestUnit_Associations import run as assoc_test
 from tunits.TestUnit_Process import run as process_test
 
-### Event Test Unit
+# Event Test Unit
 # event_test()
 
-### Task Test Unit
+# Task Test Unit
 # task_test()
 
-### Gateway Test Unit
+# Gateway Test Unit
 # gateway_test()
 
-### Artifacts Test Unit
+# Artifacts Test Unit
 # artifact_test()
 
-### Default Sequence Flow Test
-seq_test()
+# Default Sequence Flow Test
+# seq_test()
 
-### Data Assoc Test
-# assoc_test()
+# Data Assoc Test
+assoc_test()
 
-### Process Test
+# Process Test
 # process_test()
