@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 from models.BPMNElement import BPMNElement
-from helpers.StringHelper import camelCase
+from helpers.StringHelper import camelCase, toPrettyXml
 
 
 class Container(BPMNElement):
@@ -26,6 +26,5 @@ class Container(BPMNElement):
             if key != 'lane':
                 for i in self.elements[key]:
                     element.append(i.serialize())
-                    print(f'appended: {i}')
 
         return element

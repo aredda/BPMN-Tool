@@ -12,7 +12,7 @@ def run():
     # Instanciation section
 
     p = Process(id='prc', name='participant1')
-    sp = SubProcess(name='Evaluate Grans')
+    sp = SubProcess(id='sub_prc', name='Evaluate Grans')
 
     e1 = Event(id='event_start', type=EventType.Start,
                definition=EventDefinition.Conditional)
@@ -43,7 +43,9 @@ def run():
     e3.attach(sp)
     e4.attach(sp)
 
-    p.add('sequence', e1.add_link(sp, Task.OUT))
+    sequence = e1.add_link(sp, Task.OUT)
+
+    p.add('sequence', sequence)
     p.add('sequence', sp.add_link(e5, Task.OUT))
 
     p.add('sequence', e2.add_link(t3, Task.OUT))
@@ -54,3 +56,8 @@ def run():
     # print(toPrettyXml(sp.serialize()))
     print(toPrettyXml(p.serialize()))
     # print(p.elements)
+
+    # if p is None:
+    #     print('whoops')
+    # else:
+    #     print ('Not really null')
