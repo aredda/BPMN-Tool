@@ -9,6 +9,7 @@ class Lane(Container):
         Container.__init__(self, **args)
 
         self.process = self.expects(args, 'process', None)
+
         if self.process != None:
             self.process.add('lane', self)
 
@@ -25,5 +26,6 @@ class Lane(Container):
 
     def add(self, name, item):
         Container.add(self, name, item)
+        
         if self.process != None:
             self.process.add(name, item)

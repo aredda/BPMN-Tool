@@ -8,6 +8,7 @@ from tunits.TestUnit_Process import run as process_test
 from tunits.TestUnit_caseOne import run as case1_test
 from tunits.TestUnit_caseTwo import run as case2_test
 from tunits.TestUnit_caseThree import run as case3_test
+from tunits.TestUnit_caseFour import run as case4_test
 
 # Event Test Unit
 # event_test()
@@ -37,4 +38,7 @@ from tunits.TestUnit_caseThree import run as case3_test
 # case2_test()
 
 # case Three test
-case3_test()
+# case3_test()
+
+# case Four test
+case4_test()

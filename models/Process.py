@@ -22,3 +22,10 @@ class Process(Container):
             processElement.append(laneSetElement)
 
         return processElement
+
+    def add(self, name, *items):
+        Container.add(self, name, *items)
+
+        if name == 'lane':
+            for lane in items:
+                lane.process = self
