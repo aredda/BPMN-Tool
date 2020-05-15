@@ -36,7 +36,8 @@ class Event(Linkable):
             eventElement.attrib['attachedToRef'] = str(self.attachedTo.id)
         # Add Definition Element
         if self.definition != EventDefinition.Default:
-            eventElement.append(et.Element(
-                camelCase(self.definition.name) + 'Definition'))
+            eventDefElement = et.Element(camelCase(self.definition.name) + 'Definition')
+            eventDefElement.attrib['id'] = f'{self.id}_{self.definition.name}Definition'
+            eventElement.append(eventDefElement)
 
         return eventElement
