@@ -9,24 +9,15 @@ class Process(Container):
     def __init__(self, **args):
         Container.__init__(self, **args)
 
-    def add_lane(self, lane: Lane):
-        self.add('lane', lane)
-        lane.process = self
-
     def serialize(self):
-        processElement = et.Element("process")
+        processElement = Container.serialize(self);
+        laneSetElement = et.Element("laneSet")
 
-        for key in self.elements:
-            if key == 'lane':
-                laneSetElement = et.Element("laneSet")
+        if 'lane' in self.elements:
+            for lane in self.elements['lane']:
+                laneElement = lane.serialize()
+                laneSetElement.append(laneElement)
 
-                for lane in self.elements['lane']:
-                    laneElement = lane.serialize()
-                    laneSetElement.append(laneElement)
-
-                processElement.append(laneSetElement)
-            else:
-                for i in self.elements[key]:
-                    processElement.append(i.serialize())
+        processElement.append(laneSetElement)
 
         return processElement

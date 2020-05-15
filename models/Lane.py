@@ -9,6 +9,8 @@ class Lane(Container):
         Container.__init__(self, **args)
 
         self.process = self.expects(args, 'process', None)
+        if self.process != None:
+            self.process.add('lane', self)
 
     def serialize(self):
         laneElement = et.Element("lane")

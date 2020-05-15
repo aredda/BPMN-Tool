@@ -9,26 +9,23 @@ class DataAssociation(Association):
     def __init__(self, **args):
         Association.__init__(self, **args)
 
-        self.direction = self.expects(args, "direction")
+        self.direction = self.expects(args, "direction", DataAssocDirection.IN)
 
     def serialize(self):
         dataAssociationElement = et.Element(
             'data' + ('Input' if self.direction == DataAssocDirection.IN else 'Output') + 'Association')
 
-        # if assoc is OUT => source = objectReference AND target = property
-        # if assoc is IN => target = objectReference
-
         if self.direction == DataAssocDirection.IN:
+            print ('executing this block')
             sourceElement = et.Element("sourceRef")
-            sourceElement.text = self.source.id
+            sourceElement.text = str (self.source.id)
             targetElement = et.Element('targetRef')
-            targetElement.text = 'whatever'
+            targetElement.text = str (self.target.id)
             dataAssociationElement.append(sourceElement)
             dataAssociationElement.append(targetElement)
-
-        targetElement = et.Element("targetRef")
-        targetElement.text = self.target.id
-
-        dataAssociationElement.append(targetElement)
+        else:
+            targetElement = et.Element("targetRef")
+            targetElement.text = str(self.target.id)
+            dataAssociationElement.append(targetElement)
 
         return dataAssociationElement
