@@ -1,0 +1,17 @@
+• Yo Mohamed, I improvised 'Linkable.add_link', logically a 'link' is a sequence between two nodes,
+with that being said, if an element has linked with another element, then a sequence should be created at the same time
+so, I modified the method to return a sequence.
+
+• I added a really powerful method in 'BPMNElement', I called it 'configure', basically it's a life-saver, i should have introduced it earlier
+but i didn't imagine that our code will get sticky.. basically it's an alternative for a constructor and an alternative for ALL the setters
+imagine this situation: (it's easy to understand, it's just a 'reflection' thing.. u know that I love reflection.. so i expect that u saw this coming xD)
+
+    obj = Object(id=1, name='yeah cool', angerLevel=0)
+    
+    # later on we need to update the attrs of that object, normally we will do..
+    obj.id = 5
+    obj.name = 'Not cool'
+    obj.angerLevel = 100
+    
+    # with this method we will be able to do this
+    obj.configure(id=10, name='Really Cool', angerLevel=0)

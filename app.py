@@ -18,11 +18,11 @@ from tunits.TestUnit_Process import run as process_test
 ### Artifacts Test Unit
 # artifact_test()
 
-### Sequence Flow Test
-# seq_test()
+### Default Sequence Flow Test
+seq_test()
 
 ### Data Assoc Test
 # assoc_test()
 
 ### Process Test
-process_test()
+# process_test()
