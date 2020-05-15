@@ -8,6 +8,7 @@ class BPMNElement(XMLSerializable):
     def __init__(self, **args):
         self.id = self.expects(args, 'id')
         self.name = self.expects(args, 'name')
+        self.ignore = ['ignore']
 
     def expects(self, args, name, default=None):
         return default if name not in args else args[name]
@@ -18,14 +19,18 @@ class BPMNElement(XMLSerializable):
         """
         for key in args:
             if hasattr(self, key):
-                setattr(self, args[key])
+                setattr(self, key, args[key])
+
+    # Add attributes to be ignored in attribute serialization
+    def ignore_attrs(self, *args):
+        self.ignore = self.ignore + list(args)
 
     # A default serialization
     def serialize(self):
         e = et.Element(camelCase(self.__class__.__name__))
         # Foreach property in class, add it as an attribute to the element
         for attr in vars(self):
-            if getattr(self, attr) != None:
+            if attr not in self.ignore and getattr(self, attr) != None:
                 e.attrib[attr] = str(getattr(self, attr))
         return e
 

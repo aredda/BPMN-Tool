@@ -5,6 +5,9 @@ from tunits.TestUnit_Artifacts import run as artifact_test
 from tunits.TestUnit_DefaultSeq import run as seq_test
 from tunits.TestUnit_Associations import run as assoc_test
 from tunits.TestUnit_Process import run as process_test
+from tunits.TestUnit_caseOne import run as case1_test
+from tunits.TestUnit_caseTwo import run as case2_test
+from tunits.TestUnit_caseThree import run as case3_test
 
 # Event Test Unit
 # event_test()
@@ -22,7 +25,16 @@ from tunits.TestUnit_Process import run as process_test
 # seq_test()
 
 # Data Assoc Test
-assoc_test()
+# assoc_test()
 
 # Process Test
 # process_test()
+
+# case One test
+# case1_test()
+
+# case Two test
+# case2_test()
+
+# case Three test
+case3_test()

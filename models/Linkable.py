@@ -21,6 +21,8 @@ class Linkable(Container):
         self.outgoing = []
         self.defaultFlow = self.expects(args, 'defaultFlow')
 
+        self.ignore_attrs('incoming', 'outgoing', 'defaultFlow')
+
     # Responsible for linking two nodes/elements
     def add_link(self, linkable, direction=IN):
         """
@@ -36,13 +38,14 @@ class Linkable(Container):
             id=f'seqFlow_{self.id}_{linkable.id}', source=linkable, target=self)
         # adjust link
         if direction == Linkable.IN:
-            self.incoming.append(linkable)
-            linkable.outgoing.append(self)
+            self.incoming.append(seqFlow)
+            linkable.outgoing.append(seqFlow)
         else:
-            self.outgoing.append(linkable)
-            linkable.incoming.append(self)
             # re-configure sequence flow
             seqFlow.configure(source=self, target=linkable)
+            # finish configuration
+            self.outgoing.append(seqFlow)
+            linkable.incoming.append(seqFlow)
         # return the sequence of this link
         return seqFlow
 

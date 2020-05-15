@@ -1,5 +1,6 @@
 import enum
 
+
 class EventDefinition(enum.Enum):
     Default = 0
     Message = 1
@@ -14,3 +15,4 @@ class EventDefinition(enum.Enum):
     Multiple = 10
     ParallelMultiple = 11
     Terminate = 12
+    Timer = 13

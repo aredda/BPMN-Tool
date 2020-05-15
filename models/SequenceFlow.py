@@ -13,3 +13,5 @@ class SequenceFlow(Flow):
         # If this is a default flow, then assign the defaultFlow to the activity
         if self.type == SequenceType.DEFAULT:
             self.source.defaultFlow = self
+
+        self.ignore_attrs('type')

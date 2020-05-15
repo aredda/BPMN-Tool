@@ -2,6 +2,7 @@ import xml.etree.ElementTree as et
 from models.BPMNElement import BPMNElement
 from helpers.StringHelper import camelCase
 
+
 class Container(BPMNElement):
 
     def __init__(self, **args):
@@ -9,19 +10,22 @@ class Container(BPMNElement):
 
         self.elements = {}
 
-    def add(self, name, item):
+        self.ignore_attrs('elements')
+
+    def add(self, name, *items):
         # Initialize an empty list
         if name not in self.elements:
             self.elements[name] = []
         # Add element
-        self.elements[name].append(item)
+        self.elements[name] = self.elements[name] + list(items)
 
     def serialize(self):
-        element = et.Element (camelCase(self.__class__.__name__))
+        element = BPMNElement.serialize(self)
         # For each element in the dictionary of lists..
         for key in self.elements:
             if key != 'lane':
                 for i in self.elements[key]:
                     element.append(i.serialize())
+                    print(f'appended: {i}')
 
         return element

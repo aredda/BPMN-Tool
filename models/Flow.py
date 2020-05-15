@@ -12,8 +12,11 @@ class Flow(BPMNElement):
         self.source = self.expects(args, "source")
         self.target = self.expects(args, "target")
 
+        self.ignore_attrs('source', 'target')
+
     def serialize(self):
-        flowElement = et.Element(camelCase(self.__class__.__name__))
+        flowElement = BPMNElement.serialize(self)
+
         flowElement.attrib["sourceRef"] = self.source.id
         flowElement.attrib["targetRef"] = self.target.id
 

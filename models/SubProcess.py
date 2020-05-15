@@ -1,11 +1,7 @@
-from models.Container import Container
-# from models.Activity import Activity
+from models.Activity import Activity
 
 
-class SubProcess(Container):
+class SubProcess(Activity):
 
     def __init__(self, **args):
-        Container.__init__(self, **args)
-
-    def serialize(self):
-        pass
+        Activity.__init__(self, **args)
