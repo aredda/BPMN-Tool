@@ -33,6 +33,7 @@ class Event(Linkable):
         # Add Cancel Attribute
         if self.attachedTo != None:
             eventElement.attrib['cancelActivity'] = str(self.cancelActivity)
+            eventElement.attrib['attachedToRef'] = str(self.attachedTo.id)
         # Add Definition Element
         if self.definition != EventDefinition.Default:
             eventElement.append(et.Element(
