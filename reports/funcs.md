@@ -2,6 +2,7 @@
 - [ ] Sign in
 - [ ] Sign up
 - [ ] Update personal information
+- [ ] Delete Account
 - [ ] Navigate relation list
 - [ ] Remove a relation
 
@@ -9,12 +10,12 @@
 - [ ] Create a new Project
 - [ ] Delete an existing Project
 - [ ] Edit a Project
-- [ ] Import diagram from an XML File
-- [ ] Export diagram to an XML File
-- [ ] Export diagram to an SVG Image
+- [ ] Import diagram from an **XML File**
+- [ ] Export diagram to an **XML File**
+- [ ] Export diagram to an **SVG Image**
 - [ ] Share a project via **Share Link**
-- [ ] Navigate the project's history of changes
-- [ ] Revert to an older version of the project
+- [ ] Navigate the project's **history of changes**
+- [ ] **Revert to an older version** of the project
 
 ### Collaboration Functionalities
 - [ ] Create a collaboration Session
