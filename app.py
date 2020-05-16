@@ -9,6 +9,8 @@ from tunits.TestUnit_caseOne import run as case1_test
 from tunits.TestUnit_caseTwo import run as case2_test
 from tunits.TestUnit_caseThree import run as case3_test
 from tunits.TestUnit_caseFour import run as case4_test
+from tunits.TestUnit_caseFive import run as case5_test
+from tunits.TestUnit_Definitions import run as def_test
 
 # Event Test Unit
 # event_test()
@@ -41,4 +43,10 @@ from tunits.TestUnit_caseFour import run as case4_test
 # case3_test()
 
 # case Four test
-case4_test()
+# case4_test()
+
+# case Five test
+# case5_test()
+
+# Definitions Test
+def_test()

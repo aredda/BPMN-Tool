@@ -24,7 +24,7 @@ class Linkable(Container):
         self.ignore_attrs('incoming', 'outgoing', 'defaultFlow')
 
     # Responsible for linking two nodes/elements
-    def add_link(self, linkable, direction=IN):
+    def add_link(self, linkable, direction=OUT):
         """
         Sets up a link with another linkable.
         Parameters:

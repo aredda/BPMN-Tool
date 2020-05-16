@@ -23,7 +23,7 @@ class Container(BPMNElement):
         element = BPMNElement.serialize(self)
         # For each element in the dictionary of lists..
         for key in self.elements:
-            if key != 'lane':
+            if key not in ['lane', 'message']:
                 for i in self.elements[key]:
                     element.append(i.serialize())
 

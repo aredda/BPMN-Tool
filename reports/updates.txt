@@ -15,3 +15,16 @@ imagine this situation: (it's easy to understand, it's just a 'reflection' thing
     
     # with this method we will be able to do this
     obj.configure(id=10, name='Really Cool', angerLevel=0)
+
+--------------------
+5:12 AM - 05/12/2020
+--------------------
+
+• Yo Mohamed, I made new changes, please review them... First of all i added the 'Definitions' class,
+you can find a test unit named 'TestUnit_Definitions' for demonstration
+
+• I implemented Message flows too, check Definitions class for more info
+
+• I also tested DataStoreReference, and it worked, unfortunately I didn't test the other artifacts, but I guess they will work too ~(*_*)~
+
+• Those were the MAJOR changes..
