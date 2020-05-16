@@ -1,10 +1,10 @@
-from models.Task import Task
-from models.SequenceFlow import SequenceFlow
+from models.bpmn.Task import Task
+from models.bpmn.SequenceFlow import SequenceFlow
 from helpers.StringHelper import toPrettyXml
-from models.enums.SequenceType import SequenceType
-from models.Activity import Activity
-from models.Linkable import Linkable
-from models.Container import Container
+from models.bpmn.enums.SequenceType import SequenceType
+from models.bpmn.Activity import Activity
+from models.bpmn.Linkable import Linkable
+from models.bpmn.Container import Container
 
 def run ():
     t1 = Task(id='t1', name='Testing Default Sequence')

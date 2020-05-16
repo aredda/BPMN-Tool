@@ -1,6 +1,6 @@
-from models.Linkable import Linkable
-from models.enums.EventType import EventType
-from models.enums.EventDefinition import EventDefinition
+from models.bpmn.Linkable import Linkable
+from models.bpmn.enums.EventType import EventType
+from models.bpmn.enums.EventDefinition import EventDefinition
 import xml.etree.ElementTree as et
 from helpers.StringHelper import camelCase
 

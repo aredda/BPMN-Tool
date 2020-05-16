@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 
-from models.Flow import Flow
-from models.enums.SequenceType import SequenceType
+from models.bpmn.Flow import Flow
+from models.bpmn.enums.SequenceType import SequenceType
 
 
 class SequenceFlow(Flow):

@@ -1,5 +1,5 @@
-from models.Gateway import Gateway
-from models.enums.GatewayType import GatewayType
+from models.bpmn.Gateway import Gateway
+from models.bpmn.enums.GatewayType import GatewayType
 from helpers.StringHelper import toPrettyXml
 
 def run():

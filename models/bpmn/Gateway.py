@@ -1,5 +1,5 @@
-from models.Linkable import Linkable
-from models.enums.GatewayType import GatewayType
+from models.bpmn.Linkable import Linkable
+from models.bpmn.enums.GatewayType import GatewayType
 from helpers.StringHelper import camelCase
 import xml.etree.ElementTree as et
 

@@ -1,5 +1,5 @@
-from models.Artifact import Artifact
-from models.DataObjectReference import DataObjectReference
+from models.bpmn.Artifact import Artifact
+from models.bpmn.DataObjectReference import DataObjectReference
 
 
 class DataObject(Artifact):

@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as et
-from models.BPMNElement import BPMNElement
+from models.bpmn.BPMNElement import BPMNElement
 from helpers.StringHelper import camelCase, toPrettyXml
 
 

@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 
-from models.Association import Association
-from models.enums.DataAssocDirection import DataAssocDirection
+from models.bpmn.Association import Association
+from models.bpmn.enums.DataAssocDirection import DataAssocDirection
 
 
 class DataAssociation(Association):

@@ -1,18 +1,18 @@
 from helpers.StringHelper import toPrettyXml
-from models.Event import Event
-from models.Task import Task
-from models.Process import Process
-from models.Lane import Lane
-from models.Gateway import Gateway
-from models.SubProcess import SubProcess
-from models.DataSotreReference import DataStoreReference
-from models.Association import Association
-from models.MessageFlow import MessageFlow
-from models.Definitions import Definitions
-from models.enums.EventType import EventType
-from models.enums.EventDefinition import EventDefinition
-from models.enums.DataAssocDirection import DataAssocDirection
-from models.enums.TaskType import TaskType
+from models.bpmn.Event import Event
+from models.bpmn.Task import Task
+from models.bpmn.Process import Process
+from models.bpmn.Lane import Lane
+from models.bpmn.Gateway import Gateway
+from models.bpmn.SubProcess import SubProcess
+from models.bpmn.DataSotreReference import DataStoreReference
+from models.bpmn.Association import Association
+from models.bpmn.MessageFlow import MessageFlow
+from models.bpmn.Definitions import Definitions
+from models.bpmn.enums.EventType import EventType
+from models.bpmn.enums.EventDefinition import EventDefinition
+from models.bpmn.enums.DataAssocDirection import DataAssocDirection
+from models.bpmn.enums.TaskType import TaskType
 
 def run():
 

@@ -1,9 +1,9 @@
-from models.Linkable import Linkable
+from models.bpmn.Linkable import Linkable
 import xml.etree.ElementTree as et
-from models.SequenceFlow import SequenceFlow
-from models.MessageFlow import MessageFlow
-from models.Association import Association
-from models.DataAssociation import DataAssociation
+from models.bpmn.SequenceFlow import SequenceFlow
+from models.bpmn.MessageFlow import MessageFlow
+from models.bpmn.Association import Association
+from models.bpmn.DataAssociation import DataAssociation
 
 
 def run_test():

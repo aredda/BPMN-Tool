@@ -1,4 +1,4 @@
-from models.Flow import Flow
+from models.bpmn.Flow import Flow
 
 
 class Association(Flow):

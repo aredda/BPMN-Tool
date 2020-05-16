@@ -1,9 +1,9 @@
-from models.Task import Task
-from models.enums.ActivityFlag import ActivityFlag
-from models.enums.TaskType import TaskType
-from models.Event import Event 
-from models.enums.EventDefinition import EventDefinition
-from models.enums.EventType import EventType
+from models.bpmn.Task import Task
+from models.bpmn.enums.ActivityFlag import ActivityFlag
+from models.bpmn.enums.TaskType import TaskType
+from models.bpmn.Event import Event 
+from models.bpmn.enums.EventDefinition import EventDefinition
+from models.bpmn.enums.EventType import EventType
 from helpers.StringHelper import toPrettyXml
 import xml.etree.ElementTree as et
 

@@ -1,6 +1,6 @@
-from models.Process import Process
-from models.Task import Task
-from models.Lane import Lane
+from models.bpmn.Process import Process
+from models.bpmn.Task import Task
+from models.bpmn.Lane import Lane
 from helpers.StringHelper import toPrettyXml
 
 

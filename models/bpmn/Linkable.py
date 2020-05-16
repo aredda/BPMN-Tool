@@ -1,12 +1,12 @@
 import xml.etree.ElementTree as et
 
-from models.Container import Container
-from models.DataObject import DataObject
-from models.DataSotreReference import DataStoreReference
-from models.enums.DataAssocDirection import DataAssocDirection
-from models.Property import Property
-from models.DataAssociation import DataAssociation
-from models.SequenceFlow import SequenceFlow
+from models.bpmn.Container import Container
+from models.bpmn.DataObject import DataObject
+from models.bpmn.DataSotreReference import DataStoreReference
+from models.bpmn.enums.DataAssocDirection import DataAssocDirection
+from models.bpmn.Property import Property
+from models.bpmn.DataAssociation import DataAssociation
+from models.bpmn.SequenceFlow import SequenceFlow
 
 
 class Linkable(Container):

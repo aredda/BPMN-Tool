@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 
-from models.Container import Container
+from models.bpmn.Container import Container
 
 
 class Lane(Container):

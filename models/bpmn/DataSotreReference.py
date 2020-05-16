@@ -1,4 +1,4 @@
-from models.Artifact import Artifact
+from models.bpmn.Artifact import Artifact
 
 class DataStoreReference(Artifact):
 

@@ -1,6 +1,6 @@
 from helpers.StringHelper import camelCase
-from models.Activity import Activity
-from models.enums.TaskType import TaskType
+from models.bpmn.Activity import Activity
+from models.bpmn.enums.TaskType import TaskType
 import xml.etree.ElementTree as et
 
 

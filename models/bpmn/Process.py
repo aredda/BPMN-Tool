@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 
-from models.Container import Container
-from models.Lane import Lane
+from models.bpmn.Container import Container
+from models.bpmn.Lane import Lane
 
 
 class Process(Container):

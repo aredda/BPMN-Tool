@@ -1,6 +1,6 @@
-from models.Linkable import Linkable
-from models.Container import Container
-from models.enums.ActivityFlag import ActivityFlag
+from models.bpmn.Linkable import Linkable
+from models.bpmn.Container import Container
+from models.bpmn.enums.ActivityFlag import ActivityFlag
 
 
 class Activity(Linkable):

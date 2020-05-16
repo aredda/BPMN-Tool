@@ -1,4 +1,4 @@
-from models.Artifact import Artifact
+from models.bpmn.Artifact import Artifact
 from helpers.StringHelper import camelCase
 import xml.etree.ElementTree as et
 

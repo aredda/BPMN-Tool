@@ -1,4 +1,4 @@
-from models.BPMNElement import BPMNElement
+from models.bpmn.BPMNElement import BPMNElement
 
 class Property(BPMNElement):
 

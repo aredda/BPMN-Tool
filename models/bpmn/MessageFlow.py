@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 
-from models.Flow import Flow
+from models.bpmn.Flow import Flow
 
 
 class MessageFlow(Flow):

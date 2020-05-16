@@ -1,6 +1,6 @@
-from models.Event import Event
-from models.enums.EventType import EventType
-from models.enums.EventDefinition import EventDefinition
+from models.bpmn.Event import Event
+from models.bpmn.enums.EventType import EventType
+from models.bpmn.enums.EventDefinition import EventDefinition
 import xml.etree.ElementTree as et
 
 def run():

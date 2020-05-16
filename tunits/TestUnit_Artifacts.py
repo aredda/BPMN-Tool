@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as et
 
-from models.TextAnnotation import TextAnnotation
-from models.Group import Group
-from models.DataObject import DataObject
-from models.DataSotreReference import DataStoreReference
+from models.bpmn.TextAnnotation import TextAnnotation
+from models.bpmn.Group import Group
+from models.bpmn.DataObject import DataObject
+from models.bpmn.DataSotreReference import DataStoreReference
 from helpers.StringHelper import toPrettyXml
 
 def run():

@@ -1,9 +1,9 @@
-from models.Event import Event
-from models.Task import Task
-from models.SubProcess import SubProcess
-from models.Process import Process
-from models.enums.EventType import EventType
-from models.enums.EventDefinition import EventDefinition
+from models.bpmn.Event import Event
+from models.bpmn.Task import Task
+from models.bpmn.SubProcess import SubProcess
+from models.bpmn.Process import Process
+from models.bpmn.enums.EventType import EventType
+from models.bpmn.enums.EventDefinition import EventDefinition
 from helpers.StringHelper import toPrettyXml
 
 

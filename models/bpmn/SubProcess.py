@@ -1,4 +1,4 @@
-from models.Activity import Activity
+from models.bpmn.Activity import Activity
 
 
 class SubProcess(Activity):
