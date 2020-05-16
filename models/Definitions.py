@@ -6,8 +6,8 @@ class Definitions(Container):
     def __init__(self, **args):
         Container.__init__(self, **args)
 
-        self.elements['message'] = []
         self.elements['process'] = []
+        self.elements['message'] = []
 
     def serialize(self):
         element = Container.serialize(self)
