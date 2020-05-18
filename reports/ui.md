@@ -1,5 +1,5 @@
 # User Interfaces
-plus all of their mechanisms.
+All of the views plus all of their mechanisms.
 
 ### Splash Screen
 The purpose behind this view is to make the user wait until the resources are fully ready,
@@ -53,8 +53,29 @@ Takes care of:
   - Possibility to open the **Session Window** of the selected discussion
 
 ### Editor Screen
+- A **Panel** whose content is all the modeling elements
+- A Work **Panel** where elements are placed and handled
 - Exporting options:
   - Export as XML
+  - Export as SVG
 
 ### Profile
-Working on it
+- A **Tab** that contains a form of personal information
+  - Change information
+  - Delete account
+- A **Tab** that contains a list of relations with collaborators
+  - Remove a collaborator from the list
+
+### Shared Fragments
+All screens will share some components:
+- A **Header**
+  - A Notification indicator (icon) that displays a notification pop-up
+  - A Message indicator (icon) that displays a discussion pop-up
+  - An ImageButton that shows the image of the user and his username that redirects to the Profile Screen
+
+### Other Components:
+The experience will need:
+- A Menu Drop-Down
+- Transition effects
+- A Loader
+- A Slider
