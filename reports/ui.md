@@ -51,3 +51,5 @@ Takes care of:
 - a **Section** that shows all of started discussions between sessions
 - a **Section** that shows the messages of **one discussion**
   - Possibility to open the **Session Window** of the selected discussion
+
+### Editor Screen
