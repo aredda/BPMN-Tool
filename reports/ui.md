@@ -53,7 +53,8 @@ Takes care of:
   - Possibility to open the **Session Window** of the selected discussion
 
 ### Editor Screen
-Working on it
+- Exporting options:
+  - Export as XML
 
 ### Profile
 Working on it
