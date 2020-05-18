@@ -26,8 +26,10 @@ This view contains:
    -  Possibility to **import an XML file and create** a project
    -  Possibility to **share a project** by creating a share link
 -  a **Tab** of collaboration sessions:
-   - Listing all sessions
+   - Listing all sessions in form of cards [Image | Session's Title | Creation Date | Last Edit | Number of collabortors]
    - Possibility to **create** a session
+   - Possibility to **leave** a session
+   - **[Administrator | Owner]** has the right to **remove/disband** the session
 
 ### Project Screen
 Responsible for:
@@ -42,9 +44,12 @@ Responsible for:
 ### Session Screen
 Takes care of:
 - a **Tab** that shows the *Session and Project* information
+  - The list of collaborators
+  - **[Only for administrator]** remove a collaborator from the collaborators list
 - a **Tab** for the history of changes
   - **[Only for administrator]** With the possibility to revert to a past version/edit
   - **[Only for administrator]** With the possibility to disband and delete the session
+- Possibility to leave the session and end your collaboration
 - Open Editor Window to edit project
 
 ### Discussion Screen
