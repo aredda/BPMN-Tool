@@ -53,3 +53,7 @@ Takes care of:
   - Possibility to open the **Session Window** of the selected discussion
 
 ### Editor Screen
+Working on it
+
+### Profile
+Working on it
