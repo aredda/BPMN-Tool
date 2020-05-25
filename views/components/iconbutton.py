@@ -1,6 +1,6 @@
 from tkinter import *
-from ui.colors import *
-from ui.icon import IconFrame
+from views.resources.colors import *
+from views.components.icon import IconFrame
 from effects.animatable import Animatable
 from effects.color_transition import ColorTransition
 

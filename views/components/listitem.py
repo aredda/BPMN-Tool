@@ -1,7 +1,7 @@
 from tkinter import *
-from ui.colors import *
-from ui.icon import IconFrame
-from ui.iconbutton import IconButton
+from views.resources.colors import *
+from views.components.icon import IconFrame
+from views.components.iconbutton import IconButton
 
 class ListItem(Frame):
     

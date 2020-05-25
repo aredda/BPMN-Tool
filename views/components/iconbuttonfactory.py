@@ -1,5 +1,5 @@
-from ui.colors import *
-from ui.iconbutton import IconButton
+from views.resources.colors import *
+from views.components.iconbutton import IconButton
 
 def MainButton(master, text, iconPath, btnCmd = None):
     return IconButton(master, text, '-size 12 -weight bold', teal, iconPath, 12, {'bg': teal, 'fg': '#ffffff'}, teal, 40, btnCmd, highlightbackground=border, highlightthickness=1, padx=5, pady=5, bg='#ffffff')
