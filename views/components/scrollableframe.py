@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from ui.listitem import ListItem
+from views.components.listitem import ListItem
 
 class Scrollable(tk.Frame):
     """

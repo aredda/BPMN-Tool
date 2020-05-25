@@ -1,6 +1,6 @@
 from tkinter import *
-from ui.colors import *
-from ui.tabhead import TabHead
+from views.resources.colors import *
+from views.components.tabhead import TabHead
 from effects.move_transition import MoveTransition
 from effects.animatable import Animatable
 
