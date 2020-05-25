@@ -1,0 +1,6 @@
+teal = '#0D9DA6'
+border = '#AEC2C3'
+background = '#EBFAF8'
+black = '#333333'
+white = '#ffffff'
+danger = '#B72637'
