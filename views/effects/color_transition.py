@@ -1,4 +1,4 @@
-from effects.transition import Transition
+from views.effects.transition import Transition
 import time
 
 class ColorTransition(Transition):

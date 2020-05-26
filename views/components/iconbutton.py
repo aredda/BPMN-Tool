@@ -1,8 +1,8 @@
 from tkinter import *
-from views.resources.colors import *
+from resources.colors import *
 from views.components.icon import IconFrame
-from effects.animatable import Animatable
-from effects.color_transition import ColorTransition
+from views.effects.animatable import Animatable
+from views.effects.color_transition import ColorTransition
 
 class IconButton(Frame, Animatable):
 

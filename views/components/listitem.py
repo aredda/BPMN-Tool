@@ -1,5 +1,5 @@
 from tkinter import *
-from views.resources.colors import *
+from resources.colors import *
 from views.components.icon import IconFrame
 from views.components.iconbutton import IconButton
 

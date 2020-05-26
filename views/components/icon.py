@@ -1,5 +1,5 @@
 from tkinter import *
-from views.resources.colors import *
+from resources.colors import *
 from PIL import Image as Img, ImageTk
 
 class IconFrame(Canvas):

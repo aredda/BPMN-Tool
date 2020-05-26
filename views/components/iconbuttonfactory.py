@@ -1,4 +1,4 @@
-from views.resources.colors import *
+from resources.colors import *
 from views.components.iconbutton import IconButton
 
 def MainButton(master, text, iconPath, btnCmd = None):
