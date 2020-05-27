@@ -13,7 +13,8 @@ class TabHead(Frame, Animatable):
         self.tabManager = args.get('manager', None)
         self.selected = False
 
-        self.iconButton = IconButton(self, text, '-size 15', black, image, 25, None, black, bg=args.get('bg', background))
+        self.iconButton = IconButton(self, text, '-size 18', black, image, 23, None, black, bg=args.get('bg', background))
+        self.iconButton.label.pack (side=LEFT, padx=(10, 0))
         self.iconButton.pack (side=TOP, anchor='nw')
 
         self.border = Frame(self, bg=black, height=5)

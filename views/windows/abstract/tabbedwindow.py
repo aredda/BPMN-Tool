@@ -16,7 +16,7 @@ class TabbedWindow(SessionWindow):
         self.tb_container = Frame(self.frm_body, bg=background)
 
         self.tbm_manager.pack(side=TOP, fill=X)
-        self.tb_container.pack(side=TOP, fill=BOTH, expand=1)
+        self.tb_container.pack(side=TOP, fill=BOTH, expand=1, pady=(15, 0))
 
         # Set up tab heads
         self.config_tabHeads()
@@ -29,4 +29,9 @@ class TabbedWindow(SessionWindow):
         for i in self.tabSettings:
             self.tbm_manager.add_head(i.get('tag', 'tb_' + str(self.tabSettings.index(i))), TabHead(self.tbm_manager, i.get('text', 'Tab Head'), f'resources/icons/ui/{i["icon"]}', bg=background))
 
+    def connect_body_to(self, tag, body):
+        self.tbm_manager.connect_body(tag, body)
+
+    def finish_tabbing(self):
+        self.tbm_manager.initialize()
     

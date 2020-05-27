@@ -1,5 +1,7 @@
 from tkinter import Tk
 from resources.colors import background
+from views.components.listitem import ListItem
+from views.components.scrollableframe import Scrollable
 
 class Window(Tk):
     """
@@ -28,3 +30,18 @@ class Window(Tk):
         yOff = int((self.winfo_screenheight() - self.winfo_height()) / 2)
         # Centering the window
         self.geometry(f'{self.winfo_width()}x{self.winfo_height()}+{xOff}+{yOff}')
+
+    def add_list_item(self, container: Scrollable, **li_args):
+        """
+        Takes care of instantiating a list item and then append it to the container,
+        and then returns the instanciated item.
+        """
+
+        # Shrinking the finding operation
+        f_arg = lambda key: li_args.get(key, None)
+        # Creating an item
+        li = ListItem(container, f_arg('dataObject'), f_arg('bindings'), f_arg('buttons'), f_arg('creationMethod'))
+        # Appending the item
+        container.pack_item(li)
+        # Returning the created item
+        return li

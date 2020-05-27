@@ -9,6 +9,8 @@ class TabManager(Frame, Animatable):
     def __init__(self, master, **args):
         Frame.__init__(self, master, **args)
 
+        self.parent = master
+
         self.tabHeads = {}
         self.tabBodies = {}
 
@@ -34,7 +36,7 @@ class TabManager(Frame, Animatable):
         firstKey = list(self.tabHeads.keys())[0]
         # Decorate
         self.tabHeads[firstKey].select()
-        self.tabBodies[firstKey].place(x=0, y=0, relwidth=1)
+        self.tabBodies[firstKey].place(x=0, y=0, relwidth=1, relheight=1)
         # Change indicators
         self.selectedHead = firstKey
         self.selectedBody = self.tabBodies[firstKey]
@@ -53,12 +55,13 @@ class TabManager(Frame, Animatable):
             return
         # Animation
         diff = list (self.tabHeads.keys()).index(self.selectedHead) - list (self.tabHeads.keys()).index(tag)
-        steadyPoint = -1024 if diff < 0 else 1024
+        steadyPoint = self.parent.winfo_width()
+        steadyPoint = steadyPoint if diff < 0 else -steadyPoint
         hidePoint = steadyPoint * -1
         
-        self.tabBodies[tag].place(x=steadyPoint, y=0, relwidth=1)
+        self.tabBodies[tag].place(x=steadyPoint, y=0, relwidth=1, relheight=1)
 
-        def get_set(body): return lambda v: body.place(x=v, y=0, relwidth=1)
+        def get_set(body): return lambda v: body.place(x=v, y=0, relwidth=1, relheight=1)
         def get_get(body): return lambda: int (body.place_info()['x'])
 
         self.save_transition (MoveTransition(get_set(self.selectedBody), get_get(self.selectedBody), hidePoint, 2.5))

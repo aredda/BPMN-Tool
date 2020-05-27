@@ -16,12 +16,9 @@ class IconButton(Frame, Animatable):
         self.icon.pack (side=LEFT)
         # Create the label
         self.label = Label(self, text=text, font=textFont, fg=textColor, bg=self['bg'])
-        self.label.pack (side=LEFT, padx=(2, 0))
+        self.label.pack (side=LEFT, padx=5)
         # Save the initial theme
-        self.theme = {
-            'bg': self['bg'],
-            'fg': textColor
-        }
+        self.theme = { 'bg': self['bg'], 'fg': textColor }
         # Bind click event
         if btnCommand != None:
             self.bind_click(btnCommand)
