@@ -3,3 +3,5 @@ because we are going to add other models concerning data..
 - [ ] The scrollable frame is no longer working
 - [ ] Adding floating modals
 - [ ] Implementing Anti-Alias For Drawn Elements
+- [ ] Floating Menu Modals
+- [ ] Window Manager (+ Fade Effect)

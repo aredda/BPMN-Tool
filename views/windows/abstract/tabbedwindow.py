@@ -25,9 +25,17 @@ class TabbedWindow(SessionWindow):
         # Empty tab manager
         for child in self.tbm_manager.winfo_children():
             child.destroy()
-        # Instantiate tab heads
+        # Instantiate tab heads and their corresponding body
         for i in self.tabSettings:
             self.tbm_manager.add_head(i.get('tag', 'tb_' + str(self.tabSettings.index(i))), TabHead(self.tbm_manager, i.get('text', 'Tab Head'), f'resources/icons/ui/{i["icon"]}', bg=background))
+            # Create the body for this head
+            tb_body = Frame(self.tb_container, bg=background)
+            # Create an attr for this body
+            setattr(self, i.get('tag'), tb_body)
+            # Connect body
+            self.connect_body_to(i.get('tag'), tb_body)
+        # Finish tabbing
+        self.finish_tabbing()
 
     def connect_body_to(self, tag, body):
         self.tbm_manager.connect_body(tag, body)

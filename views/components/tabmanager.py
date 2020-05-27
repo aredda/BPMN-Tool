@@ -51,8 +51,7 @@ class TabManager(Frame, Animatable):
         # Turn on the clicked tab head
         self.tabHeads[tag].select()
         # Check if tag exists
-        if tag not in self.tabBodies:
-            return
+        if tag not in self.tabBodies: return
         # Animation
         diff = list (self.tabHeads.keys()).index(self.selectedHead) - list (self.tabHeads.keys()).index(tag)
         steadyPoint = self.parent.winfo_width()
@@ -64,8 +63,8 @@ class TabManager(Frame, Animatable):
         def get_set(body): return lambda v: body.place(x=v, y=0, relwidth=1, relheight=1)
         def get_get(body): return lambda: int (body.place_info()['x'])
 
-        self.save_transition (MoveTransition(get_set(self.selectedBody), get_get(self.selectedBody), hidePoint, 2.5))
-        self.save_transition (MoveTransition(get_set(self.tabBodies[tag]), get_get(self.tabBodies[tag]), 0, 2.5))
+        self.save_transition (MoveTransition(get_set(self.selectedBody), get_get(self.selectedBody), hidePoint, 3))
+        self.save_transition (MoveTransition(get_set(self.tabBodies[tag]), get_get(self.tabBodies[tag]), 0, 3))
         # Change indicators
         self.selectedHead = tag
         self.selectedBody = self.tabBodies[tag]
