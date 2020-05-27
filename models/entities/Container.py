@@ -51,13 +51,34 @@ class Container():
 
         setattr(childModel, propertyName, childRelation)
 
+    @staticmethod
+    def update(Class, id, **args):
+        obj = Container.filter(Class).get(id)
+        for key, value in args.items():
+            setattr(obj, key, value)
+        Container.saveObject(obj)
+        return obj
+
+    @staticmethod
+    def delete(Class, id):
+        obj = Container.filter(Class).get(id)
+        Container.deleteObject(obj)
+
+    @staticmethod
+    def add(Class, **args):
+        obj = Class()
+        for key, value in args.items():
+            setattr(obj, key, value)
+        Container.saveObject(obj)
+        return obj
+
     @staticmethod  # used for add and update
     def save(*objs):
         Container.session.add_all(objs)
         Container.session.commit()
 
     @staticmethod
-    def delete(obj):
+    def deleteObject(obj):
         Container.session.delete(obj)
         Container.session.commit()
 

@@ -51,7 +51,7 @@ def run():
 
 
 # relationships Test
-'''
+
 def run():
     user = Container.filter(User, User.firstName == 'Mohamed').first()
     for relation in user.relations:
@@ -71,9 +71,11 @@ def run():
         print(invitation.recipient.firstName)
     for invitationLink in user.invitationlinks:
         print(invitationLink.session.title)
-    print(user.sparepwd)
-    user = Container.filter(User, User.firstName == 'Chakir').first()
+    print(user.sparepwd.__class__.__name__)
+    user = Container.filter(User, User.firstName == 'Mohamed').first()
     print(user.sparepwd.verificationCode)
+
+
 '''
 
 
@@ -81,3 +83,4 @@ def run():
 def run():
     for att in vars(User):
         print(att)
+'''
