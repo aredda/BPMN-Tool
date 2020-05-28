@@ -33,10 +33,9 @@ class Scrollable(tk.Frame):
 
         # base class initialization
         tk.Frame.__init__(self, frame, **args)
-        # assign this obj (the inner frame) to the windows item of the canvas
+        # Assign this obj (the inner frame) to the windows item of the canvas
         self.window_item = self.canvas.create_window(0, 0, window=self, anchor=tk.NW)
         # Tweak configs
-        self.configure(pady=self.spacing)
         self.grid_propagate(0)
 
         self.update()
@@ -54,7 +53,7 @@ class Scrollable(tk.Frame):
 
     def pack_item(self, item, **args):
         # Pack item
-        item.pack (padx=self.spacing, pady=(0 if len(self.items) > 0 else self.spacing, self.spacing), **args)
+        item.pack (padx=self.spacing, pady=(0, self.spacing), **args)
         # Save item
         self.items.append (item)
         # Update
