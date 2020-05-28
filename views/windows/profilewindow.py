@@ -82,10 +82,21 @@ class ProfileWindow(TabbedWindow):
         frm_form = Frame(self.tb_info, bg=background)
         frm_form.pack(fill=BOTH, expand=1)
 
+        frm_form.rowconfigure(0, weight=1)
+        frm_form.columnconfigure([0, 1, 2], weight=1)
+
+        frm_image_column = Frame(frm_form, bg=background)
+        frm_image_column.grid(row=0, column=0, padx=(0, 20))
+
+        Label(frm_image_column, pady=10, bg=background, font='-size 10 -weight bold', fg=black, text='Profile Photo:', anchor=N+W).pack(side=TOP, fill=X)
+        frm_image = Frame(frm_image_column, bg=black, height=150)
+        frm_image.pack(side=TOP, fill=X, pady=(0, 10))
+        SecondaryButton(frm_image_column, 'Upload Image', 'upload.png').pack (side=TOP, fill=X)
+
         for column in ProfileWindow.formSettings:
             # Prepare a form column
             frm_column = Frame(frm_form, bg=background)
-            frm_column.pack(side=LEFT, fill=Y)
+            frm_column.grid(row=0, column=(1+ProfileWindow.formSettings.index(column)))
             # Loop through groups
             for group in column:
                 # Prepare group
@@ -97,6 +108,11 @@ class ProfileWindow(TabbedWindow):
                 txt.pack(side=TOP)
                 # Save the textbox in a list in order to get its value
                 self.textBoxes[group.get('tag')] = txt
+
+        frm_footer = Frame(self.tb_info, bg=background)
+        frm_footer.pack(side=BOTTOM, fill=X)
+
+        MainButton(frm_footer, 'Save Changes', 'save.png').pack(side=LEFT)
 
         # Setup the tab of saved collabs
         frm_tip = IconButton(self.tb_collabs, 'Saved Collaborators are all the users who have participated in a collaboration session with you.', '-size 12 -weight bold', white, 'resources/icons/ui/info.png', 10, None, black, bg=black, pady=10, padx=5)
