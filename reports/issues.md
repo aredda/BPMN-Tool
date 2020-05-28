@@ -5,3 +5,5 @@ because we are going to add other models concerning data..
 - [ ] Implementing Anti-Alias For Drawn Elements
 - [ ] Floating Menu Modals
 - [ ] Window Manager (+ Fade Effect)
+- [ ] Adding an image to Profile Window's Form (To upload and show profile photo)
+- [ ] Adding a modal to Profile Window's Form (Informing and warning purposes)
