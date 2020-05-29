@@ -52,8 +52,13 @@ class Scrollable(tk.Frame):
         self.canvas.config(scrollregion=region)
 
     def pack_item(self, item, **args):
+        # Default args
+        defArgs = {'padx':self.spacing, 'pady':(0, self.spacing)}
+        # Override default ones
+        if args is None:
+            args = defArgs
         # Pack item
-        item.pack (padx=self.spacing, pady=(0, self.spacing), **args)
+        item.pack (**args)
         # Save item
         self.items.append (item)
         # Update
