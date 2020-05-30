@@ -7,7 +7,7 @@ from views.windows.collaborationwindow import CollaborationWindow
 from views.windows.profilewindow import ProfileWindow
 from views.windows.discussionwindow import DiscussionWindow
 from views.windows.editorwindow import EditorWindow
-from views.components.scrollableframe import Scrollable
+from views.components.scrollable import Scrollable
 from tkinter import *
 from resources.colors import *
 
@@ -17,6 +17,6 @@ def run():
     # window = CollaborationWindow()
     # window = ProfileWindow()
     # window = DiscussionWindow()
-    window = EditorWindow()
+    window = DiscussionWindow()
 
     window.mainloop()

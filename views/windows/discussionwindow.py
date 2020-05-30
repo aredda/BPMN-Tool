@@ -1,7 +1,7 @@
 from tkinter import *
 from resources.colors import *
 from views.windows.abstract.sessionwindow import SessionWindow
-from views.components.scrollableframe import Scrollable
+from views.components.scrollable import Scrollable
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.components.iconbuttonfactory import *
@@ -37,11 +37,13 @@ class DiscussionWindow(SessionWindow):
 
         self.design()
 
+        self.msgItems = []
+
         self.fill_sessions()
         self.fill_discussion()
 
-        self.change_session_item_style(self.lv_sessions.items[0], DiscussionWindow.CHAT_ACTIVE)
-        self.change_session_item_style(self.lv_sessions.items[1])
+        self.change_session_item_style(self.msgItems[0], DiscussionWindow.CHAT_ACTIVE)
+        self.change_session_item_style(self.msgItems[1])
 
     def design(self):
         # Session items section
@@ -53,7 +55,7 @@ class DiscussionWindow(SessionWindow):
 
         frm_sessions.pack_propagate(0)
 
-        self.lv_sessions = Scrollable(frm_sessions, 16, 5, bg=white)
+        self.lv_sessions = Scrollable(frm_sessions, bg=silver)
         self.lv_sessions.pack(fill=BOTH, expand=1)
 
         frm_sessions.pack(side=LEFT, fill=Y)
@@ -80,7 +82,7 @@ class DiscussionWindow(SessionWindow):
         self.btn_open_session.config(pady=5)
         self.btn_open_session.pack(side=RIGHT)
 
-        frm_scrollable_container = Frame(frm_discussion)
+        frm_scrollable_container = Frame(frm_discussion, bg=black)
         frm_scrollable_container.pack_propagate(0)
         frm_scrollable_container.pack(side=TOP, fill=BOTH, expand=1)
 
@@ -103,17 +105,17 @@ class DiscussionWindow(SessionWindow):
     # BOOKMARK: Fill chat sessions
     def fill_sessions(self):
         self.lv_sessions.empty()
-
+        
         for i in range(7):
-            self.lv_sessions.pack_item(ListItem(self.lv_sessions, None, None, None, DiscussionWindow.create_session_item))
+            self.msgItems.append(ListItem(self.lv_sessions.interior, None, None, None, DiscussionWindow.create_session_item))
 
-    # BOOKMARK: Fill messages 
+    # BOOKMARK: Fill Messages
     def fill_discussion(self):
         self.lv_messages.empty()
 
         for i in range(10):
             createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if i % 2 == 0 else DiscussionWindow.MSG_OUTGOING)
-            self.lv_messages.pack_item(ListItem(self.lv_messages, None, None, None, createMethod))
+            ListItem(self.lv_messages.interior, None, None, None, createMethod)
 
     # Session List Item
     def create_session_item(item):

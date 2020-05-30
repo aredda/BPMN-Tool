@@ -4,7 +4,7 @@ from views.windows.abstract.tabbedwindow import TabbedWindow
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.components.iconbuttonfactory import *
-from views.components.scrollableframe import Scrollable
+from views.components.scrollable import Scrollable
 
 class HomeWindow(TabbedWindow):
 

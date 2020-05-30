@@ -1,7 +1,7 @@
 from tkinter import Tk
 from resources.colors import background
 from views.components.listitem import ListItem
-from views.components.scrollableframe import Scrollable
+from views.components.scrollable import Scrollable
 from views.effects.move_transition import MoveTransition
 
 class Window(Tk):
@@ -23,10 +23,9 @@ class Window(Tk):
         self.title(title)
         self.config(bg=background, width=width, height=height)
         self.center()
-
         # Animate
         MoveTransition(lambda v: self.set_opacity(v), lambda: self.attributes('-alpha'), 1, 0.01, 0)
-
+        
     def center(self):
         # Update the idle tasks of the window
         self.update()

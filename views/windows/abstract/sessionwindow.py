@@ -32,7 +32,8 @@ class SessionWindow(Window):
 
     def config_vBar(self):
         
-        def callback(tag): return lambda e: self.windowManager.run_window_by_tag(tag)
+        def callback(tag): return None
+            # return lambda e: self.windowManager.run_window_by_tag(tag)
 
         for i in SessionWindow.vBarSettings:
             cb = callback(i.get('dest'))
