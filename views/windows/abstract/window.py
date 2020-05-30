@@ -15,8 +15,6 @@ class Window(Toplevel):
 
     def __init__(self, root, title='Window', width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, **args):
         Toplevel.__init__(self, root, **args)
-
-        self.set_opacity(0)
         
         # Default configurations
         self.pack_propagate(0)
@@ -63,3 +61,6 @@ class Window(Toplevel):
 
     def fade(self, destination=0, onFinish=None):
         MoveTransition(lambda v: self.set_opacity(v), lambda: float (self.attributes('-alpha')), destination, 0.01, 0, onFinish)
+
+    def refresh(self):
+        pass
