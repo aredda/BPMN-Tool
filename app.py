@@ -17,6 +17,9 @@ from tunits.TU_MultipleWindow import run as mulwin_test
 from views.windows.homewindow import HomeWindow
 from views.windows.profilewindow import ProfileWindow
 from helpers.windowmanager import WindowManager
+from tunits.TestUnit_Entities import run as entity_test
+from tunits.TestUnit_imageutility import run as imageutility_test
+from tunits.TestUnit_xmlutility import run as xmlutility_test
 
 # Event Test Unit
 # event_test()
@@ -60,12 +63,8 @@ from helpers.windowmanager import WindowManager
 # Definitions Test
 # def2_test()
 
-# Abstract Window Class
-# win_test()
-
 manager = WindowManager()
 manager.run_tag('home')
 manager.root.mainloop()
 
 # mulwin_test()
-
