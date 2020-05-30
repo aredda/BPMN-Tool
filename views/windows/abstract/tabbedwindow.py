@@ -7,8 +7,8 @@ from resources.colors import *
 
 class TabbedWindow(SessionWindow):
 
-    def __init__(self, tabSettings: list, title='Tabbed Window', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
-        SessionWindow.__init__(self, title, width, height, **args)
+    def __init__(self, root, tabSettings: list, title='Tabbed Window', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
+        SessionWindow.__init__(self, root, title, width, height, **args)
 
         self.tabSettings = tabSettings
 

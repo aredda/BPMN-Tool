@@ -68,8 +68,8 @@ class CollaborationWindow(TabbedWindow):
         }
     ]
 
-    def __init__(self, session=None, **args):
-        TabbedWindow.__init__(self, CollaborationWindow.tabSettings, 'Session\'s Title', **args)
+    def __init__(self, root, session=None, **args):
+        TabbedWindow.__init__(self, root, CollaborationWindow.tabSettings, 'Session\'s Title', **args)
 
         # Design elements
         self.design()

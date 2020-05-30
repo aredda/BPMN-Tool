@@ -1,10 +1,10 @@
-from tkinter import Tk
+from tkinter import *
 from resources.colors import background
 from views.components.listitem import ListItem
 from views.components.scrollable import Scrollable
 from views.effects.move_transition import MoveTransition
 
-class Window(Tk):
+class Window(Toplevel):
     """
     The base class of all windows in the project, this window
     shall hold all the essential and general mechanisms of a regular window.
@@ -13,19 +13,17 @@ class Window(Tk):
     DEFAULT_WIDTH = 1024
     DEFAULT_HEIGHT = 768
 
-    def __init__(self, title='Window', width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, **args):
-        Tk.__init__(self, **args)
+    def __init__(self, root, title='Window', width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, **args):
+        Toplevel.__init__(self, root, **args)
 
+        self.set_opacity(0)
+        
         # Default configurations
         self.pack_propagate(0)
         self.grid_propagate(0)
         self.title(title)
         self.config(bg=background, width=width, height=height)
         self.center()
-        
-        # Animate
-        # self.set_opacity(0)
-        # MoveTransition(lambda v: self.set_opacity(v), lambda: self.attributes('-alpha'), 1, 0.01, 0)
         
     def center(self):
         # Update the idle tasks of the window
@@ -62,3 +60,6 @@ class Window(Tk):
 
     def show(self):
         self.deiconify()
+
+    def fade(self, destination=0, onFinish=None):
+        MoveTransition(lambda v: self.set_opacity(v), lambda: float (self.attributes('-alpha')), destination, 0.01, 0, onFinish)

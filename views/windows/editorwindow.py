@@ -51,8 +51,8 @@ class EditorWindow(SessionWindow):
         }
     }
 
-    def __init__(self, subject=None, **args):
-        SessionWindow.__init__(self, **args)
+    def __init__(self, root, subject=None, **args):
+        SessionWindow.__init__(self, root, **args)
 
         self.subject = None
 

@@ -6,8 +6,8 @@ from views.components.icon import IconFrame
 
 class SessionWindow(Window):
 
-    def __init__(self, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
-        Window.__init__(self, title, width, height)
+    def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
+        Window.__init__(self, root, title, width, height)
 
         self.frm_rSection = Frame(self, bg=background)
         self.frm_rSection.pack_propagate(0)
@@ -32,8 +32,8 @@ class SessionWindow(Window):
 
     def config_vBar(self):
         
-        def callback(tag): return None
-            # return lambda e: self.windowManager.run_window_by_tag(tag)
+        def callback(tag):
+            return lambda e: self.windowManager.run_tag(tag)
 
         for i in SessionWindow.vBarSettings:
             cb = callback(i.get('dest'))
@@ -59,14 +59,9 @@ class SessionWindow(Window):
             'dest': 'home'
         },
         {
-            'icon': 'folder.png',
-            'text': 'Projects',
-            'dest': 'home'
-        },
-        {
-            'icon': 'session.png',
-            'text': 'Sessions',
-            'dest': 'home'
+            'icon': 'discussion_original.png',
+            'text': 'Discussions',
+            'dest': 'discussion'
         },
         {
             'icon': 'settings.png',

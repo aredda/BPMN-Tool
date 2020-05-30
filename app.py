@@ -13,8 +13,10 @@ from tunits.TestUnit_caseFive import run as case5_test
 from tunits.TestUnit_Definitions import run as def_test
 from tunits.TestUnit_Definitions2 import run as def2_test
 from tunits.TU_Window import run as win_test
+from tunits.TU_MultipleWindow import run as mulwin_test
 from views.windows.homewindow import HomeWindow
 from views.windows.profilewindow import ProfileWindow
+from helpers.windowmanager import WindowManager
 
 # Event Test Unit
 # event_test()
@@ -59,6 +61,11 @@ from views.windows.profilewindow import ProfileWindow
 # def2_test()
 
 # Abstract Window Class
-win_test()
+# win_test()
 
-# imghelper_test()
+manager = WindowManager()
+manager.run_tag('home')
+manager.root.mainloop()
+
+# mulwin_test()
+

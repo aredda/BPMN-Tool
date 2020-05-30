@@ -24,8 +24,8 @@ class HomeWindow(TabbedWindow):
         }
     ]
 
-    def __init__(self, **args):
-        TabbedWindow.__init__(self, HomeWindow.tabSettings, 'Welcome', **args)
+    def __init__(self, root, **args):
+        TabbedWindow.__init__(self, root, HomeWindow.tabSettings, 'Welcome', **args)
 
         # Design elements
         self.design()
@@ -46,7 +46,7 @@ class HomeWindow(TabbedWindow):
         self.scr_list_view1.pack(fill=BOTH, expand=1)
 
         # BOOKMARK: fill project items
-        for i in range(8):
+        for i in range(4):
             self.scr_list_view1.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item), 15)
 
         # lay out the components to session tab
@@ -61,7 +61,7 @@ class HomeWindow(TabbedWindow):
         self.scr_list_view2.pack(fill=BOTH, expand=1)
 
         # BOOKMARK: fill session items
-        for i in range(12):
+        for i in range(4):
             self.scr_list_view2.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item, HomeWindow.SESSION_LI), 15)
 
     def create_list_item(item: ListItem, liType: int = PROJECT_LI):

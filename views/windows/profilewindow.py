@@ -69,8 +69,8 @@ class ProfileWindow(TabbedWindow):
         ]
     ]
 
-    def __init__(self, **args):
-        TabbedWindow.__init__(self, ProfileWindow.tabSettings, 'Profile', **args)
+    def __init__(self, root, **args):
+        TabbedWindow.__init__(self, root, ProfileWindow.tabSettings, 'Profile', **args)
 
         self.textBoxes = {}
 

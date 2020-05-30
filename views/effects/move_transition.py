@@ -28,4 +28,3 @@ class MoveTransition(Transition):
 
         if self.onFinish != None:
             self.onFinish()
-            print ('destroyed!!')

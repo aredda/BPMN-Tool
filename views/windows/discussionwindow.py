@@ -32,8 +32,8 @@ class DiscussionWindow(SessionWindow):
     MSG_INCOMING = CHAT_NORMAL
     MSG_OUTGOING = CHAT_ACTIVE
 
-    def __init__(self, **args):
-        SessionWindow.__init__(self, 'Discussions')
+    def __init__(self, root, **args):
+        SessionWindow.__init__(self, root, 'Discussions')
 
         self.design()
 
