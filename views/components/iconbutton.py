@@ -3,6 +3,7 @@ from resources.colors import *
 from views.components.icon import IconFrame
 from views.effects.animatable import Animatable
 from views.effects.color_transition import ColorTransition
+from winsound import *
 
 class IconButton(Frame, Animatable):
 
@@ -24,9 +25,15 @@ class IconButton(Frame, Animatable):
             self.bind_click(btnCommand)
 
     def bind_click (self, command):
-        self.bind('<Button-1>', command)
-        self.label.bind('<Button-1>', command)
-        self.icon.bind('<Button-1>', command)
+        def prepareCommand(e):
+            # Play click sound
+            PlaySound('resources/sounds/click.wav', SND_FILENAME)
+            # Invoke command
+            command(e)
+
+        self.bind('<Button-1>', prepareCommand)
+        self.label.bind('<Button-1>', prepareCommand)
+        self.icon.bind('<Button-1>', prepareCommand)
 
     def onEnter(self):
         if self.hover_theme == None:
