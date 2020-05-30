@@ -106,7 +106,7 @@ class DiscussionWindow(SessionWindow):
     def fill_sessions(self):
         self.lv_sessions.empty()
         
-        for i in range(7):
+        for i in range(20):
             self.msgItems.append(ListItem(self.lv_sessions.interior, None, None, None, DiscussionWindow.create_session_item))
 
     # BOOKMARK: Fill Messages

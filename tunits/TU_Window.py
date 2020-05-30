@@ -13,10 +13,10 @@ from resources.colors import *
 
 def run():
     # window = HomeWindow()
-    # window = ProjectWindow()
+    window = ProjectWindow()
     # window = CollaborationWindow()
     # window = ProfileWindow()
     # window = DiscussionWindow()
-    window = DiscussionWindow()
+    # window = DiscussionWindow()
 
     window.mainloop()

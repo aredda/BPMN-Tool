@@ -41,11 +41,13 @@ class HomeWindow(TabbedWindow):
         self.btn_open = SecondaryButton(self.btn_container1, 'Open XML-BPMN File From Device', 'upload.png')
         self.btn_open.pack(side=LEFT)
 
-        self.scr_list_view1 = Scrollable(self.tb_projects, 0, 10, 0, 4, bg=background)
+        self.scr_list_view1 = Scrollable(self.tb_projects, bg=background, pady=15)
+        self.scr_list_view1.set_gridcols(4)
         self.scr_list_view1.pack(fill=BOTH, expand=1)
 
-        for i in range(4):
-            self.scr_list_view1.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item))
+        # BOOKMARK: fill project items
+        for i in range(8):
+            self.scr_list_view1.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item), 15)
 
         # lay out the components to session tab
         self.btn_container2 = Frame(self.tb_sessions, bg=background, pady=10, padx=1)
@@ -54,11 +56,13 @@ class HomeWindow(TabbedWindow):
         self.btn_create_session = MainButton(self.btn_container2, 'Create New Session', 'new_session.png')
         self.btn_create_session.pack(side=LEFT, padx=(0, 10))
 
-        self.scr_list_view2 = Scrollable(self.tb_sessions, 0, 10, 0, 4, bg=background)
+        self.scr_list_view2 = Scrollable(self.tb_sessions, bg=background, pady=15)
+        self.scr_list_view2.set_gridcols(4)
         self.scr_list_view2.pack(fill=BOTH, expand=1)
 
-        for i in range(4):
-            self.scr_list_view2.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item, HomeWindow.SESSION_LI))
+        # BOOKMARK: fill session items
+        for i in range(12):
+            self.scr_list_view2.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item, HomeWindow.SESSION_LI), 15)
 
     def create_list_item(item: ListItem, liType: int = PROJECT_LI):
         item.configure (highlightthickness=1, highlightbackground=border, bg=white)

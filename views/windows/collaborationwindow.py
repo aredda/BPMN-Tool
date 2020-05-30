@@ -109,15 +109,16 @@ class CollaborationWindow(TabbedWindow):
         frm_preview = Frame(frm_group, bg=white, highlightthickness=1, highlightbackground=border)
         frm_preview.pack(side=LEFT, fill=BOTH, expand=1)
 
-        self.lv_members = Scrollable(frm_group, 0, bg=background)
-        self.lv_members.pack(side=RIGHT, fill=BOTH)
+        self.lv_members = Scrollable(frm_group, bg=background)
+        self.lv_members.pack(side=RIGHT, fill=BOTH, padx=(10, 0))
 
         # Filling the history tab
-        self.frm_list_view = Scrollable(self.tb_hist, 0, bg=background)
+        self.frm_list_view = Scrollable(self.tb_hist, bg=background)
         self.frm_list_view.pack(expand=1, fill=BOTH, pady=(0, 15))
 
-        for i in range(5):
-            self.frm_list_view.pack_item(ListItem(self.frm_list_view, None, None, [
+        # BOOKMARK: Fill Collaboration Session Change History
+        for i in range(10):
+            ListItem(self.frm_list_view.interior, None, None, [
                 {
                     'icon': 'save.png',
                     'text': 'Export to XML'
@@ -126,16 +127,17 @@ class CollaborationWindow(TabbedWindow):
                     'icon': 'revert_history.png',
                     'text': 'Revert'
                 }
-            ]), fill=X)
+            ]).pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
 
+    # BOOKMARK: Fill Collaboration Session Members
     def fill_members(self):
         # Remove all items
         self.lv_members.empty()
         # Append items
         for i in range(6):
-            self.lv_members.pack_item(ListItem(self.lv_members, None, None, [
+            ListItem(self.lv_members.interior, None, None, [
                 {
                     'icon': 'cancel.png',
                     'text': 'Kick'
                 }
-            ]), fill=X)
+            ]).pack(anchor=N+W, pady=(0, 10), padx=(0, 10))

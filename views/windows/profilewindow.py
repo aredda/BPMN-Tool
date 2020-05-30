@@ -118,14 +118,15 @@ class ProfileWindow(TabbedWindow):
         frm_tip = IconButton(self.tb_collabs, 'Saved Collaborators are all the users who have participated in a collaboration session with you.', '-size 12 -weight bold', white, 'resources/icons/ui/info.png', 10, None, black, bg=black, pady=10, padx=5)
         frm_tip.pack(side=TOP, fill=X)
 
-        self.lv_collabs = Scrollable(self.tb_collabs, 0, bg=background, pady=20)
+        self.lv_collabs = Scrollable(self.tb_collabs, bg=background, pady=20)
+        self.lv_collabs.set_gridcols(2)
         self.lv_collabs.pack(expand=1, fill=BOTH)
 
     # BOOKMARK: this one is responsible for filling the scrollable container 
     def fill_collaborators(self):
         self.lv_collabs.empty()
         for i in range(10):
-            self.lv_collabs.grid_item(None, None, [{'text': 'Remove', 'icon': 'cancel.png'}])
+            self.lv_collabs.grid_item(None, None, [{'text': 'Remove', 'icon': 'cancel.png'}], None, 15)
 
     # BOOKMARK: this method takes care of getting the date from the form in a form of dictionary
     def get_form_data(self):

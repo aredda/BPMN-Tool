@@ -94,11 +94,12 @@ class ProjectWindow(TabbedWindow):
         frm_preview.pack(expand=1, fill=BOTH, pady=15)
 
         # Filling the history tab
-        self.frm_list_view = Scrollable(self.tb_hist, 0, bg=background)
+        self.frm_list_view = Scrollable(self.tb_hist, bg=background)
         self.frm_list_view.pack(expand=1, fill=BOTH, pady=(0, 15))
 
-        for i in range(5):
-            self.frm_list_view.pack_item(ListItem(self.frm_list_view, None, None, [
+        # BOOKMARK: fill history items
+        for i in range(15):
+            ListItem(self.frm_list_view.interior, None, None, [
                 {
                     'icon': 'save.png',
                     'text': 'Export to XML'
@@ -107,4 +108,4 @@ class ProjectWindow(TabbedWindow):
                     'icon': 'revert_history.png',
                     'text': 'Revert'
                 }
-            ]), fill=X)
+            ]).pack(anchor=N+W, pady=(0, 10), fill=X, padx=5)

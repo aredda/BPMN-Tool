@@ -17,14 +17,15 @@ class Window(Tk):
         Tk.__init__(self, **args)
 
         # Default configurations
-        self.set_opacity(0)
         self.pack_propagate(0)
         self.grid_propagate(0)
         self.title(title)
         self.config(bg=background, width=width, height=height)
         self.center()
+        
         # Animate
-        MoveTransition(lambda v: self.set_opacity(v), lambda: self.attributes('-alpha'), 1, 0.01, 0)
+        # self.set_opacity(0)
+        # MoveTransition(lambda v: self.set_opacity(v), lambda: self.attributes('-alpha'), 1, 0.01, 0)
         
     def center(self):
         # Update the idle tasks of the window

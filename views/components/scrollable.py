@@ -1,5 +1,6 @@
 from tkinter import * 
 from resources.colors import background
+from views.components.listitem import ListItem
 
 class Scrollable(Frame):
     """A pure Tkinter scrollable frame that actually works!
@@ -49,3 +50,29 @@ class Scrollable(Frame):
             child.destroy()
             
         self.update()
+
+    # Setup grid columns
+    def set_gridcols(self, gridcols):
+        self.gridcols = gridcols
+
+    # Special List View Grid System
+    def grid_item(self, dataObject, bindings, buttons, creationMethod=None, spacing=10, **args):
+        # Initialize
+        if hasattr(self, 'items') == False:
+            self.lastRow = None
+            self.items = []
+        # Check if the last row is occupied
+        if self.lastRow == None or len(self.lastRow.grid_slaves()) >= self.gridcols:
+            self.lastRow = Frame(self.interior, padx=spacing, bg=self['bg'])
+            self.lastRow.pack (fill=X)
+            self.lastRow.rowconfigure(0, weight=1)
+            self.lastRow.columnconfigure(list(range(self.gridcols)), weight=1)
+        # Create the list item
+        slaves_count = len(self.lastRow.grid_slaves())
+        li = ListItem(self.lastRow, dataObject, bindings, buttons, creationMethod, **args)
+        li.grid (row=0, column=slaves_count, padx=(0 if slaves_count == 0 else spacing, 0), pady=(0, spacing), sticky='enws')
+        # Save item and update
+        self.items.append(li)
+        self.update()
+        # Return the created item
+        return li
