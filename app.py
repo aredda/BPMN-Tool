@@ -13,7 +13,8 @@ from tunits.TestUnit_caseFive import run as case5_test
 from tunits.TestUnit_Definitions import run as def_test
 from tunits.TestUnit_Definitions2 import run as def2_test
 from tunits.TU_Window import run as win_test
-from tunits.TU_ImageHelper import run as imghelper_test
+from views.windows.homewindow import HomeWindow
+from views.windows.profilewindow import ProfileWindow
 
 # Event Test Unit
 # event_test()
@@ -61,4 +62,3 @@ from tunits.TU_ImageHelper import run as imghelper_test
 win_test()
 
 # imghelper_test()
-

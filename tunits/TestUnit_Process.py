@@ -1,7 +1,7 @@
 from models.bpmn.Process import Process
 from models.bpmn.Task import Task
 from models.bpmn.Lane import Lane
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 
 
 def run():
@@ -18,4 +18,4 @@ def run():
     l2.add('task', t2)
     l1.add('task', t3)
 
-    print(toPrettyXml(p.serialize()))
+    print(to_pretty_xml(p.serialize()))

@@ -16,8 +16,7 @@ class Animatable:
         self.transitions.append(transition)
 
     def stop_transitions(self):
-        for t in self.transitions:
-            t.stop()
+        for t in self.transitions: t.stop()
 
     def clear(self):
         self.transitions.clear()

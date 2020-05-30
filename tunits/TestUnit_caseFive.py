@@ -1,4 +1,4 @@
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 from models.bpmn.Event import Event
 from models.bpmn.Task import Task
 from models.bpmn.Process import Process
@@ -41,5 +41,5 @@ def run():
 
     t1.link_data(str1, DataAssocDirection.IN)
 
-    print (toPrettyXml(p.serialize()))
+    print (to_pretty_xml(p.serialize()))
     

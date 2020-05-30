@@ -31,8 +31,12 @@ class SessionWindow(Window):
         self.config_hBar()
 
     def config_vBar(self):
+        
+        def callback(tag): return lambda e: self.windowManager.run_window_by_tag(tag)
+
         for i in SessionWindow.vBarSettings:
-            btn = IconButton(self.frm_vBar, i.get('text', 'Icon Button'), '-size 11 -weight bold', white, f'resources/icons/ui/{i["icon"]}', 0, None, black, 32, i.get('cmnd', None), bg=black, pady=10)
+            cb = callback(i.get('dest'))
+            btn = IconButton(self.frm_vBar, i.get('text', 'Icon Button'), '-size 11 -weight bold', white, f'resources/icons/ui/{i["icon"]}', 0, None, black, 32, cb, bg=black, pady=10)
             btn.label.pack_forget()
             btn.pack(side=i.get('dock', TOP), fill=X)
 
@@ -51,27 +55,27 @@ class SessionWindow(Window):
         {
             'icon': 'home.png',
             'text': 'Home',
-            'cmnd': None
+            'dest': 'home'
         },
         {
             'icon': 'folder.png',
             'text': 'Projects',
-            'cmnd': None
+            'dest': 'home'
         },
         {
             'icon': 'session.png',
             'text': 'Sessions',
-            'cmnd': None
+            'dest': 'home'
         },
         {
             'icon': 'settings.png',
             'text': 'Settings',
-            'cmnd': None
+            'dest': 'profile'
         },
         {
             'icon': 'logout.png',
             'text': 'Sign Out',
-            'cmnd': None,
+            'dest': None,
             'dock': BOTTOM
         }
     ]

@@ -4,7 +4,7 @@ from models.bpmn.SubProcess import SubProcess
 from models.bpmn.Process import Process
 from models.bpmn.enums.EventType import EventType
 from models.bpmn.enums.EventDefinition import EventDefinition
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 
 
 def run():
@@ -52,9 +52,9 @@ def run():
     p.add('sequence', e3.add_link(t4, Task.OUT))
     p.add('sequence', e4.add_link(t5, Task.OUT))
 
-    # print(toPrettyXml(p.serialize()))
-    # print(toPrettyXml(sp.serialize()))
-    print(toPrettyXml(p.serialize()))
+    # print(to_pretty_xml(p.serialize()))
+    # print(to_pretty_xml(sp.serialize()))
+    print(to_pretty_xml(p.serialize()))
     # print(p.elements)
 
     # if p is None:

@@ -7,3 +7,5 @@ because we are going to add other models concerning data..
 - [ ] Window Manager (+ Fade Effect)
 - [ ] Adding an image to Profile Window's Form (To upload and show profile photo)
 - [ ] Adding a modal to Profile Window's Form (Informing and warning purposes)
+- [ ] Change name conventions for the old model folders
+- [ ] Adding a Window Manager
