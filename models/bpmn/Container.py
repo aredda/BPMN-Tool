@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 from models.bpmn.BPMNElement import BPMNElement
-from helpers.StringHelper import camelCase, toPrettyXml
+from helpers.stringhelper import camel_case, to_pretty_xml
 
 
 class Container(BPMNElement):

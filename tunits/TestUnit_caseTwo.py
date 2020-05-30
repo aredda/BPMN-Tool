@@ -5,7 +5,7 @@ from models.bpmn.enums.EventType import EventType
 from models.bpmn.enums.EventDefinition import EventDefinition
 from models.bpmn.enums.TaskType import TaskType
 from models.bpmn.Gateway import Gateway
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 
 
 def run():
@@ -47,4 +47,4 @@ def run():
     p.add('sequence', t2.add_link(e3, Task.OUT))
     p.add('sequence', t3.add_link(e2, Task.OUT))
 
-    print(toPrettyXml(p.serialize()))
+    print(to_pretty_xml(p.serialize()))

@@ -3,7 +3,7 @@ from models.bpmn.Task import Task
 from models.bpmn.Process import Process
 from models.bpmn.enums.EventType import EventType
 from models.bpmn.enums.EventDefinition import EventDefinition
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 from models.bpmn.Lane import Lane
 from models.bpmn.Gateway import Gateway
 
@@ -43,4 +43,4 @@ def run():
     lane2.add('task', t2)
     lane3.add('task', t3)
 
-    print (toPrettyXml(p.serialize()))
+    print (to_pretty_xml(p.serialize()))

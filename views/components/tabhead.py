@@ -1,8 +1,8 @@
 from tkinter import *
-from views.resources.colors import *
+from resources.colors import *
 from views.components.iconbutton import IconButton
-from effects.color_transition import ColorTransition
-from effects.animatable import Animatable
+from views.effects.color_transition import ColorTransition
+from views.effects.animatable import Animatable
 
 class TabHead(Frame, Animatable):
 
@@ -13,12 +13,13 @@ class TabHead(Frame, Animatable):
         self.tabManager = args.get('manager', None)
         self.selected = False
 
-        self.iconButton = IconButton(self, text, '-size 15', black, image, 25, None, black, bg=args['bg'])
-        self.iconButton.pack (side=TOP)
+        self.iconButton = IconButton(self, text, '-size 18', black, image, 23, None, black, bg=args.get('bg', background))
+        self.iconButton.label.pack (side=LEFT, padx=(10, 0))
+        self.iconButton.pack (side=TOP, anchor='nw')
 
         self.border = Frame(self, bg=black, height=5)
         self.border.pack_propagate(0)
-        self.border.pack (side=TOP, fill=X, pady=5)
+        self.border.pack (side=BOTTOM, fill=X, pady=5)
 
         self.transitions = []
 

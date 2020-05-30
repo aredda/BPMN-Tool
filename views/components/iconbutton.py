@@ -1,8 +1,9 @@
 from tkinter import *
-from views.resources.colors import *
+from resources.colors import *
 from views.components.icon import IconFrame
-from effects.animatable import Animatable
-from effects.color_transition import ColorTransition
+from views.effects.animatable import Animatable
+from views.effects.color_transition import ColorTransition
+from winsound import *
 
 class IconButton(Frame, Animatable):
 
@@ -16,20 +17,23 @@ class IconButton(Frame, Animatable):
         self.icon.pack (side=LEFT)
         # Create the label
         self.label = Label(self, text=text, font=textFont, fg=textColor, bg=self['bg'])
-        self.label.pack (side=LEFT, padx=(2, 0))
+        self.label.pack (side=LEFT, padx=5)
         # Save the initial theme
-        self.theme = {
-            'bg': self['bg'],
-            'fg': textColor
-        }
+        self.theme = { 'bg': self['bg'], 'fg': textColor }
         # Bind click event
         if btnCommand != None:
             self.bind_click(btnCommand)
 
     def bind_click (self, command):
-        self.bind('<Button-1>', command)
-        self.label.bind('<Button-1>', command)
-        self.icon.bind('<Button-1>', command)
+        def prepareCommand(e):
+            # Play click sound
+            PlaySound('resources/sounds/click.wav', SND_FILENAME)
+            # Invoke command
+            command(e)
+
+        self.bind('<Button-1>', prepareCommand)
+        self.label.bind('<Button-1>', prepareCommand)
+        self.icon.bind('<Button-1>', prepareCommand)
 
     def onEnter(self):
         if self.hover_theme == None:

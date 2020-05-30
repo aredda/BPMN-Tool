@@ -2,7 +2,7 @@ from models.bpmn.Linkable import Linkable
 from models.bpmn.enums.EventType import EventType
 from models.bpmn.enums.EventDefinition import EventDefinition
 import xml.etree.ElementTree as et
-from helpers.StringHelper import camelCase
+from helpers.stringhelper import camel_case
 
 
 class Event(Linkable):
@@ -29,14 +29,14 @@ class Event(Linkable):
         # Fix Tag Name
         eventElement = Linkable.serialize(self)
         eventElement.tag = ('boundary' if self.attachedTo !=
-                            None else camelCase(self.type.name)) + 'Event'
+                            None else camel_case(self.type.name)) + 'Event'
         # Add Cancel Attribute
         if self.attachedTo != None:
             eventElement.attrib['cancelActivity'] = str(self.cancelActivity)
             eventElement.attrib['attachedToRef'] = str(self.attachedTo.id)
         # Add Definition Element
         if self.definition != EventDefinition.Default:
-            eventDefElement = et.Element(camelCase(self.definition.name) + 'Definition')
+            eventDefElement = et.Element(camel_case(self.definition.name) + 'Definition')
             eventDefElement.attrib['id'] = f'{self.id}_{self.definition.name}Definition'
             eventElement.append(eventDefElement)
 

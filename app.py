@@ -12,6 +12,11 @@ from tunits.TestUnit_caseFour import run as case4_test
 from tunits.TestUnit_caseFive import run as case5_test
 from tunits.TestUnit_Definitions import run as def_test
 from tunits.TestUnit_Definitions2 import run as def2_test
+from tunits.TU_Window import run as win_test
+from tunits.TU_MultipleWindow import run as mulwin_test
+from views.windows.homewindow import HomeWindow
+from views.windows.profilewindow import ProfileWindow
+from helpers.windowmanager import WindowManager
 from tunits.TestUnit_Entities import run as entity_test
 from tunits.TestUnit_imageutility import run as imageutility_test
 from tunits.TestUnit_xmlutility import run as xmlutility_test
@@ -58,11 +63,8 @@ from tunits.TestUnit_xmlutility import run as xmlutility_test
 # Definitions Test
 # def2_test()
 
-# Entity Test
-# entity_test()
+manager = WindowManager()
+manager.run_tag('home')
+manager.root.mainloop()
 
-# imageUtility test
-imageutility_test()
-
-# xmlUtility test
-# xmlutility_test()
+# mulwin_test()

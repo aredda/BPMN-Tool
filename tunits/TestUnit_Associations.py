@@ -5,7 +5,7 @@ from models.bpmn.DataObject import DataObject
 from models.bpmn.DataAssociation import DataAssociation
 from models.bpmn.enums.DataAssocDirection import DataAssocDirection
 from models.bpmn.DataObjectReference import DataObjectReference
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 from models.bpmn.DataSotreReference import DataStoreReference
 from models.bpmn.Event import Event
 from models.bpmn.enums.EventDefinition import EventDefinition
@@ -29,6 +29,6 @@ def run():
     task1.link_data(dtObj1, DataAssocDirection.IN)
     start_event.link_data(dtStore, DataAssocDirection.IN)
 
-    print(toPrettyXml(task1.serialize()))
-    print(toPrettyXml(dtObj1.serialize()))
-    print(toPrettyXml(dtObj1.reference.serialize()))
+    print(to_pretty_xml(task1.serialize()))
+    print(to_pretty_xml(dtObj1.serialize()))
+    print(to_pretty_xml(dtObj1.reference.serialize()))

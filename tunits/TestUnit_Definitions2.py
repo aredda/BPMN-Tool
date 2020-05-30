@@ -1,4 +1,4 @@
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 from models.bpmn.Event import Event
 from models.bpmn.Task import Task
 from models.bpmn.Process import Process
@@ -29,4 +29,4 @@ def run():
     p1.add ('task', t1, t2)
     p1.add ('event', e1, e2)
 
-    print (toPrettyXml(d.serialize()))
+    print (to_pretty_xml(d.serialize()))

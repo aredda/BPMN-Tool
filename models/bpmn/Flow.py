@@ -1,5 +1,5 @@
 from models.bpmn.BPMNElement import BPMNElement
-from helpers.StringHelper import camelCase
+from helpers.stringhelper import camel_case
 
 import xml.etree.ElementTree as et
 

@@ -4,7 +4,7 @@ from models.bpmn.enums.TaskType import TaskType
 from models.bpmn.Event import Event 
 from models.bpmn.enums.EventDefinition import EventDefinition
 from models.bpmn.enums.EventType import EventType
-from helpers.StringHelper import toPrettyXml
+from helpers.stringhelper import to_pretty_xml
 import xml.etree.ElementTree as et
 
 def run():
@@ -15,7 +15,7 @@ def run():
     t.add_link(e)
     t.add_link(t1, Task.OUT)
 
-    print (toPrettyXml(t.serialize()))
-    print (toPrettyXml(e.serialize()))
+    print (to_pretty_xml(t.serialize()))
+    print (to_pretty_xml(e.serialize()))
 
     print (list(EventType))

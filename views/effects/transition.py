@@ -1,8 +1,6 @@
 import time
 import threading
 
-# we need the code that should be ran in another thread
-# we 
 class Transition:
     
     def __init__(self, runnable):

@@ -1,14 +1,19 @@
 from tkinter import *
-from views.resources.colors import *
+from helpers.colorhelper import *
+from views.effects.animatable import Animatable
+from resources.colors import *
 from PIL import Image as Img, ImageTk
 
-class IconFrame(Canvas):
+class IconFrame(Canvas, Animatable):
 
-    def __init__(self, master, imagePath, imagePadding=15, bgColor=None, size=50, command=None, **args):
+    def __init__(self, master, imagePath, imagePadding=15, bgColor=None, size=50, command=None, hoverBgColor=None, **args):
         Canvas.__init__(self, master, **args)
+        Animatable.__init__(self)
 
         self.size = size
         self.imagePath = imagePath
+        self.defaultBgColor = bgColor
+        self.hoverBgColor = hoverBgColor
         # Remove border
         self.configure(highlightthickness=0)
         # Configure background colors
@@ -31,3 +36,20 @@ class IconFrame(Canvas):
 
     def get_bgColor(self):
         return self.bgColor
+
+    ###
+    ### Animation Section
+    ###
+
+    def onEnter(self):
+        if self.hoverBgColor == None:
+            return
+
+        self.set_bgColor(self.hoverBgColor)
+
+    def onLeave(self):
+        if self.hoverBgColor == None:
+            return
+
+        self.set_bgColor(self.defaultBgColor)
+        
