@@ -62,7 +62,7 @@ from tunits.TestUnit_xmlutility import run as xmlutility_test
 # entity_test()
 
 # imageUtility test
-# imageutility_test()
+imageutility_test()
 
 # xmlUtility test
-xmlutility_test()
+# xmlutility_test()

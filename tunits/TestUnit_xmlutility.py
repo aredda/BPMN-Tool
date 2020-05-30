@@ -5,7 +5,7 @@ import tkinter.messagebox as messagebox
 from models.entities.Container import Container
 from models.entities.Entities import *
 
-from utilities.xmlutility import *
+from helpers.xmlutility import *
 from helpers.filehelper import filetobytes, bytestofile
 
 root = None
