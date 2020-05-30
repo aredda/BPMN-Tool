@@ -1,4 +1,5 @@
 from tkinter import *
+from helpers.colorhelper import *
 from views.effects.animatable import Animatable
 from resources.colors import *
 from PIL import Image as Img, ImageTk
