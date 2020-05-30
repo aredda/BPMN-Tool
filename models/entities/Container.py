@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-
+from helpers.stringhelper import connection_string
 
 class Container():
 
@@ -16,7 +16,7 @@ class Container():
     def configure():
         Container.Base = declarative_base()
         # Creating the engine that holds the connection to the database
-        engine = create_engine('mysql://root:@localhost/bpmntool')
+        engine = create_engine(connection_string)
         # Creating metaData that holds our Tables and their associations
         Container.metaData = MetaData(bind=engine)
         # Creating a session that holds all our objects and which takes care of communicating queries to our database

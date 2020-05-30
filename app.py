@@ -18,8 +18,8 @@ from views.windows.homewindow import HomeWindow
 from views.windows.profilewindow import ProfileWindow
 from helpers.windowmanager import WindowManager
 from tunits.TestUnit_Entities import run as entity_test
-from tunits.TestUnit_imageutility import run as imageutility_test
-from tunits.TestUnit_xmlutility import run as xmlutility_test
+# from tunits.TestUnit_imageutility import run as imageutility_test
+# from tunits.TestUnit_xmlutility import run as xmlutility_test
 
 # Event Test Unit
 # event_test()
