@@ -1,6 +1,7 @@
 from tkinter import *
 from resources.colors import *
 from views.components.listitem import ListItem
+from views.components.iconbutton import IconButton
 from views.components.scrollable import Scrollable
 from views.effects.move_transition import MoveTransition
 
@@ -71,6 +72,16 @@ class Window(Toplevel):
 
     def show_menu(self, **options):
         if hasattr(self, 'frm_menu') == False:
-            self.frm_menu = Frame(self, bg=options.get('bg', white), width=options.get('width', 0), height=options.get('height', 0), highlightthickness=1, highlightbackground=border)
+            self.frm_menu = Frame(self, bg=options.get('bg', white), width=options.get('width', 0), height=options.get('height', 0), highlightthickness=1, highlightbackground=border, padx=5, pady=5)
 
+        # reposition menu modal
         self.frm_menu.place(x=options.get('x'), y=options.get('y'), anchor=N+E)
+        # destroy children
+        for child in self.frm_menu.pack_slaves():
+            child.destroy()
+        # fill new options
+        for option in options.get('options', []):
+            menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', teal, 'resources/icons/ui/' + option.get('icon'), 10, None, teal, 28, options.get('cmnd', None), bg=white)
+            menu_option.pack(side=TOP, anchor=N+W, pady=(0, (0 if options.get('options').index(option) == len(options.get('options'))-1 else 5)))
+
+

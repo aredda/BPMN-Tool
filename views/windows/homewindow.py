@@ -107,9 +107,23 @@ class HomeWindow(TabbedWindow):
 
         # BOOKMARK: project item's menu
         def options_menu(e):
-            mousepos = [e.x_root, e.y_root]
-            win_coords = self.to_window_coords(mousepos[0], mousepos[1])
-            self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200)
+            # convert screen mouse position
+            win_coords = self.to_window_coords(e.x_root, e.y_root)
+            # show menu
+            self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=[
+                {
+                    'text': 'Open',
+                    'icon': 'open.png'
+                },
+                {
+                    'text': 'Share',
+                    'icon': 'share.png'
+                },
+                {
+                    'text': 'Delete',
+                    'icon': 'delete.png'
+                }
+            ])
 
         IconFrame(item, 'resources/icons/ui/menu.png', 8, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
 
