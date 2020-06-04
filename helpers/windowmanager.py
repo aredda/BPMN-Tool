@@ -27,6 +27,8 @@ class WindowManager:
         self.windows.append(window)
         # Focus on the new window
         window.deiconify()
+        # Refresh the new window
+        window.refresh()
     
     def run_tag(self, route):
         self.run((get_cls(route))(self.root))

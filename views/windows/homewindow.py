@@ -47,7 +47,7 @@ class HomeWindow(TabbedWindow):
 
         # BOOKMARK: fill project items
         for i in range(4):
-            self.scr_list_view1.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item), 15)
+            self.scr_list_view1.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: self.create_list_item(item), 15)
 
         # lay out the components to session tab
         self.btn_container2 = Frame(self.tb_sessions, bg=background, pady=10, padx=1)
@@ -62,9 +62,9 @@ class HomeWindow(TabbedWindow):
 
         # BOOKMARK: fill session items
         for i in range(4):
-            self.scr_list_view2.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: HomeWindow.create_list_item(item, HomeWindow.SESSION_LI), 15)
+            self.scr_list_view2.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: self.create_list_item(item, HomeWindow.SESSION_LI), 15)
 
-    def create_list_item(item: ListItem, liType: int = PROJECT_LI):
+    def create_list_item(self, item: ListItem, liType: int = PROJECT_LI):
         item.configure (highlightthickness=1, highlightbackground=border, bg=white)
 
         img_size = 205
@@ -105,5 +105,11 @@ class HomeWindow(TabbedWindow):
         frm_info.pack(fill=X, side=TOP)
         frm_details.pack(fill=X, side=TOP)
 
-        IconFrame(item, 'resources/icons/ui/menu.png', 8, teal, 32, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
+        # BOOKMARK: project item's menu
+        def options_menu(e):
+            mousepos = [e.x_root, e.y_root]
+            win_coords = self.to_window_coords(mousepos[0], mousepos[1])
+            self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200)
+
+        IconFrame(item, 'resources/icons/ui/menu.png', 8, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
 

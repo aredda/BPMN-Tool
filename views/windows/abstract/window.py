@@ -1,5 +1,5 @@
 from tkinter import *
-from resources.colors import background
+from resources.colors import *
 from views.components.listitem import ListItem
 from views.components.scrollable import Scrollable
 from views.effects.move_transition import MoveTransition
@@ -64,3 +64,13 @@ class Window(Toplevel):
 
     def refresh(self):
         pass
+
+    # Converting the position from screen world to window world
+    def to_window_coords(self, screen_x, screen_y):
+        return [screen_x - self.winfo_rootx(), screen_y - self.winfo_rooty()]
+
+    def show_menu(self, **options):
+        if hasattr(self, 'frm_menu') == False:
+            self.frm_menu = Frame(self, bg=options.get('bg', white), width=options.get('width', 0), height=options.get('height', 0), highlightthickness=1, highlightbackground=border)
+
+        self.frm_menu.place(x=options.get('x'), y=options.get('y'), anchor=N+E)
