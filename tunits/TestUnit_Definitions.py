@@ -1,18 +1,18 @@
 from helpers.stringhelper import to_pretty_xml
-from models.bpmn.Event import Event
-from models.bpmn.Task import Task
-from models.bpmn.Process import Process
-from models.bpmn.Lane import Lane
-from models.bpmn.Gateway import Gateway
-from models.bpmn.SubProcess import SubProcess
+from models.bpmn.event import Event
+from models.bpmn.task import Task
+from models.bpmn.process import Process
+from models.bpmn.lane import Lane
+from models.bpmn.gateway import Gateway
+from models.bpmn.subprocess import SubProcess
 from models.bpmn.DataSotreReference import DataStoreReference
-from models.bpmn.Association import Association
-from models.bpmn.MessageFlow import MessageFlow
-from models.bpmn.Definitions import Definitions
-from models.bpmn.enums.EventType import EventType
-from models.bpmn.enums.EventDefinition import EventDefinition
-from models.bpmn.enums.DataAssocDirection import DataAssocDirection
-from models.bpmn.enums.TaskType import TaskType
+from models.bpmn.association import Association
+from models.bpmn.messageflow import MessageFlow
+from models.bpmn.definitions import Definitions
+from models.bpmn.enums.eventtype import EventType
+from models.bpmn.enums.eventdefinition import EventDefinition
+from models.bpmn.enums.dataassocdirection import DataAssocDirection
+from models.bpmn.enums.tasktype import TaskType
 
 def run():
 

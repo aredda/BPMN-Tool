@@ -1,15 +1,15 @@
-from models.bpmn.Process import Process
-from models.bpmn.Task import Task
-from models.bpmn.enums.TaskType import TaskType
-from models.bpmn.DataObject import DataObject
-from models.bpmn.DataAssociation import DataAssociation
-from models.bpmn.enums.DataAssocDirection import DataAssocDirection
-from models.bpmn.DataObjectReference import DataObjectReference
+from models.bpmn.process import Process
+from models.bpmn.task import Task
+from models.bpmn.enums.tasktype import TaskType
+from models.bpmn.dataobject import DataObject
+from models.bpmn.dataassociation import DataAssociation
+from models.bpmn.enums.dataassocdirection import DataAssocDirection
+from models.bpmn.dataobjectreference import DataObjectReference
 from helpers.stringhelper import to_pretty_xml
 from models.bpmn.DataSotreReference import DataStoreReference
-from models.bpmn.Event import Event
-from models.bpmn.enums.EventDefinition import EventDefinition
-from models.bpmn.enums.EventType import EventType
+from models.bpmn.event import Event
+from models.bpmn.enums.eventdefinition import EventDefinition
+from models.bpmn.enums.eventtype import EventType
 
 
 def run():

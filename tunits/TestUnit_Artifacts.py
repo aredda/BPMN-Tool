@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as et
 
-from models.bpmn.TextAnnotation import TextAnnotation
-from models.bpmn.Group import Group
-from models.bpmn.DataObject import DataObject
+from models.bpmn.textannotation import TextAnnotation
+from models.bpmn.group import Group
+from models.bpmn.dataobject import DataObject
 from models.bpmn.DataSotreReference import DataStoreReference
 from helpers.stringhelper import to_pretty_xml
 
