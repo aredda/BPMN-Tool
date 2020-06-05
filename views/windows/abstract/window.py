@@ -81,7 +81,7 @@ class Window(Toplevel):
             child.destroy()
         # fill new options
         for option in options.get('options', []):
-            menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', teal, 'resources/icons/ui/' + option.get('icon'), 10, None, teal, 28, options.get('cmnd', None), bg=white)
+            menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', teal, 'resources/icons/ui/' + option.get('icon'), 14, None, teal, 28, options.get('cmnd', None), bg=white)
             menu_option.pack(side=TOP, anchor=N+W, pady=(0, (0 if options.get('options').index(option) == len(options.get('options'))-1 else 5)))
 
 

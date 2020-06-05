@@ -125,5 +125,5 @@ class HomeWindow(TabbedWindow):
                 }
             ])
 
-        IconFrame(item, 'resources/icons/ui/menu.png', 8, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
+        IconFrame(item, 'resources/icons/ui/menu.png', 10, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
 
