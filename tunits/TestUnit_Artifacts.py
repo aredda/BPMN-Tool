@@ -3,7 +3,7 @@ import xml.etree.ElementTree as et
 from models.bpmn.textannotation import TextAnnotation
 from models.bpmn.group import Group
 from models.bpmn.dataobject import DataObject
-from models.bpmn.DataSotreReference import DataStoreReference
+from models.bpmn.datastorereference import DataStoreReference
 from helpers.stringhelper import to_pretty_xml
 
 def run():

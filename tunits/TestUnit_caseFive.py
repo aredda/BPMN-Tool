@@ -5,7 +5,7 @@ from models.bpmn.process import Process
 from models.bpmn.lane import Lane
 from models.bpmn.gateway import Gateway
 from models.bpmn.subprocess import SubProcess
-from models.bpmn.DataSotreReference import DataStoreReference
+from models.bpmn.datastorereference import DataStoreReference
 from models.bpmn.association import Association
 from models.bpmn.enums.eventtype import EventType
 from models.bpmn.enums.eventdefinition import EventDefinition

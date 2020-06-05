@@ -32,15 +32,13 @@ class TabHead(Frame, Animatable):
         # Setters
         def setFntClr(v): self.iconButton.label['fg'] = v
         def setBrdrClr(v): self.border['bg'] = v
-        def setImgBg(v): self.iconButton.icon.set_bgColor(v)
         # Getters
         getFntClr = lambda: self.iconButton.label['fg']
         getBrdrClr = lambda: self.border['bg']
-        getImgBg = lambda: self.iconButton.icon.get_bgColor()
         # Change color
         self.save_transition( ColorTransition(setFntClr, getFntClr, color) )
         self.save_transition( ColorTransition(setBrdrClr, getBrdrClr, color) )
-        self.save_transition( ColorTransition(setImgBg, getImgBg, color) )
+        self.iconButton.icon.set_bgColor(color)
 
     def on_click(self):
         if self.selected == False:

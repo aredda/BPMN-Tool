@@ -2,7 +2,7 @@ import xml.etree.ElementTree as et
 
 from models.bpmn.container import Container
 from models.bpmn.dataobject import DataObject
-from models.bpmn.DataSotreReference import DataStoreReference
+from models.bpmn.datastorereference import DataStoreReference
 from models.bpmn.enums.dataassocdirection import DataAssocDirection
 from models.bpmn.property import Property
 from models.bpmn.dataassociation import DataAssociation

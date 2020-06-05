@@ -6,7 +6,7 @@ from models.bpmn.dataassociation import DataAssociation
 from models.bpmn.enums.dataassocdirection import DataAssocDirection
 from models.bpmn.dataobjectreference import DataObjectReference
 from helpers.stringhelper import to_pretty_xml
-from models.bpmn.DataSotreReference import DataStoreReference
+from models.bpmn.datastorereference import DataStoreReference
 from models.bpmn.event import Event
 from models.bpmn.enums.eventdefinition import EventDefinition
 from models.bpmn.enums.eventtype import EventType

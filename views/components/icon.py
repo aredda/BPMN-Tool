@@ -22,7 +22,8 @@ class IconFrame(Canvas, Animatable):
         # Configure the size
         self.configure(width=size, height=size)
         # Draw rounded background
-        self.bg_circle = self.create_oval(2, 2, size - 2, size - 2, fill=self.bgColor, width=0)
+        self.img_bg = self.create_image(size/2, size/2)
+        self.set_bgColor(self.bgColor)
         # Configure image & draw image
         self._image = ImageTk.PhotoImage(Img.open(imagePath).resize((size-imagePadding, size-imagePadding)))
         self.image = self.create_image(size/2, size/2, image=self._image)
@@ -32,7 +33,14 @@ class IconFrame(Canvas, Animatable):
 
     def set_bgColor(self, color):
         self.bgColor = color
-        self.itemconfig(self.bg_circle, fill=color)
+
+        self.img_circle = Img.open('resources/icons/ui/circle.png')
+        self.alpha = self.img_circle.getchannel('A')
+        self.img_overlaid = Img.new('RGBA', self.img_circle.size, color=color)
+        self.img_overlaid.putalpha(self.alpha)
+        self.img_final = ImageTk.PhotoImage(self.img_overlaid.resize((self.size, self.size)))
+
+        self.itemconfig(self.img_bg, image=self.img_final)
 
     def get_bgColor(self):
         return self.bgColor
@@ -40,16 +48,11 @@ class IconFrame(Canvas, Animatable):
     ###
     ### Animation Section
     ###
-
     def onEnter(self):
-        if self.hoverBgColor == None:
-            return
-
+        if self.hoverBgColor == None: return
         self.set_bgColor(self.hoverBgColor)
 
     def onLeave(self):
-        if self.hoverBgColor == None:
-            return
-
+        if self.hoverBgColor == None: return
         self.set_bgColor(self.defaultBgColor)
         

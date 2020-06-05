@@ -39,7 +39,7 @@ class TextBox(Frame, Animatable):
         def _set2 (v): self.entry['fg'] = v
         _get2 = lambda: self.entry['fg']
 
-        self.save_transition(ColorTransition(self.icon.set_bgColor, self.icon.get_bgColor, color))
+        self.icon.set_bgColor(color)
         self.save_transition(ColorTransition(_set, _get, color))
         self.save_transition(ColorTransition(_set1, _get1, color))
         self.save_transition(ColorTransition(_set2, _get2, color))
