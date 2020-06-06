@@ -20,12 +20,15 @@ class ListItem(Frame):
     def create(item):
         self = item
 
+        # binding values
+        username = '{username}' if self.bindings == None else self.bindings.get('username', '{username}')
+
         self.configure(padx=10, pady=10, relief=SOLID, highlightthickness=1, highlightbackground=border, bg=white)
 
         self.img_icon = IconFrame(self, 'resources/icons/ui/face.png', 15, black)
         self.img_icon.pack(side=LEFT)
 
-        self.lbl_username = Label(self, text=self.bindings.get('username', '{username}'), bg=white, font='-size 12 -weight bold', fg=black)
+        self.lbl_username = Label(self, text=username, bg=white, font='-size 12 -weight bold', fg=black)
         self.lbl_username.pack(side=LEFT, fill=Y, padx=5)
 
         if self.buttonSettings != None:
