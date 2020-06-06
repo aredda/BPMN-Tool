@@ -22,7 +22,6 @@ class Container():
         # Creating a session that holds all our objects and which takes care of communicating queries to our database
         Session = sessionmaker(bind=engine)
         Container.session = Session()
-
         Container.configured = True
 
     @staticmethod
@@ -99,7 +98,6 @@ class Container():
     @staticmethod
     def filter(modelType, *conditions):
         return Container.session.query(modelType).filter(*conditions)
-
 
 if Container.configured == False:
     Container.configure()

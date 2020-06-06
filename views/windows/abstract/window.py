@@ -4,13 +4,14 @@ from views.components.listitem import ListItem
 from views.components.iconbutton import IconButton
 from views.components.scrollable import Scrollable
 from views.effects.move_transition import MoveTransition
+from models.entities.Container import Container
 
 class Window(Toplevel):
     """
     The base class of all windows in the project, this window
     shall hold all the essential and general mechanisms of a regular window.
     """
-    
+
     DEFAULT_WIDTH = 1024
     DEFAULT_HEIGHT = 768
 
@@ -81,7 +82,7 @@ class Window(Toplevel):
             child.destroy()
         # fill new options
         for option in options.get('options', []):
-            menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', teal, 'resources/icons/ui/' + option.get('icon'), 14, None, teal, 28, options.get('cmnd', None), bg=white)
+            menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', teal, 'resources/icons/ui/' + option.get('icon'), 14, None, teal, 28, option.get('cmnd', None), bg=white)
             menu_option.pack(side=TOP, anchor=N+W, pady=(0, (0 if options.get('options').index(option) == len(options.get('options'))-1 else 5)))
 
 

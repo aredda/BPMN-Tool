@@ -25,13 +25,14 @@ class ListItem(Frame):
         self.img_icon = IconFrame(self, 'resources/icons/ui/face.png', 15, black)
         self.img_icon.pack(side=LEFT)
 
-        self.lbl_username = Label(self, text='Username', bg=white, font='-size 12 -weight bold', fg=black)
+        self.lbl_username = Label(self, text=self.bindings.get('username', '{username}'), bg=white, font='-size 12 -weight bold', fg=black)
         self.lbl_username.pack(side=LEFT, fill=Y, padx=5)
 
         if self.buttonSettings != None:
             for s in self.buttonSettings:
                 path = 'resources/icons/ui/' + s.get('icon', 'error.png')
-                btn = IconButton(self, s.get('text', 'Button Text'), '-size 10 -weight bold', teal, path, 15, {'fg': white, 'bg': teal}, teal, 30, s.get('cmd', None), bg=white, highlightthickness=1, highlightbackground=border, padx=7, pady=5)
+                btnCmd = lambda e: (s.get('cmd', None))(self.dataObject)
+                btn = IconButton(self, s.get('text', 'Button Text'), '-size 10 -weight bold', teal, path, 15, {'fg': white, 'bg': teal}, teal, 30, btnCmd, bg=white, highlightthickness=1, highlightbackground=border, padx=7, pady=5)
                 btn.pack(side=RIGHT, padx=(0, 5))
                 self.buttons.append(btn)
 

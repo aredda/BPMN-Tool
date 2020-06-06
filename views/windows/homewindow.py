@@ -5,6 +5,8 @@ from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.components.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
+from models.entities.Entities import *
+from datetime import datetime
 
 class HomeWindow(TabbedWindow):
 
@@ -29,6 +31,22 @@ class HomeWindow(TabbedWindow):
 
         # Design elements
         self.design()
+        # Load hardcoded data
+        self.dummies()
+        # Fill methods
+        self.fill_projects(self.dataContainer['project'])
+
+    def dummies(self):
+        self.dataContainer = {
+            'project': [
+                Project(title='Situation 1', creationDate=datetime.now()),
+                Project(title='BMPN Dgm', creationDate=datetime.now()),
+                Project(title='Whatever', creationDate=datetime.now()),
+                Project(title='Situation 2', creationDate=datetime.now()),
+                Project(title='Another project', creationDate=datetime.now()),
+                Project(title='Purchase Process', creationDate=datetime.now())
+            ]
+        }
 
     def design(self):
         # lay out the components to project tab
@@ -41,13 +59,9 @@ class HomeWindow(TabbedWindow):
         self.btn_open = SecondaryButton(self.btn_container1, 'Open XML-BPMN File From Device', 'upload.png')
         self.btn_open.pack(side=LEFT)
 
-        self.scr_list_view1 = Scrollable(self.tb_projects, bg=background, pady=15)
-        self.scr_list_view1.set_gridcols(4)
-        self.scr_list_view1.pack(fill=BOTH, expand=1)
-
-        # BOOKMARK: fill project items
-        for i in range(4):
-            self.scr_list_view1.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: self.create_list_item(item), 15)
+        self.lv_project = Scrollable(self.tb_projects, bg=background, pady=15)
+        self.lv_project.set_gridcols(4)
+        self.lv_project.pack(fill=BOTH, expand=1)
 
         # lay out the components to session tab
         self.btn_container2 = Frame(self.tb_sessions, bg=background, pady=10, padx=1)
@@ -56,14 +70,31 @@ class HomeWindow(TabbedWindow):
         self.btn_create_session = MainButton(self.btn_container2, 'Create New Session', 'new_session.png')
         self.btn_create_session.pack(side=LEFT, padx=(0, 10))
 
-        self.scr_list_view2 = Scrollable(self.tb_sessions, bg=background, pady=15)
-        self.scr_list_view2.set_gridcols(4)
-        self.scr_list_view2.pack(fill=BOTH, expand=1)
+        self.lv_session = Scrollable(self.tb_sessions, bg=background, pady=15)
+        self.lv_session.set_gridcols(4)
+        self.lv_session.pack(fill=BOTH, expand=1)
 
         # BOOKMARK: fill session items
-        for i in range(4):
-            self.scr_list_view2.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: self.create_list_item(item, HomeWindow.SESSION_LI), 15)
+        # for i in range(4):
+        #     self.lv_session.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: self.create_list_item(item, HomeWindow.SESSION_LI), 15)
 
+    # BOOKMARK: fill project items
+    def fill_projects(self, dataList: list):
+        # cleaning up old items
+        self.lv_project.empty()
+        # refilling 
+        for item in dataList:
+            self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate}, None, lambda i: self.create_list_item(i), 15)
+
+    # BOOKMARK: fill session items
+    def fill_sessions(self, dataList: list):
+        # cleaning up old items
+        self.lv_project.empty()
+        # refilling 
+        for item in dataList:
+            self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+
+    # BOOKMARK: Project List Item & Session List Item Creation Method
     def create_list_item(self, item: ListItem, liType: int = PROJECT_LI):
         item.configure (highlightthickness=1, highlightbackground=border, bg=white)
 
@@ -75,23 +106,23 @@ class HomeWindow(TabbedWindow):
         frm_info = Frame(item, bg=silver, padx=10, pady=10)
         frm_details = Frame(frm_info, bg=silver)
         
-        Label(frm_info, text='Title', bg=silver, fg=black, font='-size 18').pack(side=TOP, fill=X, pady=(0, 10))
+        Label(frm_info, text=item.bindings.get('title', '{title}'), bg=silver, fg=black, font='-size 18').pack(side=TOP, fill=X, pady=(0, 10))
 
         panel_settings = [
             {
                 'label': 'Created In:',
-                'text': '2020-5-27'
+                'text': item.bindings.get('creationDate').strftime('%a, %d %b') if 'creationDate' in item.bindings else '{creationDate}'
             },
             {
                 'label': 'Edited In:',
-                'text': 'Yesterday'
+                'text':  item.bindings.get('lastEdited').strftime('%a, %d %b') if 'lastEdited' in item.bindings else '{lastEdited}'
             }
         ]
 
         if liType == HomeWindow.SESSION_LI:
             panel_settings.append({
                 'label': 'Members:',
-                'text': 'XX'
+                'text': item.bindings.get('memberCount', '{memberCount}')
             })
 
         for i in panel_settings:
@@ -113,7 +144,8 @@ class HomeWindow(TabbedWindow):
             self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=[
                 {
                     'text': 'Open',
-                    'icon': 'open.png'
+                    'icon': 'open.png',
+                    'cmnd': lambda e: HomeWindow.li_command(item.dataObject)
                 },
                 {
                     'text': 'Share',
@@ -124,6 +156,9 @@ class HomeWindow(TabbedWindow):
                     'icon': 'delete.png'
                 }
             ])
-
+        # options icon
         IconFrame(item, 'resources/icons/ui/menu.png', 10, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
 
+    # BOOKMARK: this is how a COMMAND should be
+    def li_command(dataObject):
+        print ('You are operating in', dataObject.title)

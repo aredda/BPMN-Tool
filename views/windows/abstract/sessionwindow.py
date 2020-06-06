@@ -6,9 +6,8 @@ from views.components.icon import IconFrame
 
 class SessionWindow(Window):
 
-    # BOOKMARK: Persistent Data
+    # BOOKMARK: Signed in user
     ACTIVE_USER = None
-    DB_CONTAINER = None
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
