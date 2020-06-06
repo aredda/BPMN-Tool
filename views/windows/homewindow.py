@@ -74,10 +74,6 @@ class HomeWindow(TabbedWindow):
         self.lv_session.set_gridcols(4)
         self.lv_session.pack(fill=BOTH, expand=1)
 
-        # BOOKMARK: fill session items
-        # for i in range(4):
-        #     self.lv_session.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: self.create_list_item(item, HomeWindow.SESSION_LI), 15)
-
     # BOOKMARK: fill project items
     def fill_projects(self, dataList: list):
         # cleaning up old items

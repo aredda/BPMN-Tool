@@ -67,10 +67,11 @@ class Window(Toplevel):
     def refresh(self):
         pass
 
-    # Converting the position from screen world to window world
+    # converting the position from screen world to window world
     def to_window_coords(self, screen_x, screen_y):
         return [screen_x - self.winfo_rootx(), screen_y - self.winfo_rooty()]
 
+    # displaying the MENU MODAL component
     def show_menu(self, **options):
         if hasattr(self, 'frm_menu') == False:
             self.frm_menu = Frame(self, bg=options.get('bg', white), width=options.get('width', 0), height=options.get('height', 0), highlightthickness=1, highlightbackground=border, padx=5, pady=5)
@@ -85,4 +86,18 @@ class Window(Toplevel):
             menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', teal, 'resources/icons/ui/' + option.get('icon'), 14, None, teal, 28, option.get('cmnd', None), bg=white)
             menu_option.pack(side=TOP, anchor=N+W, pady=(0, (0 if options.get('options').index(option) == len(options.get('options'))-1 else 5)))
 
+    # displaying the OVERLAY component
+    def show_overlay(self):
+        # if there's no overlay frame, then create it
+        if hasattr(self, 'frm_overlay') == False:
+            # create overlay frame
+            self.frm_overlay = Frame(self, bg=black)
+            # configure auto-close event
+            self.frm_overlay.bind('<Button-1>', lambda e: self.hide_overlay())
+        # show overlay
+        self.frm_overlay.place(x=0, y=0, relwidth=1, relheight=1, anchor=N+W)
 
+    def hide_overlay(self):
+        # check if there's a created overlay
+        if hasattr(self, 'frm_overlay'):
+            self.frm_overlay.place_forget()
