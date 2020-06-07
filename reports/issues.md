@@ -19,4 +19,4 @@ because we are going to add other models concerning data..
 ### ProjectWindow
 - [X] Share modal
 ### SessionWindow
-- [ ] Invite modal
+- [X] Invite modal
