@@ -15,8 +15,8 @@ because we are going to add other models concerning data..
 ### HomeWindow
 - [X] Create a new project modal
 - [X] Create a project from existing source modal
-- [ ] Create a new collaboration session
+- [X] Create a new collaboration session
 ### ProjectWindow
-- [ ] Share modal
+- [X] Share modal
 ### SessionWindow
 - [ ] Invite modal
