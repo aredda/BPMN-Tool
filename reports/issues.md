@@ -13,8 +13,8 @@ because we are going to add other models concerning data..
 ### SessionWindow
 - [ ] Notification, Discussion modals
 ### HomeWindow
-- [ ] Create a new project modal
-- [ ] Create a project from existing source modal
+- [X] Create a new project modal
+- [X] Create a project from existing source modal
 - [ ] Create a new collaboration session
 ### ProjectWindow
 - [ ] Share modal
