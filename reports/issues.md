@@ -8,6 +8,7 @@ because we are going to add other models concerning data..
 - [ ] Adding an image to Profile Window's Form (To upload and show profile photo)
 - [ ] Minor updates of database
   - Notification, should have a new field that indicates if the notification is read or not
+  - A new table Seen, indicates if a message is seen or not
 
 # Modals
 ### Window
