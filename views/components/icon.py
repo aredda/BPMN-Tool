@@ -14,6 +14,9 @@ class IconFrame(Canvas, Animatable):
         self.imagePath = imagePath
         self.defaultBgColor = bgColor
         self.hoverBgColor = hoverBgColor
+        # Correct padding
+        if imagePadding % 2 != 0:
+            imagePadding += 1
         # Remove border
         self.configure(highlightthickness=0)
         # Configure background colors
