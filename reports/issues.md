@@ -9,7 +9,7 @@ because we are going to add other models concerning data..
 
 # Modals
 ### Window
-- [ ] A message modal for dispaying **information**, **error** and **confirmation** messages
+- [X] A message modal for dispaying **information**, **error** and **confirmation** messages
 ### SessionWindow
 - [ ] Notification, Discussion modals
 ### HomeWindow
