@@ -15,7 +15,7 @@ class TextBox(Frame, Animatable):
         self.icon.pack(side=LEFT)
 
         self.entry = Entry(self, relief=FLAT, font='-size 12 -weight bold', bd=5, fg=black)
-        self.entry.pack(side=LEFT, fill=Y, padx=(0, 3))
+        self.entry.pack(side=LEFT, fill=BOTH, expand=1, padx=(0, 3))
 
         Animatable.__init__(self)
 
