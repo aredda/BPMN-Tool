@@ -9,8 +9,8 @@ class Modal(Window):
     MODAL_WIDTH = 640
     MODAL_HEIGHT = 480
 
-    def __init__(self, root, title, buttons: dict = None, **args):
-        Window.__init__(self, root, title, Modal.MODAL_WIDTH, Modal.MODAL_HEIGHT, **args)
+    def __init__(self, root, title, buttons: dict = None, width=MODAL_WIDTH, height=MODAL_HEIGHT, **args):
+        Window.__init__(self, root, title, width, height, **args)
 
         # Header
         self.frm_header = Frame(self, bg=white, padx=20, pady=20)
@@ -26,7 +26,8 @@ class Modal(Window):
         self.frm_border_bottom.pack(side=TOP, fill=X)
 
         # Body
-        self.frm_body = None
+        self.frm_body = Frame(self, bg=background, padx=30, pady=30)
+        self.frm_body.pack(side=TOP, fill=BOTH)
 
         # Footer
         self.frm_footer = Frame(self, bg=silver, padx=15, pady=15)

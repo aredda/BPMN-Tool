@@ -101,3 +101,13 @@ class Window(Toplevel):
         # check if there's a created overlay
         if hasattr(self, 'frm_overlay'):
             self.frm_overlay.place_forget()
+
+    # message modals sections
+    def show_message(self, msgContent: str, msgTitle='Failure', msgType='danger', actions: dict = None):
+        (self.windowManager.get_module('messagemodal'))(self, msgTitle, msgContent, msgType, actions)
+
+    def show_info(self, content: str, title='Information'):
+        self.show_message(content, title, 'info')
+
+    def show_prompt(self, question: str, yesCommand, title='Question'):
+        self.show_message(question, title, 'prompt', [{'yes': yesCommand}])
