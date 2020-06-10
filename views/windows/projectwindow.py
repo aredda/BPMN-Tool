@@ -21,27 +21,6 @@ class ProjectWindow(TabbedWindow):
         }
     ]
 
-    btnSettings = [
-        {
-            'icon': 'open.png',
-            'text': 'Open Editor',
-            'dock': LEFT
-        },
-        {
-            'icon': 'share.png',
-            'text': 'Share Project',
-            'type': SecondaryButton
-        },
-        {
-            'icon': 'save.png',
-            'text': 'Export as SVG'
-        },
-        {
-            'icon': 'save.png',
-            'text': 'Export as XML'
-        }
-    ]
-
     lblSettings = [
         {
             'label': 'Project\'s Title:',
@@ -60,6 +39,32 @@ class ProjectWindow(TabbedWindow):
     def __init__(self, root, project=None, **args):
         TabbedWindow.__init__(self, root, ProjectWindow.tabSettings, 'Project\'s Title', **args)
 
+        # Button settings
+        self.btnSettings = [
+            {
+                'icon': 'open.png',
+                'text': 'Open Editor',
+                'dock': LEFT
+            },
+            {
+                'icon': 'share.png',
+                'text': 'Share Project',
+                'type': SecondaryButton,
+                'cmnd': lambda e: (self.windowManager.get_module('ShareModal'))(
+                    self,
+                    # BOOKMARK: Share Project Command
+                    lambda modal: print(modal.get_form_data())
+                )
+            },
+            {
+                'icon': 'save.png',
+                'text': 'Export as SVG'
+            },
+            {
+                'icon': 'save.png',
+                'text': 'Export as XML'
+            }
+        ]
         # Design elements
         self.design()
 
@@ -68,7 +73,7 @@ class ProjectWindow(TabbedWindow):
         btn_container = Frame(self.frm_body, bg=background)
         btn_container.pack(fill=X, side=TOP)
 
-        for i in ProjectWindow.btnSettings:
+        for i in self.btnSettings:
             childCount = len (btn_container.pack_slaves())
             method = i.get('type', MainButton)
             btn = method(btn_container, i.get('text', 'Button'), i.get('icon', 'error.png'), i.get('cmnd', None))

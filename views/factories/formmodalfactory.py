@@ -3,6 +3,7 @@ from tkinter.filedialog import *
 from resources.colors import *
 from views.factories.iconbuttonfactory import SecondaryButton, MainButton
 from views.windows.modals.formmodal import FormModal
+from views.factories.factory import Factory
 
 # BOOKMARK: how to create a command for form modal buttons
 # the concept behind those buttons is that we need to be in contact with the modal object itself
@@ -15,18 +16,16 @@ from views.windows.modals.formmodal import FormModal
 #
 # this way, we can access our modal from outside, and the object doesn't even have to be created in the first place
 
-class FormModalFactory:
+class FormModalFactory(Factory):
 
     #####
     ### factory method
     #####
     def get_modal(modalName: str):
-        # retrieve the list of static methods
-        staticmethods = [method for method in dir(FormModalFactory) if 'Modal' in method]
-        # retrieve the targeted modal
-        if modalName in staticmethods: return getattr(FormModalFactory, modalName)
-        # otherwise return None
-        return None
+        # adjust settings
+        Factory.CLASS = FormModalFactory
+        # return
+        return Factory.get_modal(modalName)
 
     # Invitation Modal
     def InviteModal(root, linkCommand, inviteCommand):

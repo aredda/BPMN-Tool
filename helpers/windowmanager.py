@@ -23,6 +23,8 @@ class WindowManager:
         window.protocol ('WM_DELETE_WINDOW', lambda: self.close())
         # Pass window manager
         window.set_manager(self)
+        # Initialize the window
+        window.initialize()
         # Add the newly created window to the queue
         self.windows.append(window)
         # Focus on the new window

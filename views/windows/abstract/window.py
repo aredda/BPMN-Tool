@@ -64,7 +64,12 @@ class Window(Toplevel):
     def fade(self, destination=0, onFinish=None):
         MoveTransition(lambda v: self.set_opacity(v), lambda: float (self.attributes('-alpha')), destination, 0.01, 0, onFinish)
 
+    # this method is called when the window is being re-drawn or re-shown
     def refresh(self):
+        pass
+
+    # this method is called after constructing the window object
+    def initialize(self):
         pass
 
     # converting the position from screen world to window world
@@ -110,4 +115,4 @@ class Window(Toplevel):
         self.show_message(content, title, 'info')
 
     def show_prompt(self, question: str, yesCommand, title='Question'):
-        self.show_message(question, title, 'prompt', [{'yes': yesCommand}])
+        self.show_message(question, title, 'prompt', {'yes': yesCommand})
