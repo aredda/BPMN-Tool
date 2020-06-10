@@ -4,7 +4,7 @@ from views.windows.abstract.sessionwindow import SessionWindow
 from views.components.scrollable import Scrollable
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
-from views.components.iconbuttonfactory import *
+from views.factories.iconbuttonfactory import *
 
 class EditorWindow(SessionWindow):
     

@@ -3,7 +3,7 @@ from resources.colors import *
 from views.windows.abstract.tabbedwindow import TabbedWindow
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
-from views.components.iconbuttonfactory import *
+from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 
 class CollaborationWindow(TabbedWindow):

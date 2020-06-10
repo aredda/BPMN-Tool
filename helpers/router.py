@@ -5,9 +5,13 @@ from views.windows.discussionwindow import DiscussionWindow
 from views.windows.editorwindow import EditorWindow
 from views.windows.profilewindow import ProfileWindow
 from views.windows.modals.messagemodal import MessageModal
+from views.factories.formmodalfactory import FormModalFactory
 
 def get_cls(route):
     
+    if FormModalFactory.get_modal(route) != None:
+        return FormModalFactory.get_modal(route)
+
     if route == 'home': return HomeWindow
     if route == 'project': return ProjectWindow
     if route == 'collaboration': return CollaborationWindow

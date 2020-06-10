@@ -2,7 +2,7 @@ from resources.colors import *
 from tkinter import *
 from views.windows.abstract.window import Window
 from views.components.icon import IconFrame
-from views.components.iconbuttonfactory import *
+from views.factories.iconbuttonfactory import *
 
 class Modal(Window):
     
