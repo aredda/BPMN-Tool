@@ -5,6 +5,7 @@ from views.components.scrollable import Scrollable
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
+from views.factories.listitemfactory import ListItemFactory
 
 class DiscussionWindow(SessionWindow):
 
@@ -107,7 +108,7 @@ class DiscussionWindow(SessionWindow):
         self.lv_sessions.empty()
         
         for i in range(20):
-            self.msgItems.append(ListItem(self.lv_sessions.interior, None, None, None, DiscussionWindow.create_session_item))
+            self.msgItems.append (ListItemFactory.DiscussionListItem(self.lv_sessions.interior, None))
 
     # BOOKMARK: Fill Messages
     def fill_discussion(self):
@@ -115,27 +116,7 @@ class DiscussionWindow(SessionWindow):
 
         for i in range(10):
             createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if i % 2 == 0 else DiscussionWindow.MSG_OUTGOING)
-            ListItem(self.lv_messages.interior, None, None, None, createMethod)
-
-    # Session List Item
-    def create_session_item(item):
-        item.config(bg=white, pady=10, padx=10)
-        item.pack(side=TOP, fill=X)
-
-        item.img_photo = IconFrame(item, 'resources/icons/ui/face.png', 10, teal, 40)
-        item.img_photo.pack(side=LEFT)
-
-        item.frm_content = Frame(item, bg=white, padx=5)
-        item.frm_content.pack(side=LEFT)
-
-        item.lbl_username = Label(item.frm_content, fg=teal, bg=white, text='Session Name', font='-size 12')
-        item.lbl_username.pack(side=TOP, anchor=N+W)
-        
-        item.lbl_content = Label(item.frm_content, fg=black, bg=white, text='Message')
-        item.lbl_content.pack(side=TOP, anchor=N+W)
-
-        item.lbl_time = Label(item, bg=white, fg=gray, text='Time', font='-size 8', pady=5)
-        item.lbl_time.pack(side=RIGHT, anchor=N)
+            ListItem(self.lv_messages.interior, None, {}, None, createMethod)
 
     # To change session list item style easily
     def change_session_item_style(self, item, style=CHAT_UNREAD):
@@ -171,9 +152,9 @@ class DiscussionWindow(SessionWindow):
         frm_group = Frame(frm_message)
         frm_group.pack(side=LEFT, padx=(0, 30))
 
-        item.lbl_username = Label(frm_group, text='Username', font='-size 14')
-        item.lbl_content = Label(frm_group, text='Message Content')
-        item.lbl_time = Label(frm_message, text='Time', font='-size 8')
+        item.lbl_username = Label(frm_group, text=item.bindings.get('username', '{username}'), font='-size 14')
+        item.lbl_content = Label(frm_group, text=item.bindings.get('content', '{content}'))
+        item.lbl_time = Label(frm_message, text=item.bindings.get('time', '{time}'), font='-size 8')
 
         item.lbl_username.pack(side=TOP, anchor=N+W)
         item.lbl_content.pack(side=TOP, anchor=N+W)

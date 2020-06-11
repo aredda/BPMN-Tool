@@ -72,6 +72,12 @@ class Window(Toplevel):
     def initialize(self):
         pass
 
+    # this method is responsible for hiding floating components
+    def hide_component(self, name: str):
+        # check if there's a created component
+        if hasattr(self, name):
+            getattr(self, name).place_forget()
+
     # converting the position from screen world to window world
     def to_window_coords(self, screen_x, screen_y):
         return [screen_x - self.winfo_rootx(), screen_y - self.winfo_rooty()]
@@ -98,14 +104,9 @@ class Window(Toplevel):
             # create overlay frame
             self.frm_overlay = Frame(self, bg=black)
             # configure auto-close event
-            self.frm_overlay.bind('<Button-1>', lambda e: self.hide_overlay())
+            self.frm_overlay.bind('<Button-1>', lambda e: self.hide_component('frm_overlay'))
         # show overlay
         self.frm_overlay.place(x=0, y=0, relwidth=1, relheight=1, anchor=N+W)
-
-    def hide_overlay(self):
-        # check if there's a created overlay
-        if hasattr(self, 'frm_overlay'):
-            self.frm_overlay.place_forget()
 
     # message modals sections
     def show_message(self, msgContent: str, msgTitle='Failure', msgType='danger', actions: dict = None):
@@ -116,3 +117,19 @@ class Window(Toplevel):
 
     def show_prompt(self, question: str, yesCommand, title='Question'):
         self.show_message(question, title, 'prompt', {'yes': yesCommand})
+
+    # pop-up section
+    def show_popup(self, x, y, data: list, factory):
+        if hasattr(self, 'frm_popup') == False:
+            self.frm_popup = Scrollable(self, bg=background)
+            self.frm_popup.pack_propagate(0)
+            self.frm_popup.config(highlightthickness=1, highlightbackground=border)
+
+        self.frm_popup.empty()
+        self.frm_popup.place(x=x, y=y, width=360, height=480)
+
+        for item in data:
+            li = factory(self.frm_popup.interior, item)
+            li.pack(side=TOP, fill=X)
+            separator = Frame(self.frm_popup.interior, highlightthickness=1, highlightbackground=border)
+            separator.pack(side=TOP, fill=X)

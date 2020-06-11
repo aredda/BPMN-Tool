@@ -9,6 +9,8 @@ because we are going to add other models concerning data..
 - [ ] Minor updates of database
   - Notification, should have a new field that indicates if the notification is read or not
   - A new table Seen, indicates if a message is seen or not
+  - Invitation table should have a field that describes the decision of the recepient
+  - Notification table should have a field that descriminates the nature of Invitation [InvitationLink | ShareLink | InvitationLink]
 
 # Modals
 ### Window

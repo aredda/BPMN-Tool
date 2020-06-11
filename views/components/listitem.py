@@ -8,8 +8,7 @@ class ListItem(Frame):
     def __init__(self, master, dataObject, bindings, buttons, creationMethod = None, **args):
         Frame.__init__(self, master, **args)
 
-        self.buttons = []
-
+        self.buttons = buttons
         self.dataObject = dataObject
         self.bindings = bindings
         self.buttonSettings = buttons

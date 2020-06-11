@@ -5,13 +5,13 @@ class Factory:
     #####
     ### factory method
     #####
-    def get_modal(modalName: str):
+    def get_instance(instanceName: str):
         # correct
         if Factory.CLASS == None:
             Factory.CLASS = Factory
         # retrieve the list of static methods
-        staticmethods = [method for method in dir(Factory.CLASS) if 'Modal' in method]
-        # retrieve the targeted modal
-        if modalName in staticmethods: return getattr(Factory.CLASS, modalName)
+        staticmethods = [method for method in dir(Factory.CLASS) if '__' not in method]
+        # retrieve the targeted instance
+        if instanceName in staticmethods: return getattr(Factory.CLASS, instanceName)
         # otherwise return None
         return None

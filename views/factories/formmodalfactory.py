@@ -21,11 +21,11 @@ class FormModalFactory(Factory):
     #####
     ### factory method
     #####
-    def get_modal(modalName: str):
+    def get_instance(modalName: str):
         # adjust settings
         Factory.CLASS = FormModalFactory
         # return
-        return Factory.get_modal(modalName)
+        return Factory.get_instance(modalName)
 
     # Invitation Modal
     def InviteModal(root, linkCommand, inviteCommand):

@@ -9,8 +9,8 @@ from views.factories.formmodalfactory import FormModalFactory
 
 def get_cls(route):
     
-    if FormModalFactory.get_modal(route) != None:
-        return FormModalFactory.get_modal(route)
+    if FormModalFactory.get_instance(route) != None:
+        return FormModalFactory.get_instance(route)
 
     if route == 'home': return HomeWindow
     if route == 'project': return ProjectWindow
