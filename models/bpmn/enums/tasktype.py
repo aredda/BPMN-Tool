@@ -6,5 +6,5 @@ class TaskType(enum.Enum):
     Script = 2
     BusinessRule = 3
     Service = 4
-    SendMessage = 5
-    ReceiveMessage = 6
+    Send = 5
+    Receive = 6

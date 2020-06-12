@@ -26,5 +26,4 @@ class Container(BPMNElement):
             if key not in ['lane', 'message']:
                 for i in self.elements[key]:
                     element.append(i.serialize())
-
         return element

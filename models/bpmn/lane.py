@@ -24,8 +24,8 @@ class Lane(Container):
 
         return laneElement
 
-    def add(self, name, item):
+    def add(self, name, item, addToProcess=True):
         Container.add(self, name, item)
         
-        if self.process != None:
+        if addToProcess == True and self.process != None:
             self.process.add(name, item)

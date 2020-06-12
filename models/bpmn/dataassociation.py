@@ -15,17 +15,16 @@ class DataAssociation(Association):
         dataAssociationElement = et.Element(
             'data' + ('Input' if self.direction == DataAssocDirection.IN else 'Output') + 'Association')
 
+        # target serialization
+        targetElement = et.Element('targetRef')
+        targetElement.text = str (self.target.id)
+        dataAssociationElement.append(targetElement)
+
         if self.direction == DataAssocDirection.IN:
-            print ('executing this block')
-            sourceElement = et.Element("sourceRef")
-            sourceElement.text = str (self.source.id)
-            targetElement = et.Element('targetRef')
-            targetElement.text = str (self.target.id)
-            dataAssociationElement.append(sourceElement)
-            dataAssociationElement.append(targetElement)
-        else:
-            targetElement = et.Element("targetRef")
-            targetElement.text = str(self.target.id)
-            dataAssociationElement.append(targetElement)
+            # source serialization
+            if self.source != None:
+                sourceElement = et.Element("sourceRef")
+                sourceElement.text = str (self.source.id)
+                dataAssociationElement.append(sourceElement)
 
         return dataAssociationElement

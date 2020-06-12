@@ -8,10 +8,10 @@
     <bpmn:startEvent id="StartEvent_1l5pz4g">
       <bpmn:outgoing>Flow_0d03mxe</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Activity_0sqktjx">
+    <bpmn:userTask id="Activity_0sqktjx">
       <bpmn:incoming>Flow_0d03mxe</bpmn:incoming>
       <bpmn:outgoing>Flow_0ub58zb</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_133xoir">
       <bpmn:incoming>Flow_0ub58zb</bpmn:incoming>
       <bpmn:outgoing>Flow_0zk1jlf</bpmn:outgoing>
@@ -19,28 +19,29 @@
     </bpmn:exclusiveGateway>
     <bpmn:endEvent id="Event_1l71u2b">
       <bpmn:incoming>Flow_1hz1wfp</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1oyqfn3" />
     </bpmn:endEvent>
-    <bpmn:task id="Activity_09wswvd">
+    <bpmn:scriptTask id="Activity_09wswvd">
       <bpmn:incoming>Flow_0zk1jlf</bpmn:incoming>
-    </bpmn:task>
+    </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_0d03mxe" sourceRef="StartEvent_1l5pz4g" targetRef="Activity_0sqktjx" />
     <bpmn:sequenceFlow id="Flow_0ub58zb" sourceRef="Activity_0sqktjx" targetRef="Gateway_133xoir" />
     <bpmn:sequenceFlow id="Flow_0zk1jlf" sourceRef="Gateway_133xoir" targetRef="Activity_09wswvd" />
     <bpmn:sequenceFlow id="Flow_1hz1wfp" sourceRef="Gateway_133xoir" targetRef="Event_1l71u2b" />
   </bpmn:process>
   <bpmn:process id="Process_1e8dwz3">
-    <bpmn:startEvent id="Event_1ryml8e">
+    <bpmn:intermediateCatchEvent id="Event_1ryml8e">
       <bpmn:outgoing>Flow_123h63a</bpmn:outgoing>
-    </bpmn:startEvent>
+    </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_123h63a" sourceRef="Event_1ryml8e" targetRef="Activity_1jqjm8r" />
     <bpmn:dataStoreReference id="DataStoreReference_0fbedem" />
-    <bpmn:task id="Activity_1jqjm8r">
+    <bpmn:sendTask id="Activity_1jqjm8r">
       <bpmn:incoming>Flow_123h63a</bpmn:incoming>
       <bpmn:outgoing>Flow_1ljmpo8</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_1ag65ym">
         <bpmn:targetRef>DataStoreReference_0fbedem</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
-    </bpmn:task>
+    </bpmn:sendTask>
     <bpmn:sequenceFlow id="Flow_1ljmpo8" sourceRef="Activity_1jqjm8r" targetRef="Event_1c0v1bd" />
     <bpmn:endEvent id="Event_1c0v1bd">
       <bpmn:incoming>Flow_1ljmpo8</bpmn:incoming>
