@@ -1,3 +1,3 @@
-from tunits.TU_BPMNDI import run
+from tunits.TU_modulefinder import run
 
 run()
