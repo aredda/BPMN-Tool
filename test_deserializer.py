@@ -2,12 +2,12 @@ import xml.etree.ElementTree as et
 
 from helpers.deserializer import Deserializer, to_pretty_xml
 
-d = Deserializer(et.parse('resources/xml/subprocess.xml'))
+d = Deserializer(et.parse('resources/xml/dilabel.xml'))
 
 print (to_pretty_xml(d.definitions.serialize()))
 
 # exit (0)
-
+# 
 # for process_id in d.selements['process'].keys():
 #     print ('Process Id:', process_id)
 #     for breed in d.selements['process'][process_id]['children'].keys():

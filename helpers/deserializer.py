@@ -10,12 +10,20 @@ from models.bpmn.task import Task, TaskType
 from models.bpmn.event import Event, EventDefinition, EventType
 from models.bpmn.gateway import Gateway, GatewayType
 from models.bpmn.sequenceflow import SequenceFlow, SequenceType
+from models.bpmn.messageflow import MessageFlow
 from models.bpmn.datastorereference import DataStoreReference
 from models.bpmn.dataobject import DataObject, DataObjectReference
 from models.bpmn.association import Association
 from models.bpmn.dataassociation import DataAssociation, DataAssocDirection
 from models.bpmn.property import Property
 from models.bpmn.lane import Lane
+from models.bpmn.textannotation import TextAnnotation
+from models.bpmndi.diagram import BPMNDiagram
+from models.bpmndi.shape import BPMNShape
+from models.bpmndi.edge import BPMNEdge
+from models.bpmndi.bounds import Bounds
+from models.bpmndi.label import BPMNLabel
+from models.bpmndi.plane import BPMNPlane
 
 # data schema
 # {
@@ -32,9 +40,14 @@ from models.bpmn.lane import Lane
 class Deserializer:
 
     bpmn_ns = '{http://www.omg.org/spec/BPMN/20100524/MODEL}'
+    bpmndi_ns = '{http://www.omg.org/spec/BPMN/20100524/DI}'
+    di_ns = '{http://www.omg.org/spec/DD/20100524/DI}'
+    dc_ns = '{http://www.omg.org/spec/DD/20100524/DC}'
     
-    all_breeds = ['task', 'event', 'gateway', 'subprocess', 'flow', 'dataobject', 'dataobjectreference', 'datastorereference', 'association']
+    all_breeds = ['task', 'event', 'gateway', 'subprocess', 'flow', 'dataobject', 'dataobjectreference', 'datastorereference', 'textannotation', 'association']
     linkables = ['task', 'event', 'gateway', 'subprocess']
+
+    di_breeds = ['BPMNEdge', 'BPMNShape']
 
     def __init__(self, root_tree):
         # the root element which is actually a 'definitions' element
@@ -52,7 +65,10 @@ class Deserializer:
         # commencing deserialization operation
         self.prepare()
         self.instantiate()
+        self.setup_collaboration()
         self.setup_lanes()
+        self.setup_message_flows()
+        self.setup_bpmndi()
 
     # type router
     def get_class(self, tag):
@@ -66,6 +82,9 @@ class Deserializer:
         elif tag == 'dataobject': return DataObject
         elif tag == 'association': return Association
         elif tag == 'dataoutputassociation' or tag == 'datainputassociation': return DataAssociation
+        elif tag == 'textannotation': return TextAnnotation
+        elif tag == 'BPMNShape': return BPMNShape
+        elif tag == 'BPMNEdge': return BPMNEdge
         return None
 
     # find a serialized element by its id
@@ -138,9 +157,10 @@ class Deserializer:
                     xe_tag = xe.tag.split('}')[1].lower()
                     # instantiate an object
                     instance = (self.get_class(breed))(**xe.attrib)
-                    # subprocess settings
-                    if breed == 'subprocess':
-                        pass
+                    # association settings
+                    if breed == 'association':
+                        instance.source = self.find_element(xe.attrib['sourceRef'])
+                        instance.target = self.find_element(xe.attrib['targetRef'])
                     # type determinator for [Task - Event - Gateway]
                     def retrieve_type(breed, default):
                         # retrieve breed class
@@ -190,6 +210,9 @@ class Deserializer:
                     # data object reference settings
                     if breed == 'dataobjectreference':
                         instance.dataObject = self.find_element(xe.attrib['dataObjectRef'])
+                    # text annotation settings
+                    if breed == 'textannotation':
+                        instance.name = xe.find(Deserializer.bpmn_ns + 'text').text
                     # add it to the children collection
                     children[breed][instance.id] = instance
                     # add it to the process container
@@ -249,6 +272,25 @@ class Deserializer:
                 'children': children 
             }
 
+    def setup_collaboration(self):
+        # retrieve collaboration
+        xcollaboration = self.root_element.find(Deserializer.bpmn_ns + 'collaboration')
+        participants = {}
+        # retrieve participants
+        for xchild in xcollaboration:
+            if 'participant' in xchild.tag:
+                # finish process's configuration
+                self.find_element(xchild.attrib['processRef']).participant = xchild.attrib['id']
+                # add to the tree
+                participants[xchild.attrib['id']] = xchild
+        # add collaboration to the tree
+        self.xelements['collaboration'] = {
+            'element': xcollaboration,
+            'participants': participants
+        }
+        # adjust collaboration id
+        self.definitions.collaboration = xcollaboration.attrib['id']
+
     def setup_lanes(self):
         # foreach process
         for p_id in self.xelements['process'].keys():
@@ -270,3 +312,68 @@ class Deserializer:
                         slane.add('node', self.find_element(xNodeRef.text), False)
                     # add the lane to process
                     process.add('lane', slane)
+
+    def setup_message_flows(self):
+        # find collaboration element
+        xcollaboration = self.root_element.find(Deserializer.bpmn_ns + 'collaboration')
+        # find message flows
+        for xflow in xcollaboration.findall(Deserializer.bpmn_ns + 'messageFlow'):
+            # instantiate flow
+            sflow = MessageFlow(**xflow.attrib)
+            # configure flow
+            sflow.source = self.find_element(xflow.attrib['sourceRef'])
+            sflow.target = self.find_element(xflow.attrib['targetRef'])
+            # add flow
+            self.definitions.add('message', sflow)
+
+    def setup_bpmndi(self):
+        # utilities
+        def get_bounds(xelement):
+            # retrieve x bounds element
+            xbounds = xelement.find(Deserializer.dc_ns + 'Bounds')
+            # return bounds element
+            return Bounds(**xbounds.attrib)
+        # find the diagram xelement
+        xdiagram = self.root_element.find(Deserializer.bpmndi_ns + 'BPMNDiagram')
+        # create a container for bpmndi elements
+        diagram = BPMNDiagram(**xdiagram.attrib)
+        # find plane
+        xplane = xdiagram.find(Deserializer.bpmndi_ns + 'BPMNPlane')
+        # instantiate a plane object
+        plane = BPMNPlane(**xplane.attrib)
+        plane.element = self.find_element(xplane.attrib['id'])
+        if plane.element == None:
+            plane.element = str (xplane.attrib['bpmnElement'])
+        # fetch for di elements
+        for breed in Deserializer.di_breeds:
+            for xchild in xplane:
+                if breed.lower() not in xchild.tag.lower():
+                    continue
+                # instantiate the object
+                obj = (self.get_class(breed))(**xchild.attrib)
+                # element reference
+                obj.element = self.find_element(xchild.attrib['bpmnElement'])
+                # if object has a label
+                xlabel = xchild.find(Deserializer.bpmndi_ns + 'BPMNLabel')
+                if xlabel != None: obj.label = BPMNLabel(bounds=get_bounds(xlabel))
+                # shape settings
+                if 'Shape' in xchild.tag:
+                    # affect bounds
+                    obj.bounds = get_bounds(xchild)
+                    # adjusting reference for process
+                    if obj.element == None:
+                        obj.element = xchild.attrib['bpmnElement']
+                        obj.isHorizontal = True
+                # edge settings
+                if 'Edge' in xchild.tag:
+                    # retrieve waypoints
+                    xpoints = xchild.findall(Deserializer.di_ns + 'waypoint')
+                    # affecting points
+                    obj.start = (xpoints[0].attrib['x'], xpoints[0].attrib['y'])
+                    obj.end = (xpoints[-1].attrib['x'], xpoints[-1].attrib['y'])
+                # add it to the plane container
+                plane.add(xchild.tag.split('}')[1].lower() , obj)
+        # add the plane to diagram
+        diagram.add('plane', plane)
+        # add the di diagram to the definitions
+        self.definitions.add('di', diagram)

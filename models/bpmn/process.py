@@ -10,11 +10,12 @@ class Process(Container):
         Container.__init__(self, **args)
 
         self.definitions = self.expects(args, 'definitions')
+        self.participant = args.get('participant', None)
 
         if self.definitions != None:
             self.definitions.add('process', self)
 
-        self.ignore_attrs('definitions')
+        self.ignore_attrs('definitions', 'participant')
 
     def serialize(self):
         processElement = Container.serialize(self)

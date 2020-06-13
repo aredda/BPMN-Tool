@@ -6,8 +6,8 @@ class BPMNEdge(BPMNDIElement):
     def __init__(self, **args):
         BPMNDIElement.__init__(self, **args)
         
-        self.start = args['start']
-        self.end = args['end']
+        self.start = args.get('start', None)
+        self.end = args.get('end', None)
         self.label = args.get('label', None)
 
     def serialize(self):

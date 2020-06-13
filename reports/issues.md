@@ -11,15 +11,16 @@ because we are going to add other models concerning data..
   - A new table Seen, indicates if a message is seen or not
   - Invitation table should have a field that describes the decision of the recepient
   - Notification table should have a field that descriminates the nature of Invitation [InvitationLink | ShareLink | InvitationLink]
-- [ ] Activity Flag Serialization
 - [ ] Extra data object for no goddamn reason
 
 # Deserialization
-- [ ] Artifacts (TextAnnotation, Group) and their associations
 - [X] SubProcess
-- [ ] BPMNDI section
 - [X] Lanes
-- [ ] Message Flows
+- [X] TextAnnotation and its associations
+- [X] Message Flows
+- [ ] BPMNDI section
+- [ ] Activity Flag Serialization
+- [ ] Group Serialization & Deserialization
 
 # Modals
 ### Window
