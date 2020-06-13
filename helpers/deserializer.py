@@ -175,23 +175,7 @@ class Deserializer:
                         retrieve_type(breed, defaults[breed])
                     # activity flag settings
                     if breed in ['subprocess', 'task']:
-                        # default activity flag
-                        activity_flag = ActivityFlag.Default
-                        # check if this activity is flagged as adhoc
-                        if 'adhoc' in xe_tag: activity_flag = ActivityFlag.AdHoc
-                        # check if this activity is flaffed as a looped one
-                        for child in xe:
-                            # retrieve purified tag
-                            child_tag = child.tag.split('}')[1].lower()
-                            # check if this is a loop flag
-                            if 'loopcharacteristics' in child_tag:
-                                if 'standard' in child_tag: activity_flag = ActivityFlag.Loop
-                                if 'multiinstance' in child_tag: 
-                                    activity_flag = ActivityFlag.ParallelMultiple
-                                    if 'isSequential' in child.attrib:
-                                        activity_flag = ActivityFlag.SequentialMultiple
-                        # affecting flag
-                        instance.flag = activity_flag
+                        self.setup_activity(xe, instance)
                     # event settings
                     if breed == 'event':
                         # definition extraction
@@ -260,8 +244,12 @@ class Deserializer:
                             # add element to the linkable's container
                             se.add('dataAssociation', instance)
             # add it to the definition
-            if isProcess == True: self.definitions.add('process', process)
-            else: self.find_element(self.relations[process.id]).add('subprocess', process)
+            if isProcess == True: 
+                self.definitions.add('process', process)
+            else: 
+                # configure subprocess before appending it
+                self.setup_activity(xprocess, process)
+                self.find_element(self.relations[process.id]).add('subprocess', process)
             # add it to the major list
             self.all_elements.append(process)
             # add it to the selements
@@ -377,3 +365,27 @@ class Deserializer:
         diagram.add('plane', plane)
         # add the di diagram to the definitions
         self.definitions.add('di', diagram)
+
+    def setup_activity(self, xelement, instance):
+        # get tag
+        xe_tag = xelement.tag.split('}')[1].lower()
+        print ('a setup is requried for', xe_tag)
+        # default activity flag
+        activity_flag = ActivityFlag.Default
+        # check if this activity is flagged as adhoc
+        if 'adhoc' in xe_tag:
+            activity_flag = ActivityFlag.AdHoc
+        # check if this activity is flaffed as a looped one
+        for child in xelement:
+            # retrieve purified tag
+            child_tag = child.tag.split('}')[1].lower()
+            # check if this is a loop flag
+            if 'loopcharacteristics' in child_tag:
+                if 'standard' in child_tag: 
+                    activity_flag = ActivityFlag.Loop
+                if 'multiinstance' in child_tag: 
+                    activity_flag = ActivityFlag.ParallelMultiple
+                    if 'isSequential' in child.attrib:
+                        activity_flag = ActivityFlag.SequentialMultiple
+        # affecting flag
+        instance.flag = activity_flag

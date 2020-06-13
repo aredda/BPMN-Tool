@@ -41,6 +41,8 @@
     <bpmn:sequenceFlow id="Flow_02vt4p8" sourceRef="Activity_16xfjlw" targetRef="Event_11feg7u" />
     
     <bpmn:subProcess id="Activity_1bxj7xn">
+      
+      <bpmn:multiInstanceLoopCharacteristics isSequential='true' />
 
       <bpmn:startEvent id="Event_0hz6pak">
         <bpmn:outgoing>Flow_1f54vhs</bpmn:outgoing>
