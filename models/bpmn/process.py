@@ -2,7 +2,7 @@ import xml.etree.ElementTree as et
 
 from models.bpmn.container import Container
 from models.bpmn.lane import Lane
-
+from resources.namespaces import *
 
 class Process(Container):
 
@@ -10,17 +10,18 @@ class Process(Container):
         Container.__init__(self, **args)
 
         self.definitions = self.expects(args, 'definitions')
+        self.participant = args.get('participant', None)
 
         if self.definitions != None:
             self.definitions.add('process', self)
 
-        self.ignore_attrs('definitions')
+        self.ignore_attrs('definitions', 'participant')
 
     def serialize(self):
         processElement = Container.serialize(self)
 
         if 'lane' in self.elements:
-            laneSetElement = et.Element("laneSet")
+            laneSetElement = et.Element(bpmn + "laneSet")
 
             for lane in self.elements['lane']:
                 laneElement = lane.serialize()

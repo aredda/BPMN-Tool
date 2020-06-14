@@ -12,16 +12,27 @@ because we are going to add other models concerning data..
   - Invitation table should have a field that describes the decision of the recepient
   - Notification table should have a field that descriminates the nature of Invitation [InvitationLink | ShareLink | InvitationLink]
 
+# Deserialization
+- [X] SubProcess
+- [X] Lanes
+- [X] TextAnnotation and its associations
+- [X] Message Flows
+- [X] BPMNDI section
+- [X] Activity Flag Serialization
+- [X] Extra data object for no goddamn reason
+- [X] BPMN edges don't find their elements
+- [ ] ~~Group Serialization & Deserialization~~
+
 # Modals
 ### Window
 - [X] A message modal for dispaying **information**, **error** and **confirmation** messages
 ### SessionWindow
-- [ ] Notification, Discussion modals
+- [X] Notification, Discussion modals
 ### HomeWindow
 - [X] Create a new project modal
 - [X] Create a project from existing source modal
 - [X] Create a new collaboration session
-- [ ] Joining a project/session using a link modal
+- [X] Joining a project/session using a link modal
 ### ProjectWindow
 - [X] Share modal
 ### SessionWindow

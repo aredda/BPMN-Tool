@@ -2,7 +2,7 @@ import xml.etree.ElementTree as et
 
 from models.bpmn.association import Association
 from models.bpmn.enums.dataassocdirection import DataAssocDirection
-
+from resources.namespaces import bpmn
 
 class DataAssociation(Association):
 
@@ -13,19 +13,18 @@ class DataAssociation(Association):
 
     def serialize(self):
         dataAssociationElement = et.Element(
-            'data' + ('Input' if self.direction == DataAssocDirection.IN else 'Output') + 'Association')
+            bpmn + 'data' + ('Input' if self.direction == DataAssocDirection.IN else 'Output') + 'Association')
+
+        # target serialization
+        targetElement = et.Element(bpmn + 'targetRef')
+        targetElement.text = str (self.target.id)
+        dataAssociationElement.append(targetElement)
 
         if self.direction == DataAssocDirection.IN:
-            print ('executing this block')
-            sourceElement = et.Element("sourceRef")
-            sourceElement.text = str (self.source.id)
-            targetElement = et.Element('targetRef')
-            targetElement.text = str (self.target.id)
-            dataAssociationElement.append(sourceElement)
-            dataAssociationElement.append(targetElement)
-        else:
-            targetElement = et.Element("targetRef")
-            targetElement.text = str(self.target.id)
-            dataAssociationElement.append(targetElement)
+            # source serialization
+            if self.source != None:
+                sourceElement = et.Element(bpmn + 'sourceRef')
+                sourceElement.text = str (self.source.id)
+                dataAssociationElement.append(sourceElement)
 
         return dataAssociationElement

@@ -1,16 +1,19 @@
 from models.bpmn.container import Container
+from resources.namespaces import *
 
 class BPMNPlane(Container):
     
     def __init__(self, **args):
         Container.__init__(self, **args)
+        
         self.ignore_attrs('element')
-        self.element = args['element']
+        self.element = args.get('element', None)
 
     def serialize(self):
         e = Container.serialize(self)
-        e.tag = 'BPMNPlane'
-        e.attrib['bpmnElement'] = str(self.element.id)
+        e.tag = bpmndi + 'BPMNPlane'
+        if self.element != None: 
+            e.attrib['bpmnElement'] = self.element if isinstance(self.element, str) else str(self.element.id)
 
         return e
 

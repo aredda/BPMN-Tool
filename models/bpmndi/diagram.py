@@ -1,4 +1,5 @@
 from models.bpmn.container import Container
+from resources.namespaces import *
 
 class BPMNDiagram(Container):
 
@@ -7,6 +8,6 @@ class BPMNDiagram(Container):
 
     def serialize(self):
         e = Container.serialize(self)
-        e.tag = 'BPMNDiagram'
+        e.tag = bpmndi + 'BPMNDiagram'
 
         return e
