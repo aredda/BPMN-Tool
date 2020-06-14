@@ -1,8 +1,10 @@
 from models.bpmn.linkable import Linkable
 from models.bpmn.enums.eventtype import EventType
 from models.bpmn.enums.eventdefinition import EventDefinition
-import xml.etree.ElementTree as et
 from helpers.stringhelper import camel_case
+from resources.namespaces import bpmn
+
+import xml.etree.ElementTree as et
 
 
 class Event(Linkable):
@@ -11,9 +13,7 @@ class Event(Linkable):
         Linkable.__init__(self, **args)
 
         self.type: EventType = self.expects(args, 'type', EventType.Start)
-        self.definition = self.expects(
-            args, 'definition', EventDefinition.Default)
-        # true = interrupting; false = non-interrupting
+        self.definition = self.expects(args, 'definition', EventDefinition.Default)
         self.attachedTo = self.expects(args, 'attachedTo')
         self.cancelActivity = self.expects(args, 'cancelActivity', True)
 
@@ -28,7 +28,7 @@ class Event(Linkable):
     def serialize(self):
         # Fix Tag Name
         eventElement = Linkable.serialize(self)
-        eventElement.tag = ('boundary' if self.attachedTo !=
+        eventElement.tag = bpmn + ('boundary' if self.attachedTo !=
                             None else camel_case(self.type.name)) + 'Event'
         # Add Cancel Attribute
         if self.attachedTo != None:
@@ -36,7 +36,7 @@ class Event(Linkable):
             eventElement.attrib['attachedToRef'] = str(self.attachedTo.id)
         # Add Definition Element
         if self.definition != EventDefinition.Default:
-            eventDefElement = et.Element(camel_case(self.definition.name) + 'Definition')
+            eventDefElement = et.Element(camel_case(self.definition.name) + 'EventDefinition')
             eventDefElement.attrib['id'] = f'{self.id}_{self.definition.name}Definition'
             eventElement.append(eventDefElement)
 

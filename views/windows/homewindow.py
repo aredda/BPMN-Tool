@@ -3,7 +3,7 @@ from resources.colors import *
 from views.windows.abstract.tabbedwindow import TabbedWindow
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
-from views.components.iconbuttonfactory import *
+from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 from models.entities.Entities import *
 from datetime import datetime
@@ -53,11 +53,42 @@ class HomeWindow(TabbedWindow):
         self.btn_container1 = Frame(self.tb_projects, bg=background, pady=10)
         self.btn_container1.pack (side=TOP, fill=X)
 
-        self.btn_create_project = MainButton(self.btn_container1, 'Create New Project', 'new_project.png')
+        # BOOKMARK: modal redirections
+        # configure redirections to form modals
+        createProjectModalCmnd = lambda e: (self.windowManager.get_module('CreateProjectModal'))(
+            self,
+            # BOOKMARK: create project button command
+            lambda formModal: print(formModal.get_form_data())
+        )
+        loadProjectModalCmnd = lambda e: (self.windowManager.get_module('LoadProjectModal'))(
+            self,
+            # BOOKMARK: create loaded project button command
+            lambda formModal: print(formModal.get_form_data())
+        )
+        createSessionModalCmnd = lambda e: (self.windowManager.get_module('CreateSessionModal'))(
+            self,
+            # BOOKMARK: create project button command
+            lambda formModal: print(formModal.get_form_data())
+        )
+        joinSessionModalCmnd = lambda e: (self.windowManager.get_module('JoinModal'))(
+            self,
+            # BOOKMARK: join session command
+            lambda formModal: print(formModal.get_form_data())
+        )
+        joinProjectModalCmnd = lambda e: (self.windowManager.get_module('JoinModal'))(
+            self,
+            # BOOKMARK: join session command
+            lambda formModal: print(formModal.get_form_data())
+        )
+
+        self.btn_create_project = MainButton(self.btn_container1, 'Create New Project', 'new_project.png', createProjectModalCmnd)
         self.btn_create_project.pack(side=LEFT, padx=(0, 10))
         
-        self.btn_open = SecondaryButton(self.btn_container1, 'Open XML-BPMN File From Device', 'upload.png')
-        self.btn_open.pack(side=LEFT)
+        self.btn_open = SecondaryButton(self.btn_container1, 'Load From Device', 'upload.png', loadProjectModalCmnd)
+        self.btn_open.pack(side=LEFT, padx=(0, 10))
+        
+        self.btn_open = SecondaryButton(self.btn_container1, 'Access Project', 'login.png', joinProjectModalCmnd)
+        self.btn_open.pack(side=RIGHT)
 
         self.lv_project = Scrollable(self.tb_projects, bg=background, pady=15)
         self.lv_project.set_gridcols(4)
@@ -67,16 +98,15 @@ class HomeWindow(TabbedWindow):
         self.btn_container2 = Frame(self.tb_sessions, bg=background, pady=10, padx=1)
         self.btn_container2.pack (side=TOP, fill=X)
 
-        self.btn_create_session = MainButton(self.btn_container2, 'Create New Session', 'new_session.png')
+        self.btn_create_session = MainButton(self.btn_container2, 'Create New Session', 'new_session.png', createSessionModalCmnd)
         self.btn_create_session.pack(side=LEFT, padx=(0, 10))
+        
+        self.btn_join_session = SecondaryButton(self.btn_container2, 'Join Session', 'login.png', joinSessionModalCmnd)
+        self.btn_join_session.pack(side=RIGHT)
 
         self.lv_session = Scrollable(self.tb_sessions, bg=background, pady=15)
         self.lv_session.set_gridcols(4)
         self.lv_session.pack(fill=BOTH, expand=1)
-
-        # BOOKMARK: fill session items
-        # for i in range(4):
-        #     self.lv_session.grid_item(None, {'username': 'Ibrahim'}, None, lambda item: self.create_list_item(item, HomeWindow.SESSION_LI), 15)
 
     # BOOKMARK: fill project items
     def fill_projects(self, dataList: list):

@@ -6,17 +6,34 @@ because we are going to add other models concerning data..
 - [X] Window Manager (+ Fade Effect)
 - [X] Change name conventions for the old model folder
 - [ ] Adding an image to Profile Window's Form (To upload and show profile photo)
+- [ ] Minor updates of database
+  - Notification, should have a new field that indicates if the notification is read or not
+  - A new table Seen, indicates if a message is seen or not
+  - Invitation table should have a field that describes the decision of the recepient
+  - Notification table should have a field that descriminates the nature of Invitation [InvitationLink | ShareLink | InvitationLink]
+
+# Deserialization
+- [X] SubProcess
+- [X] Lanes
+- [X] TextAnnotation and its associations
+- [X] Message Flows
+- [X] BPMNDI section
+- [X] Activity Flag Serialization
+- [X] Extra data object for no goddamn reason
+- [X] BPMN edges don't find their elements
+- [ ] ~~Group Serialization & Deserialization~~
 
 # Modals
 ### Window
-- [ ] A message modal for dispaying **information**, **error** and **confirmation** messages
+- [X] A message modal for dispaying **information**, **error** and **confirmation** messages
 ### SessionWindow
-- [ ] Notification, Discussion modals
+- [X] Notification, Discussion modals
 ### HomeWindow
-- [ ] Create a new project modal
-- [ ] Create a project from existing source modal
-- [ ] Create a new collaboration session
+- [X] Create a new project modal
+- [X] Create a project from existing source modal
+- [X] Create a new collaboration session
+- [X] Joining a project/session using a link modal
 ### ProjectWindow
-- [ ] Share modal
+- [X] Share modal
 ### SessionWindow
-- [ ] Invite modal
+- [X] Invite modal

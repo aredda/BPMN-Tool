@@ -1,8 +1,9 @@
 from helpers.stringhelper import camel_case
 from models.bpmn.activity import Activity
 from models.bpmn.enums.tasktype import TaskType
-import xml.etree.ElementTree as et
+from resources.namespaces import bpmn
 
+import xml.etree.ElementTree as et
 
 class Task(Activity):
 
@@ -15,6 +16,6 @@ class Task(Activity):
 
     def serialize(self):
         taskElement = Activity.serialize(self)
-        taskElement.tag = 'task' if self.type == TaskType.Default else camel_case(
+        taskElement.tag = bpmn + 'task' if self.type == TaskType.Default else camel_case(
             self.type.name) + 'Task'
         return taskElement

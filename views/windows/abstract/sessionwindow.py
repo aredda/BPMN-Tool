@@ -3,6 +3,10 @@ from resources.colors import *
 from views.windows.abstract.window import Window
 from views.components.iconbutton import IconButton
 from views.components.icon import IconFrame
+from views.factories.listitemfactory import ListItemFactory
+from models.entities.Entities import Notification, Invitation, User
+from models.entities.enums.notificationtype import NotificationType
+import datetime
 
 class SessionWindow(Window):
 
@@ -46,9 +50,28 @@ class SessionWindow(Window):
 
     def config_hBar(self):
         # Creation of elements
+        # BOOKMARK: change user profile image
         self.btn_username = IconButton(self.frm_hBar, 'Username', '-size 15', biege, 'resources/icons/ui/face.png', 5, None, biege, 40, None, bg=white)
-        self.icn_notification = IconFrame(self.frm_hBar, 'resources/icons/ui/bell_outline.png', 0, None, 32)
-        self.icn_discussion = IconFrame(self.frm_hBar, 'resources/icons/ui/discussion_outline.png', 0, None, 32)
+        self.icn_notification = IconFrame(
+            self.frm_hBar, 'resources/icons/ui/bell_outline.png', 0, None, 32,
+            lambda e: self.show_popup(
+                self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
+                self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
+                # BOOKMARK: notification data list
+                [None, None, None], 
+                ListItemFactory.NotificationListItem
+            )
+        )
+        self.icn_discussion = IconFrame(
+            self.frm_hBar, 'resources/icons/ui/discussion_outline.png', 0, None, 32,
+            lambda e: self.show_popup(
+                self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
+                self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
+                # BOOKMARK: discussion data list
+                [None, None, None], 
+                ListItemFactory.DiscussionListItem
+            )
+        )
         # Positioning elements
         self.btn_username.pack(side=LEFT)
         self.icn_notification.pack(side=RIGHT)

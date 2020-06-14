@@ -3,7 +3,7 @@ from resources.colors import *
 from views.windows.abstract.tabbedwindow import TabbedWindow
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
-from views.components.iconbuttonfactory import *
+from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 
 class CollaborationWindow(TabbedWindow):
@@ -18,34 +18,6 @@ class CollaborationWindow(TabbedWindow):
             'icon': 'history.png',
             'text': 'History',
             'tag': 'tb_hist'
-        }
-    ]
-
-    btnSettings = [
-        {
-            'icon': 'open.png',
-            'text': 'Open Editor',
-            'dock': LEFT
-        },
-        {
-            'icon': 'delete.png',
-            'text': 'End Session',
-            'type': DangerButton
-        },
-        {
-            'icon': 'invite.png',
-            'text': 'Invite',
-            'type': SecondaryButton
-        },
-        {
-            'icon': 'save.png',
-            'text': 'Export as SVG',
-            'dock': LEFT
-        },
-        {
-            'icon': 'save.png',
-            'text': 'Export as XML',
-            'dock': LEFT
         }
     ]
 
@@ -71,6 +43,43 @@ class CollaborationWindow(TabbedWindow):
     def __init__(self, root, session=None, **args):
         TabbedWindow.__init__(self, root, CollaborationWindow.tabSettings, 'Session\'s Title', **args)
 
+        # configure button settings
+        self.btnSettings = [
+            {
+                'icon': 'open.png',
+                'text': 'Open Editor',
+                'dock': LEFT
+            },
+            {
+                'icon': 'delete.png',
+                'text': 'End Session',
+                'type': DangerButton,
+                # BOOKARK: Ending Session Command
+                'cmnd': lambda e: self.show_prompt('Are you really sure to terminate the session?', lambda e: print ('termination logic'), 'Terminating the session')
+            },
+            {
+                'icon': 'invite.png',
+                'text': 'Invite',
+                'type': SecondaryButton,
+                'cmnd': lambda e: (self.windowManager.get_module('InviteModal'))(
+                    self,
+                    # BOOKMARK: Activate Link Command
+                    lambda modal: print(modal.get_form_data()),
+                    # BOOKMARK: Invite User Command
+                    lambda modal: print(modal.get_form_data())
+                )
+            },
+            {
+                'icon': 'save.png',
+                'text': 'Export as SVG',
+                'dock': LEFT
+            },
+            {
+                'icon': 'save.png',
+                'text': 'Export as XML',
+                'dock': LEFT
+            }
+        ]
         # Design elements
         self.design()
         # Fill session members
@@ -81,7 +90,7 @@ class CollaborationWindow(TabbedWindow):
         btn_container = Frame(self.frm_body, bg=background)
         btn_container.pack(fill=X, side=TOP)
 
-        for i in CollaborationWindow.btnSettings:
+        for i in self.btnSettings:
             childCount = len (btn_container.pack_slaves())
             method = i.get('type', MainButton)
             btn = method(btn_container, i.get('text', 'Button'), i.get('icon', 'error.png'), i.get('cmnd', None))

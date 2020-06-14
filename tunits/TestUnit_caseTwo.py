@@ -23,9 +23,9 @@ def run():
 
     t1 = Task(id='tsk1', name='Approve Order', type=TaskType.User)
     t2 = Task(id='tsk2', name='Notification Order Approved',
-              type=TaskType.SendMessage)
+              type=TaskType.Send)
     t3 = Task(id='tsk3', name='Notification order rejected',
-              type=TaskType.SendMessage)
+              type=TaskType.Send)
 
     g = Gateway(id='gt1')
 

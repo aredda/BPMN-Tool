@@ -16,4 +16,4 @@ class TextAnnotation(Artifact):
         eText.text = self.name
         e.append(eText)
         # Return
-        return e;
+        return e
