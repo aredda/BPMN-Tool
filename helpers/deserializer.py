@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as et
 
+from resources.namespaces import *
 from helpers.reflector import get_enum
 from helpers.stringhelper import to_pretty_xml
 from models.bpmn.definitions import Definitions
@@ -39,10 +40,10 @@ from models.bpmndi.plane import BPMNPlane
 
 class Deserializer:
 
-    bpmn_ns = '{http://www.omg.org/spec/BPMN/20100524/MODEL}'
-    bpmndi_ns = '{http://www.omg.org/spec/BPMN/20100524/DI}'
-    di_ns = '{http://www.omg.org/spec/DD/20100524/DI}'
-    dc_ns = '{http://www.omg.org/spec/DD/20100524/DC}'
+    # bpmn_ns = '{http://www.omg.org/spec/BPMN/20100524/MODEL}'
+    # bpmndi_ns = '{http://www.omg.org/spec/BPMN/20100524/DI}'
+    # di_ns = '{http://www.omg.org/spec/DD/20100524/DI}'
+    # dc_ns = '{http://www.omg.org/spec/DD/20100524/DC}'
     
     all_breeds = ['task', 'event', 'gateway', 'subprocess', 'flow', 'dataobject', 'dataobjectreference', 'datastorereference', 'textannotation', 'association']
     linkables = ['task', 'event', 'gateway', 'subprocess']
@@ -69,6 +70,7 @@ class Deserializer:
         self.setup_lanes()
         self.setup_message_flows()
         self.setup_bpmndi()
+        self.clear_clutter()
 
     # type router
     def get_class(self, tag):
@@ -96,7 +98,7 @@ class Deserializer:
 
     def prepare(self):
         # a virtual process list
-        processList = self.root_element.findall(Deserializer.bpmn_ns + 'process')
+        processList = self.root_element.findall(bpmn + 'process')
         # retrieve process elements
         for process in processList:
             # store id
@@ -196,7 +198,7 @@ class Deserializer:
                         instance.dataObject = self.find_element(xe.attrib['dataObjectRef'])
                     # text annotation settings
                     if breed == 'textannotation':
-                        instance.name = xe.find(Deserializer.bpmn_ns + 'text').text
+                        instance.name = xe.find(bpmn + 'text').text
                     # add it to the children collection
                     children[breed][instance.id] = instance
                     # add it to the process container
@@ -226,11 +228,11 @@ class Deserializer:
                             instance.direction = DataAssocDirection.IN if pure_tag == 'datainputassociation' else DataAssocDirection.OUT
                             # check if this is a data output association
                             if pure_tag == 'dataoutputassociation':
-                                instance.target = self.find_element(child.find(Deserializer.bpmn_ns + 'targetRef').text)
+                                instance.target = self.find_element(child.find(bpmn + 'targetRef').text)
                             # check if this is a data input association
                             if pure_tag == 'datainputassociation':
                                 # find property
-                                xprop = xe.find(Deserializer.bpmn_ns + 'property')
+                                xprop = xe.find(bpmn + 'property')
                                 if self.find_element(xprop.attrib['id']) == None:
                                     # create a property
                                     prop = Property(**xprop.attrib)
@@ -239,10 +241,12 @@ class Deserializer:
                                     # add it to the major list
                                     self.all_elements.append(prop)
                                 # setting up the data assoc fields
-                                instance.source = self.find_element(child.find(Deserializer.bpmn_ns + 'sourceRef').text)
+                                instance.source = self.find_element(child.find(bpmn + 'sourceRef').text)
                                 instance.target = self.find_element(xprop.attrib['id'])
                             # add element to the linkable's container
                             se.add('dataAssociation', instance)
+                            # add element to the major list
+                            self.all_elements.append(instance)
             # add it to the definition
             if isProcess == True: 
                 self.definitions.add('process', process)
@@ -262,7 +266,9 @@ class Deserializer:
 
     def setup_collaboration(self):
         # retrieve collaboration
-        xcollaboration = self.root_element.find(Deserializer.bpmn_ns + 'collaboration')
+        xcollaboration = self.root_element.find(bpmn + 'collaboration')
+        # check if there's a collaboration object
+        if xcollaboration == None: return
         participants = {}
         # retrieve participants
         for xchild in xcollaboration:
@@ -287,7 +293,7 @@ class Deserializer:
             # retrieve s element
             process = self.find_element(xprocess.attrib['id'])
             # retrieve lanes
-            xLaneSet = xprocess.find(Deserializer.bpmn_ns + 'laneSet')
+            xLaneSet = xprocess.find(bpmn + 'laneSet')
             # check if there's a laneset
             if xLaneSet != None:
                 # loop through lanes
@@ -303,9 +309,11 @@ class Deserializer:
 
     def setup_message_flows(self):
         # find collaboration element
-        xcollaboration = self.root_element.find(Deserializer.bpmn_ns + 'collaboration')
+        xcollaboration = self.root_element.find(bpmn + 'collaboration')
+        # check if there's a collaboration
+        if xcollaboration == None: return
         # find message flows
-        for xflow in xcollaboration.findall(Deserializer.bpmn_ns + 'messageFlow'):
+        for xflow in xcollaboration.findall(bpmn + 'messageFlow'):
             # instantiate flow
             sflow = MessageFlow(**xflow.attrib)
             # configure flow
@@ -318,15 +326,15 @@ class Deserializer:
         # utilities
         def get_bounds(xelement):
             # retrieve x bounds element
-            xbounds = xelement.find(Deserializer.dc_ns + 'Bounds')
+            xbounds = xelement.find(dc + 'Bounds')
             # return bounds element
             return Bounds(**xbounds.attrib)
         # find the diagram xelement
-        xdiagram = self.root_element.find(Deserializer.bpmndi_ns + 'BPMNDiagram')
+        xdiagram = self.root_element.find(bpmndi + 'BPMNDiagram')
         # create a container for bpmndi elements
         diagram = BPMNDiagram(**xdiagram.attrib)
         # find plane
-        xplane = xdiagram.find(Deserializer.bpmndi_ns + 'BPMNPlane')
+        xplane = xdiagram.find(bpmndi + 'BPMNPlane')
         # instantiate a plane object
         plane = BPMNPlane(**xplane.attrib)
         plane.element = self.find_element(xplane.attrib['id'])
@@ -342,7 +350,7 @@ class Deserializer:
                 # element reference
                 obj.element = self.find_element(xchild.attrib['bpmnElement'])
                 # if object has a label
-                xlabel = xchild.find(Deserializer.bpmndi_ns + 'BPMNLabel')
+                xlabel = xchild.find(bpmndi + 'BPMNLabel')
                 if xlabel != None: obj.label = BPMNLabel(bounds=get_bounds(xlabel))
                 # shape settings
                 if 'Shape' in xchild.tag:
@@ -355,7 +363,7 @@ class Deserializer:
                 # edge settings
                 if 'Edge' in xchild.tag:
                     # retrieve waypoints
-                    xpoints = xchild.findall(Deserializer.di_ns + 'waypoint')
+                    xpoints = xchild.findall(di + 'waypoint')
                     # affecting points
                     obj.start = (xpoints[0].attrib['x'], xpoints[0].attrib['y'])
                     obj.end = (xpoints[-1].attrib['x'], xpoints[-1].attrib['y'])
@@ -369,7 +377,6 @@ class Deserializer:
     def setup_activity(self, xelement, instance):
         # get tag
         xe_tag = xelement.tag.split('}')[1].lower()
-        print ('a setup is requried for', xe_tag)
         # default activity flag
         activity_flag = ActivityFlag.Default
         # check if this activity is flagged as adhoc
@@ -389,3 +396,25 @@ class Deserializer:
                         activity_flag = ActivityFlag.SequentialMultiple
         # affecting flag
         instance.flag = activity_flag
+
+    def clear_clutter(self):
+        to_delete = []
+        # search for extra needless data objects
+        for e in self.all_elements:
+            if type(e) == DataObject:
+                found = False
+                for f in self.all_elements:
+                    if type(f) == DataObjectReference:
+                        if f.dataObject == e: found = True
+                if found == False:
+                    to_delete.append (e)
+        # clear found elements
+        for e in to_delete:
+            # clear it from the major list
+            self.all_elements.remove(e)
+            # clear it from processes
+            for process in self.selements['process'].keys():
+                self.selements['process'][process]['instance'].remove('dataobject', e)
+
+                
+

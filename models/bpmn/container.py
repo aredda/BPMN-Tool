@@ -19,6 +19,10 @@ class Container(BPMNElement):
         # Add element
         self.elements[name] = self.elements[name] + list(items)
 
+    def remove(self, name, item):
+        if name in self.elements:
+            self.elements[name].remove(item)
+
     def serialize(self):
         element = BPMNElement.serialize(self)
         # For each element in the dictionary of lists..

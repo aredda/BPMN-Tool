@@ -1,4 +1,6 @@
 import xml.etree.ElementTree as et
+
+from resources.namespaces import *
 from models.bpmn.container import Container
 
 class Definitions(Container):
@@ -14,15 +16,19 @@ class Definitions(Container):
         self.collaboration = args.get('collaboration', None)
 
     def serialize(self):
+        # register namespaces
+        self.register_namespaces()
+
+        # instantiate element
         element = Container.serialize(self)
 
         # Create a collaboration element
-        collaboration = et.Element('collaboration')
+        collaboration = et.Element(bpmn + 'collaboration')
         collaboration.attrib['id'] = 'collaboration' if self.collaboration == None else self.collaboration
 
         # Append participants elements to collaboration element
         for process in self.elements['process']:
-            participant = et.Element('participant')
+            participant = et.Element(bpmn + 'participant')
 
             participant.attrib['id'] = str (process.participant)
             participant.attrib['processRef'] = str (process.id)
@@ -40,3 +46,8 @@ class Definitions(Container):
         element.insert(0, collaboration)
 
         return element
+
+    # responsible for registring namespaces
+    def register_namespaces(self):
+        for prefix in namespaces.keys():
+            et.register_namespace(prefix, namespaces[prefix])

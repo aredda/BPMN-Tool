@@ -1,7 +1,8 @@
 from models.xmlserializable import XMLSerializable
 from helpers.stringhelper import camel_case
-import xml.etree.ElementTree as et
+from resources.namespaces import bpmn
 
+import xml.etree.ElementTree as et
 
 class BPMNElement(XMLSerializable):
 
@@ -27,7 +28,7 @@ class BPMNElement(XMLSerializable):
 
     # A default serialization
     def serialize(self):
-        e = et.Element(camel_case(self.__class__.__name__))
+        e = et.Element(bpmn + camel_case(self.__class__.__name__))
         # Foreach property in class, add it as an attribute to the element
         for attr in vars(self):
             if attr not in self.ignore and getattr(self, attr) != None:

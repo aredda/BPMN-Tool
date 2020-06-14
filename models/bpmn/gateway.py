@@ -1,8 +1,9 @@
 from models.bpmn.linkable import Linkable
 from models.bpmn.enums.gatewaytype import GatewayType
 from helpers.stringhelper import camel_case
-import xml.etree.ElementTree as et
+from resources.namespaces import *
 
+import xml.etree.ElementTree as et
 
 class Gateway(Linkable):
 
@@ -16,5 +17,5 @@ class Gateway(Linkable):
 
     def serialize(self):
         element = Linkable.serialize(self)
-        element.tag = camel_case(self.type.name) + 'Gateway'
+        element.tag = bpmn + camel_case(self.type.name) + 'Gateway'
         return element

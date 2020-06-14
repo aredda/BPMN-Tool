@@ -1,4 +1,5 @@
 from models.bpmn.container import Container
+from resources.namespaces import *
 
 class BPMNPlane(Container):
     
@@ -10,7 +11,7 @@ class BPMNPlane(Container):
 
     def serialize(self):
         e = Container.serialize(self)
-        e.tag = 'BPMNPlane'
+        e.tag = bpmndi + 'BPMNPlane'
         if self.element != None: 
             e.attrib['bpmnElement'] = self.element if isinstance(self.element, str) else str(self.element.id)
 

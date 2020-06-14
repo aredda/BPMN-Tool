@@ -19,8 +19,9 @@ because we are going to add other models concerning data..
 - [X] Message Flows
 - [X] BPMNDI section
 - [X] Activity Flag Serialization
-- [ ] Extra data object for no goddamn reason
-- [ ] Group Serialization & Deserialization
+- [X] Extra data object for no goddamn reason
+- [X] BPMN edges don't find their elements
+- [ ] ~~Group Serialization & Deserialization~~
 
 # Modals
 ### Window

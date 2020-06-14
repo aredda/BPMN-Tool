@@ -1,5 +1,6 @@
-from models.bpmndi.bpmndielement import BPMNDIElement
 from xml.etree import ElementTree as et
+from models.bpmndi.bpmndielement import BPMNDIElement
+from resources.namespaces import *
 
 class BPMNEdge(BPMNDIElement):
 
@@ -14,7 +15,7 @@ class BPMNEdge(BPMNDIElement):
         e = BPMNDIElement.serialize(self)
         
         for point in [self.start, self.end]:
-            ep = et.Element('waypoint')
+            ep = et.Element(di + 'waypoint')
             ep.attrib['x'] = str(point[0])
             ep.attrib['y'] = str(point[1])
             e.append(ep)

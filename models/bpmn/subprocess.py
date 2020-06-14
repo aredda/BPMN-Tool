@@ -1,5 +1,6 @@
 from models.bpmn.activity import Activity
 from models.bpmn.enums.activityflag import ActivityFlag
+from resources.namespaces import bpmn
 
 class SubProcess(Activity):
 
@@ -11,6 +12,6 @@ class SubProcess(Activity):
         e = Activity.serialize(self)
         # adhoc case 
         if self.flag == ActivityFlag.AdHoc:
-            e.tag = 'adHocSubProcss'
+            e.tag = bpmn + 'adHocSubProcss'
 
         return e

@@ -7,7 +7,7 @@ from models.bpmn.enums.dataassocdirection import DataAssocDirection
 from models.bpmn.property import Property
 from models.bpmn.dataassociation import DataAssociation
 from models.bpmn.sequenceflow import SequenceFlow
-
+from resources.namespaces import bpmn
 
 class Linkable(Container):
 
@@ -84,7 +84,7 @@ class Linkable(Container):
 
         for setting in lists:
             for item in setting['list']:
-                inElement = et.Element(setting['name'])
+                inElement = et.Element(bpmn + setting['name'])
                 inElement.text = str(item.id)
                 linkableElement.append(inElement)
 

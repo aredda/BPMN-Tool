@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 
 from models.bpmn.container import Container
-
+from resources.namespaces import bpmn
 
 class Lane(Container):
 
@@ -14,11 +14,11 @@ class Lane(Container):
             self.process.add('lane', self)
 
     def serialize(self):
-        laneElement = et.Element("lane")
+        laneElement = et.Element(bpmn + 'lane')
 
         for key in self.elements:
             for element in self.elements[key]:
-                el = et.Element("flowNodeRef")
+                el = et.Element('flowNodeRef')
                 el.text = element.id
                 laneElement.append(el)
 
