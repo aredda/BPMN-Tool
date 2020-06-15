@@ -1,17 +1,18 @@
 from tkinter import *
 from helpers.colorhelper import *
+from helpers.imageutility import getdisplayableimage
 from views.effects.animatable import Animatable
 from resources.colors import *
 from PIL import Image as Img, ImageTk
 
 class IconFrame(Canvas, Animatable):
 
-    def __init__(self, master, imagePath, imagePadding=15, bgColor=None, size=50, command=None, hoverBgColor=None, **args):
+    def __init__(self, master, image, imagePadding=15, bgColor=None, size=50, command=None, hoverBgColor=None, **args):
         Canvas.__init__(self, master, **args)
         Animatable.__init__(self)
 
         self.size = size
-        self.imagePath = imagePath
+        self.image = image
         self.defaultBgColor = bgColor
         self.hoverBgColor = hoverBgColor
         # Correct padding
@@ -28,8 +29,12 @@ class IconFrame(Canvas, Animatable):
         self.img_bg = self.create_image(size/2, size/2)
         self.set_bgColor(self.bgColor)
         # Configure image & draw image
-        self._image = ImageTk.PhotoImage(Img.open(imagePath).resize((size-imagePadding, size-imagePadding)))
-        self.image = self.create_image(size/2, size/2, image=self._image)
+        if isinstance(image, str):
+            self._image = ImageTk.PhotoImage(Img.open(image).resize((size-imagePadding, size-imagePadding)))
+        else:
+            self._image = getdisplayableimage(image, (size-imagePadding, size-imagePadding))
+        # display image
+        self.img_image = self.create_image(size/2, size/2, image=self._image)
         # Configure click
         if command != None:
             self.bind('<Button-1>', command)
