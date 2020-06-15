@@ -33,6 +33,9 @@ class SessionWindow(Window):
         self.frm_hBarBorder.pack(side=TOP, fill=X)
         self.frm_body.pack(side=BOTTOM, expand=1, fill=BOTH)
 
+        # vbar buttons
+        self.vBarButtons = {}
+
         # Set up the bars
         self.config_vBar()
         self.config_hBar()
@@ -43,10 +46,16 @@ class SessionWindow(Window):
             return lambda e: self.windowManager.run_tag(tag)
 
         for i in SessionWindow.vBarSettings:
+            # retrieve callable
             cb = callback(i.get('dest'))
+            # instantiate button
             btn = IconButton(self.frm_vBar, i.get('text', 'Icon Button'), '-size 11 -weight bold', white, f'resources/icons/ui/{i["icon"]}', 0, None, black, 32, cb, bg=black, pady=10)
             btn.label.pack_forget()
             btn.pack(side=i.get('dock', TOP), fill=X)
+            # save button
+            self.vBarButtons[i.get('name')] = btn
+
+        self.vBarButtons['btn_quit'].bind_click(lambda e: self.windowManager.quit())
 
     def config_hBar(self):
         # Creation of elements
@@ -80,21 +89,25 @@ class SessionWindow(Window):
     # Vertical Bar Settings
     vBarSettings = [
         {
+            'name': 'btn_home',
             'icon': 'home.png',
             'text': 'Home',
             'dest': 'home'
         },
         {
+            'name': 'btn_discussion',
             'icon': 'discussion_original.png',
             'text': 'Discussions',
             'dest': 'discussion'
         },
         {
+            'name': 'btn_profile',
             'icon': 'settings.png',
             'text': 'Settings',
             'dest': 'profile'
         },
         {
+            'name': 'btn_quit',
             'icon': 'logout.png',
             'text': 'Sign Out',
             'dest': None,

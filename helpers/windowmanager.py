@@ -50,6 +50,9 @@ class WindowManager:
     def running(self):
         return None if len(self.windows) == 0 else self.windows[-1]
 
+    def quit(self):
+        self.root.destroy()
+
     # helper method
     def get_module(self, name: str):
         return get_cls(name)
