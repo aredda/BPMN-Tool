@@ -27,11 +27,11 @@ class ListItemFactory(Factory):
             lbl_content = Label(frm_body, fg=black, bg=white, font='-size 10 -weight bold', text=item.bindings.get('content', '{content}'), pady=0, padx=0)
             lbl_content.pack(side=TOP, anchor=N+W, pady=(0, 10))
 
-            if item.buttons != None:
+            if item.buttonSettings != None:
                 frm_btn_container = Frame(frm_body, bg=white)
                 frm_btn_container.pack(side=TOP, expand=1, fill=BOTH)
 
-                for s in item.buttons:
+                for s in item.buttonSettings:
                     btn = IconButton(
                         frm_btn_container, 
                         s.get('text', 'Button Text'), 
