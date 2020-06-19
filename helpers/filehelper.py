@@ -1,9 +1,9 @@
 def filetobytes(filename):
     with open(filename, 'rb') as file:
-        imagedata = file.read()
-    return imagedata
+        data = file.read()
+    return data
 
 
-def bytestofile(directory, filename, extension, imagedata: bytes):
+def bytestofile(directory, filename, extension, data: bytes):
     with open(f'{directory}/{filename}.{extension}', 'wb') as file:
-        file.write(imagedata)
+        file.write(data)

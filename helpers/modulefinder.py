@@ -20,12 +20,16 @@ def importmodule(modulename: str, folderpath: []):
     return None
 
 
-def getinstance(classname: str, folderpath: [], nameGetter=None, **args):
+def getclass(classname: str, folderpath: [], nameGetter=None):
     modulename = classname.lower() if nameGetter == None else nameGetter(classname)
     module = importmodule(modulename, folderpath)
 
     if module != None:
-        klass = getattr(module, classname)
-        return klass(**args)
+        return getattr(module, classname)
 
     return None
+
+
+def getinstance(classname: str, folderpath: [], nameGetter=None, **args):
+    klass = getclass(classname, folderpath, nameGetter)
+    return klass(**args) if klass != None else None

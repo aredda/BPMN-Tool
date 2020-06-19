@@ -2,7 +2,9 @@ import xml.etree.ElementTree as et
 import xml.dom.minidom as md
 
 # BOOKMARK: engine connection string
-connection_string = 'mysql+pymysql://root:@localhost/bpmntool'
+database_name = 'bpmntool'
+server_path = 'mysql+pymysql://root:@localhost/'
+connection_string = server_path + database_name
 
 
 def camel_case(word: str):

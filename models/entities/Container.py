@@ -1,7 +1,10 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-from helpers.stringhelper import connection_string
+from helpers.stringhelper import connection_string, server_path, database_name
+from helpers.filehelper import filetobytes
+from sqlalchemy.exc import InternalError
+
 
 class Container():
 
@@ -16,13 +19,31 @@ class Container():
     def configure():
         Container.Base = declarative_base()
         # Creating the engine that holds the connection to the database
-        engine = create_engine(connection_string)
+        engine = Container.connect()
         # Creating metaData that holds our Tables and their associations
         Container.metaData = MetaData(bind=engine)
         # Creating a session that holds all our objects and which takes care of communicating queries to our database
         Session = sessionmaker(bind=engine)
         Container.session = Session()
         Container.configured = True
+
+    @staticmethod
+    def connect():
+        engine = create_engine(connection_string)
+        try:
+            engine.connect()
+        except InternalError:
+            # print('ERROR')
+            engine = create_engine(server_path)
+            engine.execute(f'CREATE DATABASE {database_name}')
+            engine = create_engine(connection_string)
+            sql = (filetobytes('models/entities/database.sql')).decode('utf-8')
+            # print(sql)
+            for st in sql.replace('\\n', '').replace('\\r', '').split(';'):
+                engine.execute(st)
+                # print(st)
+        finally:
+            return create_engine(connection_string)
 
     @staticmethod
     def configureRelationships(relationships):
@@ -69,7 +90,7 @@ class Container():
         obj = Container.filter(Class).get(id)
         for key, value in args.items():
             setattr(obj, key, value)
-        Container.saveObject(obj)
+        Container.save(obj)
         return obj
 
     @staticmethod
@@ -82,7 +103,7 @@ class Container():
         obj = Class()
         for key, value in args.items():
             setattr(obj, key, value)
-        Container.saveObject(obj)
+        Container.save(obj)
         return obj
 
     @staticmethod  # used for add and update
@@ -98,6 +119,7 @@ class Container():
     @staticmethod
     def filter(modelType, *conditions):
         return Container.session.query(modelType).filter(*conditions)
+
 
 if Container.configured == False:
     Container.configure()
