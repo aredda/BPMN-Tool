@@ -19,6 +19,6 @@ from helpers.stringhelper import getmodulename, getclassname
 # getclass test
 def run(tag: str):
     klass = getclass(classname=getclassname(tag), folderpath=[
-                     'models/bpmn'], nameGetter=getmodulename)
-    c = klass(id=0, name='haha')
-    print(type(c))
+                     'models/bpmn', 'models/bpmndi'], nameGetter=getmodulename)
+    # c = klass(id=0, name='haha')
+    print(klass)

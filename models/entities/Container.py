@@ -29,20 +29,25 @@ class Container():
 
     @staticmethod
     def connect():
+        # request a connection
         engine = create_engine(connection_string)
+        # try to connect to the database
         try:
             engine.connect()
         except InternalError:
-            # print('ERROR')
+            # if the database doesn't exist connect to the server
             engine = create_engine(server_path)
+            # create database
             engine.execute(f'CREATE DATABASE {database_name}')
+            # request connection to the created database
             engine = create_engine(connection_string)
+            # get tables creation code
             sql = (filetobytes('models/entities/database.sql')).decode('utf-8')
-            # print(sql)
+            # loop on the statements and execute each one
             for st in sql.replace('\\n', '').replace('\\r', '').split(';'):
                 engine.execute(st)
-                # print(st)
         finally:
+            # return the engine
             return create_engine(connection_string)
 
     @staticmethod
