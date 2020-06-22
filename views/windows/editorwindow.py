@@ -5,6 +5,8 @@ from views.components.scrollable import Scrollable
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
+from views.prefabs.guievent import GUIEvent
+from views.prefabs.guigateway import GUIGateway
 
 class EditorWindow(SessionWindow):
     
@@ -23,15 +25,14 @@ class EditorWindow(SessionWindow):
             'bg': white,
             'hoverBg': silver,
             'tools': [
-                { 'icon': 'start-event.png' },
-                { 'icon': 'gateway.png' },
+                { 'icon': 'start-event.png', 'create': GUIEvent },
+                { 'icon': 'gateway.png', 'create': GUIGateway },
                 { 'icon': 'task.png' },
                 { 'icon': 'subprocess-expanded.png' },
                 { 'icon': 'participant.png' },
                 { 'icon': 'connection-multi.png' },
                 { 'icon': 'data-object.png' },
                 { 'icon': 'data-store.png' },
-                { 'icon': 'group.png' },
                 { 'icon': 'text-annotation.png' }
             ]
         },
@@ -51,12 +52,20 @@ class EditorWindow(SessionWindow):
         }
     }
 
+    # EDITOR Modes
+    MOVE_MODE = 0
+    SELECT_MODE = 1
+
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
 
         self.subject = subject
+        self.guielements = []
+
+        self.SELECTED_MODE = -1
 
         self.design()
+        self.setup_actions()
 
     def setup_tools(self):
         # Lay out tool panels
@@ -72,7 +81,13 @@ class EditorWindow(SessionWindow):
                 align = settings.get('align', TOP)
                 spacing = { 'padx': 0 if align == TOP else (0, 5), 'pady': 0 if align != TOP else (0, 5) }
 
-                ic_tool = IconFrame(frm_container, settings['path'] + j.get('icon'), 15, j.get('bg', settings.get('bg', black)), settings['size'], j.get('cmnd', None), settings.get('hoverBg', None), bg=white)
+                # process command
+                cmnd = None
+                for t in ['create', 'do']:
+                    if t in j: 
+                        cmnd = self.select_event(t, j.get(t))
+
+                ic_tool = IconFrame(frm_container, settings['path'] + j.get('icon'), 15, j.get('bg', settings.get('bg', black)), settings['size'], cmnd, settings.get('hoverBg', None), bg=white)
                 ic_tool.pack(side=align) 
 
                 if settings['tools'].index(j) != len(settings['tools']) - 1:
@@ -85,3 +100,20 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.pack(fill=BOTH, expand=1)
         # prepare control frames
         self.setup_tools()
+
+    def setup_actions(self):
+        pass
+
+    def select_event(self, tag, value):
+        # create event
+        if tag == 'create':
+            # prepare create command
+            def cmnd_create(e):
+                # instantiate
+                guie = value(canvas=self.cnv_canvas)
+                # draw
+                guie.draw_at(512, 256)
+                # appen
+                self.guielements.append(guie)
+            # return it
+            return cmnd_create

@@ -37,3 +37,6 @@ because we are going to add other models concerning data..
 - [X] Share modal
 ### SessionWindow
 - [X] Invite modal
+
+# Editor
+- [ ] Implement event definitions
