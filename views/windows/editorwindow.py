@@ -54,9 +54,9 @@ class EditorWindow(SessionWindow):
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
 
-        self.subject = None
+        self.subject = subject
 
-        self.setup_tools()
+        self.design()
 
     def setup_tools(self):
         # Lay out tool panels
@@ -64,8 +64,8 @@ class EditorWindow(SessionWindow):
 
             settings = EditorWindow.toolSettings[i]
 
-            frm_container = Frame(self.frm_body, bg=white, highlightthickness=1, highlightbackground=border, padx=10, pady=10)
-            frm_container.pack(side=i)
+            frm_container = Frame(self.cnv_canvas, bg=white, highlightthickness=1, highlightbackground=border, padx=10, pady=10)
+            frm_container.pack(side=i, padx=20, pady=20)
 
             for j in settings['tools']:
 
@@ -78,3 +78,10 @@ class EditorWindow(SessionWindow):
                 if settings['tools'].index(j) != len(settings['tools']) - 1:
                     ic_tool.pack(side=align, **spacing)
     
+    def design(self):
+        # prepare canvas
+        self.frm_body.config(padx=0, pady=0)
+        self.cnv_canvas = Canvas(self.frm_body, bg=background, highlightthickness=0)
+        self.cnv_canvas.pack(fill=BOTH, expand=1)
+        # prepare control frames
+        self.setup_tools()

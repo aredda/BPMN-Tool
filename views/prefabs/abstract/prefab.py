@@ -18,3 +18,6 @@ class Prefab:
 
     def draw(self):
         pass
+
+    def draw_at(self, x, y):
+        pass
