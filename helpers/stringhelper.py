@@ -35,6 +35,7 @@ def getclassname(tag: str):
             return data
 
     if classname.lower().endswith('flow'):
-        return classname[:-4]+'Flow'
+        # return classname[:-4]+'Flow'
+        return 'SequenceFlow'
 
     return classname
