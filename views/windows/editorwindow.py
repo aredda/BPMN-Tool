@@ -7,7 +7,7 @@ from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.prefabs.guievent import GUIEvent
 from views.prefabs.guigateway import GUIGateway
-from views.prefabs.guiactivity import GUIActivity
+from views.prefabs.guisubprocess import GUISubProcess
 from views.prefabs.guitask import GUITask
 
 class EditorWindow(SessionWindow):
@@ -30,7 +30,7 @@ class EditorWindow(SessionWindow):
                 { 'icon': 'start-event.png', 'create': GUIEvent },
                 { 'icon': 'gateway.png', 'create': GUIGateway },
                 { 'icon': 'task.png', 'create': GUITask },
-                { 'icon': 'subprocess-expanded.png' },
+                { 'icon': 'subprocess-expanded.png', 'create': GUISubProcess },
                 { 'icon': 'participant.png' },
                 { 'icon': 'connection-multi.png' },
                 { 'icon': 'data-object.png' },

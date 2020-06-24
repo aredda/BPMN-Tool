@@ -51,5 +51,9 @@ class GUIActivity(GUILinkable):
             iconpath = str(flag).lower().split('.')[1]
             if 'multiple' in iconpath: iconpath = 'parallel'
             self.flag_icon = imgTk.PhotoImage(img.open('resources/icons/notation/' + iconpath + '.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
-            cnv.create_image(x + self.WIDTH / 2, y + self.HEIGHT - self.ICON_MARGIN, image=self.flag_icon)
+            # adjusting coords of the icon depending on the element
+            flag_x = x + self.WIDTH / 2
+            if self.__class__.__name__ == 'GUISubProcess':
+                flag_x -= self.ICON_MARGIN / 4
+            cnv.create_image(flag_x, y + self.HEIGHT - self.ICON_MARGIN, image=self.flag_icon)
         
