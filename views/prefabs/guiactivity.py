@@ -1,6 +1,8 @@
 from tkinter import Canvas
+from PIL import Image as img, ImageTk as imgTk
 from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
+from models.bpmn.enums.activityflag import ActivityFlag
 
 class GUIActivity(GUILinkable):
     
@@ -8,10 +10,15 @@ class GUIActivity(GUILinkable):
     HEIGHT = 100
     RADIUS = 10
 
+    ICON_MARGIN = 16
+    ICON_SIZE = 26
+
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
     def draw_at(self, x, y):
+        # extract info
+        flag = ActivityFlag.Loop
         # get canvas
         cnv: Canvas = self.canvas
         # border points
@@ -39,3 +46,10 @@ class GUIActivity(GUILinkable):
         ]
         # draw border
         cnv.create_polygon(points, fill=cnv['bg'], width=2, outline=black, smooth=True)
+        # draw flag icon
+        if flag != ActivityFlag.Default:
+            iconpath = str(flag).lower().split('.')[1]
+            if 'multiple' in iconpath: iconpath = 'parallel'
+            self.flag_icon = imgTk.PhotoImage(img.open('resources/icons/notation/' + iconpath + '.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
+            cnv.create_image(x + self.WIDTH / 2, y + self.HEIGHT - self.ICON_MARGIN, image=self.flag_icon)
+        
