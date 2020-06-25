@@ -42,3 +42,8 @@ class Prefab:
     def bring_back(self):
         for id in self.id:
             self.canvas.tag_lower(id)
+
+    def destroy(self):
+        # remove all drawn elements
+        for id in self.id:
+            self.canvas.delete(id)

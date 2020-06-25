@@ -56,8 +56,10 @@ class EditorWindow(SessionWindow):
     }
 
     # EDITOR Modes
-    MOVE_MODE = 0
+    CREATE_MODE = 3
+    DRAG_MODE = 0
     SELECT_MODE = 1
+    MOVE_MODE = 2
 
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
@@ -65,8 +67,10 @@ class EditorWindow(SessionWindow):
         self.subject = subject
         self.guielements = []
 
-        self.SELECTED_MODE = self.MOVE_MODE
+        self.SELECTED_MODE = self.DRAG_MODE
         self.SELECTED_ELEMENT = None
+        
+        self.DRAG_ELEMENT = None
 
         self.design()
         self.setup_actions()
@@ -109,26 +113,53 @@ class EditorWindow(SessionWindow):
         
         # single click
         def action_mouse_click(e):
+            # finish creation
+            if self.SELECTED_MODE == self.CREATE_MODE:
+                self.SELECTED_MODE = self.DRAG_MODE
+            # hide menu
+            self.hide_component('frm_menu')
             # retrieve the last element (top element) to be found in the canvas
             last_element = self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2)
             if len (last_element) > 0: last_element = last_element[-1]
             # find gui element that has this element id
-            self.SELECTED_ELEMENT = self.find_element(last_element)
+            self.SELECTED_ELEMENT = self.DRAG_ELEMENT = self.find_element(last_element)
+            # show the list of options
+            if self.SELECTED_ELEMENT != None:
+                menu_coords = self.to_window_coords(e.x_root, e.y_root)
+                self.show_menu(x=menu_coords[0], y=menu_coords[1], options=[
+                    {
+                        'text': 'Change Name',
+                        'icon': 'text.png'
+                    },
+                    {
+                        'text': 'Associate',
+                        'icon': 'associate.png'
+                    },
+                    {
+                        'text': 'Delete',
+                        'icon': 'delete.png',
+                        'fg': danger,
+                        'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
+                    }
+                ])
 
         # mouse moving
         def action_mouse_move(e):
-            if self.SELECTED_MODE == self.MOVE_MODE:
-                if self.SELECTED_ELEMENT != None:
-                    self.SELECTED_ELEMENT.move(e.x, e.y)
-                    self.SELECTED_ELEMENT.bring_front()
+            if self.SELECTED_MODE in [self.DRAG_MODE, self.CREATE_MODE]:
+                if self.DRAG_ELEMENT != None:
+                    self.DRAG_ELEMENT.move(e.x, e.y)
+                    self.DRAG_ELEMENT.bring_front()
 
         # mouse release
         def action_mouse_release(e):
-            self.SELECTED_ELEMENT = None
+            if self.SELECTED_MODE != self.CREATE_MODE:
+                self.DRAG_ELEMENT = None
 
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
+        self.cnv_canvas.bind('<Motion>', action_mouse_move)
         self.cnv_canvas.bind('<B1-Motion>', action_mouse_move)
         self.cnv_canvas.bind('<ButtonRelease-1>', action_mouse_release)
+        
 
     def select_event(self, tag, value):
         # create event
@@ -138,7 +169,11 @@ class EditorWindow(SessionWindow):
                 # instantiate
                 guie = value(canvas=self.cnv_canvas)
                 # draw
-                guie.draw_at(256, 128)
+                guie.draw_at(0, 0)
+                # change mode
+                self.SELECTED_MODE = self.CREATE_MODE
+                # set as the drag element
+                self.DRAG_ELEMENT = guie
                 # appen
                 self.guielements.append(guie)
             # return it
@@ -150,3 +185,12 @@ class EditorWindow(SessionWindow):
             if id in guie.id:
                 return guie
         return None
+
+    # delete an element
+    def remove_element(self, element):
+        # remove the drawn element
+        element.destroy()
+        # remove from list
+        self.guielements.remove(element)
+        # hide menu
+        self.hide_component('frm_menu')

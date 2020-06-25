@@ -94,8 +94,8 @@ class Window(Toplevel):
             child.destroy()
         # fill new options
         for option in options.get('options', []):
-            menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', teal, 'resources/icons/ui/' + option.get('icon'), 14, None, teal, 28, option.get('cmnd', None), bg=white)
-            menu_option.pack(side=TOP, anchor=N+W, pady=(0, (0 if options.get('options').index(option) == len(options.get('options'))-1 else 5)))
+            menu_option = IconButton(self.frm_menu, option.get('text', 'Option Text'), '-size 9 -weight bold', option.get('fg', teal), option.get('folder', 'resources/icons/ui/') + option.get('icon'), 12, None, option.get('fg', teal), 28, option.get('cmnd', None), bg=option.get('bg', white))
+            menu_option.pack(side=TOP, fill=X, anchor=N+W, pady=(0, (0 if options.get('options').index(option) == len(options.get('options'))-1 else 5)))
 
     # displaying the OVERLAY component
     def show_overlay(self):
