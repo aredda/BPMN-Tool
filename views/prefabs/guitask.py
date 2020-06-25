@@ -19,4 +19,4 @@ class GUITask(GUIActivity):
             iconpath = 'resources/icons/notation/' + str(tasktype).lower().split('.')[1] + '.png'
             self.type_icon = imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE)))
             cnv: Canvas = self.canvas
-            cnv.create_image(x + self.ICON_MARGIN, y + self.ICON_MARGIN, image=self.type_icon)
+            self.id.append(cnv.create_image(x + self.ICON_MARGIN, y + self.ICON_MARGIN, image=self.type_icon))

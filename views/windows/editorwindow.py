@@ -9,6 +9,7 @@ from views.prefabs.guievent import GUIEvent
 from views.prefabs.guigateway import GUIGateway
 from views.prefabs.guisubprocess import GUISubProcess
 from views.prefabs.guitask import GUITask
+from views.prefabs.guiprocess import GUIProcess
 
 class EditorWindow(SessionWindow):
     
@@ -31,7 +32,7 @@ class EditorWindow(SessionWindow):
                 { 'icon': 'gateway.png', 'create': GUIGateway },
                 { 'icon': 'task.png', 'create': GUITask },
                 { 'icon': 'subprocess-expanded.png', 'create': GUISubProcess },
-                { 'icon': 'participant.png' },
+                { 'icon': 'participant.png', 'create': GUIProcess },
                 { 'icon': 'connection-multi.png' },
                 { 'icon': 'data-object.png' },
                 { 'icon': 'data-store.png' },
@@ -64,7 +65,8 @@ class EditorWindow(SessionWindow):
         self.subject = subject
         self.guielements = []
 
-        self.SELECTED_MODE = -1
+        self.SELECTED_MODE = self.MOVE_MODE
+        self.SELECTED_ELEMENT = None
 
         self.design()
         self.setup_actions()
@@ -104,7 +106,29 @@ class EditorWindow(SessionWindow):
         self.setup_tools()
 
     def setup_actions(self):
-        pass
+        
+        # single click
+        def action_mouse_click(e):
+            # retrieve the last element (top element) to be found in the canvas
+            last_element = self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2)
+            if len (last_element) > 0: last_element = last_element[-1]
+            # find gui element that has this element id
+            self.SELECTED_ELEMENT = self.find_element(last_element)
+
+        # mouse moving
+        def action_mouse_move(e):
+            if self.SELECTED_MODE == self.MOVE_MODE:
+                if self.SELECTED_ELEMENT != None:
+                    self.SELECTED_ELEMENT.move(e.x, e.y)
+                    self.SELECTED_ELEMENT.bring_front()
+
+        # mouse release
+        def action_mouse_release(e):
+            self.SELECTED_ELEMENT = None
+
+        self.cnv_canvas.bind('<Button-1>', action_mouse_click)
+        self.cnv_canvas.bind('<B1-Motion>', action_mouse_move)
+        self.cnv_canvas.bind('<ButtonRelease-1>', action_mouse_release)
 
     def select_event(self, tag, value):
         # create event
@@ -114,8 +138,15 @@ class EditorWindow(SessionWindow):
                 # instantiate
                 guie = value(canvas=self.cnv_canvas)
                 # draw
-                guie.draw_at(512, 256)
+                guie.draw_at(256, 128)
                 # appen
                 self.guielements.append(guie)
             # return it
             return cmnd_create
+
+    # a searching method to find the corresponding gui element from the given id
+    def find_element(self, id):
+        for guie in self.guielements:
+            if id in guie.id:
+                return guie
+        return None

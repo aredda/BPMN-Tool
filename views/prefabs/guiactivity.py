@@ -17,6 +17,7 @@ class GUIActivity(GUILinkable):
         GUILinkable.__init__(self, **args)
 
     def draw_at(self, x, y):
+        GUILinkable.draw_at(self, x, y)
         # extract info
         flag = ActivityFlag.Loop
         # get canvas
@@ -45,7 +46,7 @@ class GUIActivity(GUILinkable):
             x, y
         ]
         # draw border
-        cnv.create_polygon(points, fill=cnv['bg'], width=2, outline=black, smooth=True)
+        self.id.append (cnv.create_polygon(points, fill=cnv['bg'], width=2, outline=black, smooth=True))
         # draw flag icon
         if flag != ActivityFlag.Default:
             iconpath = str(flag).lower().split('.')[1]
@@ -55,5 +56,8 @@ class GUIActivity(GUILinkable):
             flag_x = x + self.WIDTH / 2
             if self.__class__.__name__ == 'GUISubProcess':
                 flag_x -= self.ICON_MARGIN / 4
-            cnv.create_image(flag_x, y + self.HEIGHT - self.ICON_MARGIN, image=self.flag_icon)
+            self.id.append (cnv.create_image(flag_x, y + self.HEIGHT - self.ICON_MARGIN, image=self.flag_icon))
+
+    def move(self, x, y):
+        GUILinkable.move(self, x - (self.WIDTH/2), y - (self.HEIGHT/2))
         

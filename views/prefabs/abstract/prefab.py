@@ -2,13 +2,25 @@ class Prefab:
     
     def __init__(self, **args):
         # abstract fields
-        self.id = args.get('id', None)
+        self.id = args.get('id', [])
         self.canvas = args.get('canvas', None)
         self.element = args.get('element', None)
         self.dielement = args.get('dielement', None)
 
     def move(self, x, y):
-        pass
+        # calculate the offset
+        xDiff, yDiff = (x - self.x), (y - self.y)
+        # move all the elements
+        for id in self.id:
+            oldcoords = self.canvas.coords(id)
+            newcoords = []
+            isX = True
+            for c in oldcoords:
+                newcoords.append(c + (xDiff if isX == True else yDiff))
+                isX = not isX
+            self.canvas.coords(id, *newcoords)
+        # update the current position
+        self.x, self.y = x, y
 
     def scale(self, factor):
         pass
@@ -20,4 +32,13 @@ class Prefab:
         pass
 
     def draw_at(self, x, y):
-        pass
+        # updating the current position
+        self.x, self.y = x, y
+
+    def bring_front(self):
+        for id in self.id:
+            self.canvas.tag_raise(id)
+    
+    def bring_back(self):
+        for id in self.id:
+            self.canvas.tag_lower(id)
