@@ -38,7 +38,7 @@ class GUIEvent(GUILinkable):
             image = Img.open(folder + pure_name + '.png').resize((self.ICON_SIZE, self.ICON_SIZE))
             self.def_icon = ImgTk.PhotoImage(image)
             # add a black overlay if it's end/throw event
-            if eventtype in [EventType.End, EventType.IntermediateThrow]:
+            if eventtype in [EventType.End, EventType.IntermediateThrow] and eventdefinition != EventDefinition.Message:
                 overlaid_img = Img.new('RGBA', image.size, color=black)
                 overlaid_img.putalpha(image.getchannel('A'))
                 self.def_icon = ImgTk.PhotoImage(overlaid_img)
