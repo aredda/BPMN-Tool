@@ -50,7 +50,7 @@ class GUIActivity(GUILinkable):
         # draw flag icon
         if flag != ActivityFlag.Default:
             iconpath = str(flag).lower().split('.')[1]
-            if 'multiple' in iconpath: iconpath = 'parallel'
+            if 'multiple' in iconpath: iconpath = 'parallelinstance'
             self.flag_icon = imgTk.PhotoImage(img.open('resources/icons/notation/' + iconpath + '.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
             # adjusting coords of the icon depending on the element
             flag_x = x + self.WIDTH / 2
