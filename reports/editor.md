@@ -12,4 +12,4 @@
 ### 29th of June
 - [X] Adding Data Store Reference
 - [X] Adding Data Object
-- [ ] Adding Menu Options that concern changing type/definition/flag
+- [X] Adding Menu Options that concern changing type/definition/flag

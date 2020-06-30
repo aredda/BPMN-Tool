@@ -67,7 +67,7 @@ class GUIActivity(GUILinkable):
         optlist = []
 
         def corrector(flag):
-            return lambda e: self.configure(flag)
+            return lambda e: self.set_flag(flag)
 
         for f in list(ActivityFlag):
             fstr = str(f).split('.')[1]
@@ -82,7 +82,7 @@ class GUIActivity(GUILinkable):
 
         return optlist
         
-    def configure(self, flag):
+    def set_flag(self, flag):
         self.temp_flag = flag
         self.destroy()
         self.draw()

@@ -68,7 +68,6 @@ class GUIEvent(GUILinkable):
             })
 
         for d in list(EventDefinition):
-            if d == EventDefinition.Default: continue
             dstr = str(d).split('.')[1]
             # adjust path
             path = dstr.lower()
@@ -77,7 +76,7 @@ class GUIEvent(GUILinkable):
             # add option item
             option_list.append({
                 'folder': 'resources/icons/notation/',
-                'icon': path + '.png',
+                'icon': (path if d != EventDefinition.Default else 'startevent') + '.png',
                 'text': f'Define as {dstr}',
                 'fg': gray2,
                 'textfg': gray,
