@@ -6,5 +6,10 @@
 - [ ] Displaying a pop-up of an element's actions
 
 ### 26th of June
-- [ ] Finishing the setup of GUI Events
-- [ ] Finishing the setup of GUI Gateways
+- [X] Finishing the setup of GUI Events
+- [X] Finishing the setup of GUI Gateways
+
+### 29th of June
+- [X] Adding Data Store Reference
+- [X] Adding Data Object
+- [ ] Adding Menu Options that concern changing type/definition/flag

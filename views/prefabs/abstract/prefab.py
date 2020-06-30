@@ -29,7 +29,7 @@ class Prefab:
         pass
 
     def draw(self):
-        pass
+        self.draw_at(self.x, self.y)
 
     def draw_at(self, x, y):
         # updating the current position
@@ -47,3 +47,7 @@ class Prefab:
         # remove all drawn elements
         for id in self.id:
             self.canvas.delete(id)
+        self.id.clear()
+
+    def get_options(self):
+        pass

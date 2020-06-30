@@ -7,15 +7,17 @@ from models.bpmn.enums.gatewaytype import GatewayType
 class GUIGateway(GUILinkable):
 
     WIDTH = 60
-    ICON_SIZE = 40
+    ICON_SIZE = 34
 
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
+        self.temp_type = GatewayType.Exclusive
+
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
         # get information
-        _type = GatewayType.ParallelEventBased
+        _type = self.temp_type
         # get canvas
         cnv: Canvas = self.canvas
         # draw border
@@ -35,3 +37,27 @@ class GUIGateway(GUILinkable):
 
     def move(self, x, y):
         super().move(x - (self.WIDTH/2), y - (self.WIDTH/2))
+
+    def get_options(self):
+        olist = []
+
+        def corrector(t):
+            return lambda e: self.configure(t)
+
+        for t in list(GatewayType):
+            tstr = str(t).split('.')[1]
+            olist.append({
+                'folder': 'resources/icons/notation/',
+                'icon': ('gateway' if t == GatewayType.Exclusive else tstr.lower()) + '.png',
+                'text': f'Change to {tstr} Gateway',
+                'fg': gray2,
+                'textfg': gray,
+                'cmnd': corrector(t)
+            })
+
+        return olist
+
+    def configure(self, t):
+        self.temp_type = t
+        self.destroy()
+        self.draw()

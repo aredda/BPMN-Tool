@@ -8,16 +8,19 @@ from models.bpmn.enums.eventdefinition import EventDefinition
 class GUIEvent(GUILinkable):
     
     PERIMETER = 60
-    ICON_SIZE = 40
+    ICON_SIZE = 36
 
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
+        self.temp_type = EventType.Start
+        self.temp_def = EventDefinition.Cancel
+
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
         # Extract info
-        eventtype = EventType.End
-        eventdefinition = EventDefinition.Terminate
+        eventtype = self.temp_type
+        eventdefinition = self.temp_def
         # cast
         cnv: Canvas = self.canvas
         # figure out the border width of the circle
@@ -42,7 +45,51 @@ class GUIEvent(GUILinkable):
                 overlaid_img = Img.new('RGBA', image.size, color=black)
                 overlaid_img.putalpha(image.getchannel('A'))
                 self.def_icon = ImgTk.PhotoImage(overlaid_img)
-            self.id.append (cnv.create_image(self.PERIMETER/2, self.PERIMETER/2, image=self.def_icon))
+            self.id.append (cnv.create_image(x + self.PERIMETER/2, y + self.PERIMETER/2, image=self.def_icon))
             
     def move(self, x, y):
         super().move(x - (self.PERIMETER/2), y - (self.PERIMETER/2))
+
+    def get_options(self):
+        option_list = []
+
+        def mediator(t, d):
+            return lambda e: self.configure(t, d)
+
+        for t in list(EventType):
+            tstr = str(t).split('.')[1]
+            option_list.append({
+                'folder': 'resources/icons/notation/',
+                'icon': (tstr.lower() if t in [EventType.Start, EventType.End] else 'intermediate') + 'event.png',
+                'text': f'Change to {tstr} Event',
+                'fg': silver,
+                'textfg': gray,
+                'cmnd': mediator(t, self.temp_def)
+            })
+
+        for d in list(EventDefinition):
+            if d == EventDefinition.Default: continue
+            dstr = str(d).split('.')[1]
+            # adjust path
+            path = dstr.lower()
+            etype = EventType.End
+            if d == EventDefinition.Message: path = 'receive' if etype not in [EventType.Start, EventType.IntermediateThrow] else 'send'
+            # add option item
+            option_list.append({
+                'folder': 'resources/icons/notation/',
+                'icon': path + '.png',
+                'text': f'Define as {dstr}',
+                'fg': gray2,
+                'textfg': gray,
+                'cmnd': mediator(self.temp_type, d)
+            })
+
+        return option_list
+
+    def configure(self, etype, edefinition):
+        self.temp_type = etype
+        self.temp_def = edefinition
+        self.destroy()
+        self.draw()
+
+    

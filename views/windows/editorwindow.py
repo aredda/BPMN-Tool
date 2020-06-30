@@ -10,6 +10,9 @@ from views.prefabs.guigateway import GUIGateway
 from views.prefabs.guisubprocess import GUISubProcess
 from views.prefabs.guitask import GUITask
 from views.prefabs.guiprocess import GUIProcess
+from views.prefabs.guidatastore import GUIDataStore
+from views.prefabs.guidataobject import GUIDataObject
+from threading import Thread
 
 class EditorWindow(SessionWindow):
     
@@ -26,16 +29,16 @@ class EditorWindow(SessionWindow):
             'size': 40,
             'path': 'resources/icons/notation/',
             'bg': white,
-            'hoverBg': silver,
+            'hoverBg': gray2,
             'tools': [
-                { 'icon': 'start-event.png', 'create': GUIEvent },
+                { 'icon': 'startevent.png', 'create': GUIEvent },
                 { 'icon': 'gateway.png', 'create': GUIGateway },
                 { 'icon': 'task.png', 'create': GUITask },
                 { 'icon': 'subprocess-expanded.png', 'create': GUISubProcess },
                 { 'icon': 'participant.png', 'create': GUIProcess },
                 { 'icon': 'connection-multi.png' },
-                { 'icon': 'data-object.png' },
-                { 'icon': 'data-store.png' },
+                { 'icon': 'data-object.png', 'create': GUIDataObject },
+                { 'icon': 'data-store.png', 'create': GUIDataStore },
                 { 'icon': 'text-annotation.png' }
             ]
         },
@@ -113,8 +116,10 @@ class EditorWindow(SessionWindow):
         
         # single click
         def action_mouse_click(e):
+            justCreated = False
             # finish creation
             if self.SELECTED_MODE == self.CREATE_MODE:
+                justCreated = True
                 self.SELECTED_MODE = self.DRAG_MODE
             # hide menu
             self.hide_component('frm_menu')
@@ -124,29 +129,42 @@ class EditorWindow(SessionWindow):
             # find gui element that has this element id
             self.SELECTED_ELEMENT = self.DRAG_ELEMENT = self.find_element(last_element)
             # show the list of options
-            if self.SELECTED_ELEMENT != None:
-                menu_coords = self.to_window_coords(e.x_root, e.y_root)
-                self.show_menu(x=menu_coords[0], y=menu_coords[1], options=[
-                    {
-                        'text': 'Change Name',
-                        'icon': 'text.png'
-                    },
-                    {
-                        'text': 'Associate',
-                        'icon': 'associate.png'
-                    },
-                    {
-                        'text': 'Delete',
-                        'icon': 'delete.png',
-                        'fg': danger,
-                        'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
-                    }
-                ])
+            if self.SELECTED_ELEMENT != None and justCreated == False:
+                def showmenu():  
+                    # adjust menu coords
+                    menu_coords = self.to_window_coords(e.x_root, e.y_root)
+                    # prepare options
+                    opts = [
+                        {
+                            'text': 'Change Name',
+                            'icon': 'text.png'
+                        },
+                        {
+                            'text': 'Associate',
+                            'icon': 'associate.png'
+                        },
+                        {
+                            'text': 'Delete',
+                            'icon': 'delete.png',
+                            'fg': danger,
+                            'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
+                        }
+                    ]
+                    # if the element has options
+                    if self.SELECTED_ELEMENT.get_options() != None:
+                        opts += self.SELECTED_ELEMENT.get_options()
+                    # show menu
+                    self.show_menu(x=menu_coords[0], y=menu_coords[1], options=opts)
+                # starting a thread
+                Thread(target=showmenu).start()
 
         # mouse moving
         def action_mouse_move(e):
             if self.SELECTED_MODE in [self.DRAG_MODE, self.CREATE_MODE]:
                 if self.DRAG_ELEMENT != None:
+                    # hide menu
+                    self.hide_component('frm_menu')
+                    # drag element
                     self.DRAG_ELEMENT.move(e.x, e.y)
                     self.DRAG_ELEMENT.bring_front()
 
@@ -194,3 +212,10 @@ class EditorWindow(SessionWindow):
         self.guielements.remove(element)
         # hide menu
         self.hide_component('frm_menu')
+
+    # auto close menu
+    def close_menu_after(self, callable):
+        def cmnd(e):
+            callable(e)
+            self.hide_component('frm_menu')
+        return cmnd    
