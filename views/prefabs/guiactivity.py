@@ -16,10 +16,12 @@ class GUIActivity(GUILinkable):
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
+        self.temp_flag = ActivityFlag.Default
+
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
         # extract info
-        flag = ActivityFlag.Loop
+        flag = self.temp_flag
         # get canvas
         cnv: Canvas = self.canvas
         # border points
@@ -60,4 +62,27 @@ class GUIActivity(GUILinkable):
 
     def move(self, x, y):
         GUILinkable.move(self, x - (self.WIDTH/2), y - (self.HEIGHT/2))
+
+    def get_options(self):
+        optlist = []
+
+        def corrector(flag):
+            return lambda e: self.configure(flag)
+
+        for f in list(ActivityFlag):
+            fstr = str(f).split('.')[1]
+            optlist.append({
+                'folder': 'resources/icons/notation/',
+                'icon': (('parallelinstance' if f in [ActivityFlag.ParallelMultiple, ActivityFlag.SequentialMultiple] else (fstr.lower() if f != ActivityFlag.Default else 'task'))) + '.png',
+                'text': f'Flag as {fstr}',
+                'fg': gray1,
+                'textfg': gray,
+                'cmnd': corrector(f)
+            })
+
+        return optlist
         
+    def configure(self, flag):
+        self.temp_flag = flag
+        self.destroy()
+        self.draw()
