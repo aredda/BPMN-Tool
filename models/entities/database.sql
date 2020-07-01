@@ -79,7 +79,9 @@ CREATE TABLE notifications(
     nature ENUM('invitation','invitationLink','shareLink'),
     invitationId INTEGER,
     actorId INTEGER,
-    FOREIGN KEY(actorId) REFERENCES users(id) ON DELETE CASCADE
+    recipientId INTEGER,
+    FOREIGN KEY(actorId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(recipientId) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE invitations(

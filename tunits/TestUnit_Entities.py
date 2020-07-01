@@ -1,7 +1,10 @@
 from models.entities.Container import Container
 from models.entities.Entities import Seen, User, Notification, Invitation, Session, Project
 from models.entities.Entities import *
+from models.entities.enums.notificationtype import NotificationType 
 import datetime
+
+from sqlalchemy import or_,and_
 
 # relationships Test
 
@@ -78,28 +81,70 @@ import datetime
 #     confirmtest()
 
 def run():
-    sender = User(firstName='Mohamed', lastName='El Kalai', userName='123')
-    recipient = User(firstName='Ibrahim', lastName='Areda', userName='456')
+    # sender = User(firstName='Mohamed', lastName='El Kalai', userName='Mohamed123')
+    # recipient = User(firstName='Ibrahim', lastName='Areda', userName='Ibrahim123')
+    # recipient2 = User(firstName='Chakir', email='Chakir@123.com')
+    # recipient3 = User(firstName='Hodaifa', email='Hodaifa@123.com')
 
-    project = Project(title='bpmntool', owner=sender)
+    # project = Project(title='bpmntool', owner=sender)
 
-    session = Session(title='bpmntoolsession', owner=sender, project=project)
+    # session = Session(title='bpmntoolsession', owner=sender, project=project)
+    # session2 = Session(title='session2', owner=recipient, project=project)
 
-    invitation = Invitation(sender=sender, recipient=recipient,
-                            session=session, privilege='edit')
+    # collab1 = Collaboration(user=recipient, session=session, joiningDate=datetime.datetime.now(),privilege='edit')
+    # collab2 = Collaboration(user=recipient2, session=session,joiningDate=datetime.datetime.now(), privilege='edit')
+    # collab3 = Collaboration(user=recipient3, session=session2,joiningDate=datetime.datetime.now(), privilege='edit')
 
-    Container.save(sender, recipient, project, session,
-                   invitation)
+    # message1 = Message(user=recipient, session=session, sentDate=datetime.datetime.now(), content='message2')
+    # message2 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message1')
+    # message3 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message3')
+    # message4 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message4')
+    # message5 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong')
+    # message6 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong2')
+    # message7 = Message(user=sender, session=session2, sentDate=datetime.datetime.now(), content='i sent it in session2')
+    # message8 = Message(user=sender, session=session, sentDate=datetime.datetime.now(), content='wrong i sent it')
 
-    notification = Notification(
-        type='recievedInv', nature='invitation', actor=recipient, invitationId=invitation.id)
-    Container.save(notification)
+    # invitation = Invitation(sender=sender, recipient=recipient,
+    #                         session=session, privilege='edit')
+     
 
-    seen = Seen(type='notification', typeId=notification.id, seer=recipient)
-    Container.save(seen)
+    # invitationLink = InvitationLink(sender=sender, session=session, link='invlinkkkkkkkkkkkk')
 
-    invitation = Container.filter(Invitation).get(notification.invitationId)
-    print(f'invitation sender\'s name: {invitation.sender.firstName}')
+    # shareLink = ShareLink(project=project, link='sharelinkkkkkkkkk')
+
+    # Container.save(sender, recipient, project, session,
+    #                invitation,invitationLink,shareLink,collab1,collab2,collab3,message1,message2,message3,message4,message5,message6,message7,message8)
+    
+    # notification = Notification(
+    #     type=NotificationType.INVITED.value, nature='invitation', notificationTime='2020-07-01 10:46:38',recipient=recipient, actor=sender, invitationId=invitation.id)
+
+
+    # notification2 = Notification(
+    #     type=NotificationType.JOINED.value, nature='invitationLink',notificationTime='2020-07-02 11:34:00',recipient=invitationLink.sender, actor=recipient, invitationId=invitationLink.id)
+
+    # notification3 = Notification(
+    #     type=NotificationType.JOINED.value, nature='shareLink',notificationTime='2020-07-24 15:28:00',recipient=shareLink.project.owner, actor=recipient, invitationId=shareLink.id)
+    
+    # notification4 =Notification(
+    #     type=NotificationType.ACCEPTED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
+
+    # notification5 =Notification(
+    #     type=NotificationType.DECLINED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
+
+    # Container.save(notification,notification2,notification3,notification4,notification5)
+
+    # seen = Seen(type='notification', typeId=notification.id, seer=recipient)
+    # Container.save(seen)
+
+    # invitation = Container.filter(Invitation).get(notification.invitationId)
+    # print(f'notifcation recipient\'s name: {notification.recipient.firstName}')
+
+
+    user = Container.filter(User).get(47)
+    messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != user.id,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) )).all()
+    for msg in messages:
+        print(msg.content)
+
 
 
 '''

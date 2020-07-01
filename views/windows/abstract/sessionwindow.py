@@ -4,14 +4,18 @@ from views.windows.abstract.window import Window
 from views.components.iconbutton import IconButton
 from views.components.icon import IconFrame
 from views.factories.listitemfactory import ListItemFactory
-from models.entities.Entities import Notification, Invitation, User
+from models.entities.Entities import Notification, Invitation, User,Collaboration,Session,Message
 from models.entities.enums.notificationtype import NotificationType
 import datetime
 
+from models.entities.Container import Container
+from sqlalchemy import and_,or_
+
+
 class SessionWindow(Window):
 
-    # BOOKMARK: Signed in user
-    ACTIVE_USER = None
+    # BOOKMARK_UNDONE: Signed in user
+    ACTIVE_USER = Container.filter(User).get(48)
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
@@ -56,18 +60,18 @@ class SessionWindow(Window):
             self.vBarButtons[i.get('name')] = btn
 
         self.vBarButtons['btn_quit'].bind_click(lambda e: self.windowManager.quit())
-
+    
     def config_hBar(self):
         # Creation of elements
-        # BOOKMARK: change user profile image
-        self.btn_username = IconButton(self.frm_hBar, 'Username', '-size 15', biege, 'resources/icons/ui/face.png', 5, None, biege, 40, None, bg=white)
+        # BOOKMARK_DONE: change user profile image
+        self.btn_username = IconButton(self.frm_hBar, SessionWindow.ACTIVE_USER.userName, '-size 15', biege, 'resources/icons/ui/face.png' if SessionWindow.ACTIVE_USER.image == None else SessionWindow.ACTIVE_USER.image, 5, None, biege, 40, None, bg=white)
         self.icn_notification = IconFrame(
             self.frm_hBar, 'resources/icons/ui/bell_outline.png', 0, None, 32,
             lambda e: self.show_popup(
                 self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
                 self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
-                # BOOKMARK: notification data list
-                [None, None, None], 
+                # BOOKMARK_DONE: notification data list
+                Container.filter(Notification,Notification.recipient == SessionWindow.ACTIVE_USER).all(), 
                 ListItemFactory.NotificationListItem
             )
         )
@@ -76,8 +80,8 @@ class SessionWindow(Window):
             lambda e: self.show_popup(
                 self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
                 self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
-                # BOOKMARK: discussion data list
-                [None, None, None], 
+                # BOOKMARK_UNDONE: discussion data list
+                Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != SessionWindow.ACTIVE_USER.id,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) )).order_by(Message.sentDate).all(), 
                 ListItemFactory.DiscussionListItem
             )
         )

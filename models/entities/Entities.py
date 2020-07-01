@@ -83,6 +83,7 @@ relationships = [
     [Message, User, 'user', 'userId'],
     [Message, Session, 'session', 'sessionId'],
     [Notification, User, 'actor', 'actorId'],
+    [Notification,User,'recipient','recipientId'],
     [Invitation, User, 'sender', 'senderId'],
     [Invitation, User, 'recipient', 'recipientId'],
     [Invitation, Session, 'session', 'sessionId'],
