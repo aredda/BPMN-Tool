@@ -9,7 +9,7 @@ from models.entities.enums.notificationtype import NotificationType
 import datetime
 
 from models.entities.Container import Container
-from sqlalchemy import and_,or_
+from sqlalchemy import and_,or_,func
 
 
 class SessionWindow(Window):
@@ -80,8 +80,8 @@ class SessionWindow(Window):
             lambda e: self.show_popup(
                 self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
                 self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
-                # BOOKMARK_UNDONE: discussion data list
-                Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != SessionWindow.ACTIVE_USER.id,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) )).order_by(Message.sentDate).all(), 
+                # BOOKMARK_DONE: discussion data list
+                Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != SessionWindow.ACTIVE_USER.id,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
                 ListItemFactory.DiscussionListItem
             )
         )

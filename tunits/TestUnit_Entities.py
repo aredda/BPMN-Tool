@@ -4,7 +4,7 @@ from models.entities.Entities import *
 from models.entities.enums.notificationtype import NotificationType 
 import datetime
 
-from sqlalchemy import or_,and_
+from sqlalchemy import or_,and_,func
 
 # relationships Test
 
@@ -140,8 +140,11 @@ def run():
     # print(f'notifcation recipient\'s name: {notification.recipient.firstName}')
 
 
-    user = Container.filter(User).get(47)
-    messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != user.id,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) )).all()
+    user = Container.filter(User).get(50)
+    # select DISTINCT * from messages where sentDate in (select max(sentDate) from messages group by sessionId) group by sessionId
+    # messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != user.id,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) )).all()
+    # messages = Container.filter(Message,Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all()
+    messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != user.id,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all()
     for msg in messages:
         print(msg.content)
 
