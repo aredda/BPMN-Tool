@@ -10,6 +10,7 @@ class GUITask(GUIActivity):
         GUIActivity.__init__(self, **args)
 
         self.temp_type = TaskType.Default
+        self.temp_text = 'Task Name Will Be Displayed Here'
 
     def draw_at(self, x, y):
         # draw the border
@@ -22,6 +23,8 @@ class GUITask(GUIActivity):
             self.type_icon = imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE)))
             cnv: Canvas = self.canvas
             self.id.append(cnv.create_image(x + self.ICON_MARGIN, y + self.ICON_MARGIN, image=self.type_icon))
+        # draw text
+        self.draw_text(self.temp_text, x + self.WIDTH/2, y + self.HEIGHT/2, self.WIDTH)
 
     def get_options(self):
         optlist = super().get_options()

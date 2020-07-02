@@ -1,5 +1,5 @@
 class Prefab:
-    
+
     def __init__(self, **args):
         # abstract fields
         self.id = args.get('id', [])
@@ -51,3 +51,6 @@ class Prefab:
 
     def get_options(self):
         pass
+
+    def draw_text(self, text, x, y, width=0):
+        self.id.append(self.canvas.create_text(x, y, text=text, width=width))

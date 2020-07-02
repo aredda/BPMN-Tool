@@ -8,11 +8,13 @@ class GUIGateway(GUILinkable):
 
     WIDTH = 60
     ICON_SIZE = 34
+    LABEL_OFFSET = 16
 
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
         self.temp_type = GatewayType.Exclusive
+        self.temp_text = 'Gateway Name'
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
@@ -34,6 +36,8 @@ class GUIGateway(GUILinkable):
             filename = str(_type).split('.')[1].lower()
             self.type_icon = ImgTk.PhotoImage(Img.open(folder + filename + '.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
             self.id.append (cnv.create_image(x + self.WIDTH/2, y + self.WIDTH/2, image=self.type_icon))
+        # Draw text
+        self.draw_text(self.temp_text, x + self.WIDTH/2, y - self.LABEL_OFFSET)
 
     def move(self, x, y):
         super().move(x - (self.WIDTH/2), y - (self.WIDTH/2))

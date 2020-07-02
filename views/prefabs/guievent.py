@@ -9,18 +9,21 @@ class GUIEvent(GUILinkable):
     
     PERIMETER = 60
     ICON_SIZE = 36
+    LABEL_OFFSET = 16
 
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
         self.temp_type = EventType.Start
         self.temp_def = EventDefinition.Cancel
+        self.temp_text = 'Event Name'
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
         # Extract info
         eventtype = self.temp_type
         eventdefinition = self.temp_def
+        text = self.temp_text
         # cast
         cnv: Canvas = self.canvas
         # figure out the border width of the circle
@@ -46,6 +49,8 @@ class GUIEvent(GUILinkable):
                 overlaid_img.putalpha(image.getchannel('A'))
                 self.def_icon = ImgTk.PhotoImage(overlaid_img)
             self.id.append (cnv.create_image(x + self.PERIMETER/2, y + self.PERIMETER/2, image=self.def_icon))
+        # draw event's name
+        self.draw_text(text, x + self.PERIMETER/2, y - self.LABEL_OFFSET)
             
     def move(self, x, y):
         super().move(x - (self.PERIMETER/2), y - (self.PERIMETER/2))

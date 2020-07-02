@@ -3,7 +3,7 @@
 - [ ] Changing element's name
   - [ ] Displaying a floating Entry to type something
 - [ ] Resizing container elements
-- [ ] Displaying a pop-up of an element's actions
+- [X] Displaying a pop-up of an element's actions
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events
