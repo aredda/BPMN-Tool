@@ -81,7 +81,7 @@ class SessionWindow(Window):
                 self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
                 self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
                 # BOOKMARK_DONE: discussion data list
-                Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != SessionWindow.ACTIVE_USER.id,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
+                Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
                 ListItemFactory.DiscussionListItem
             )
         )

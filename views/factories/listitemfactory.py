@@ -97,9 +97,10 @@ class ListItemFactory(Factory):
             item.lbl_time = Label(item, bg=white, fg=gray, text=item.bindings.get('time', '{time}'), font='-size 8', pady=5)
             item.lbl_time.pack(side=RIGHT, anchor=N)
 
-        # BOOKMARK_DONE: configure discussion list item
+        # BOOKMARK_UNDONE: configure discussion list item
         return ListItem(root, dataItem, {
             'session': dataItem.session.title,
             'content': dataItem.content,
-            'time': dataItem.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.sentDate.strftime("%x") else dataItem.sentDate.strftime("%X")
+            'time': dataItem.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.sentDate.strftime("%x") else dataItem.sentDate.strftime("%X"),
+            'image': dataItem.user.image
         }, None, create)

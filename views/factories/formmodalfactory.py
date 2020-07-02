@@ -152,7 +152,7 @@ class FormModalFactory(Factory):
             
             # pick button event
             def btn_pick_click(e):
-                # BOOKMARK_DONE: pick button click event
+                # BOOKMARK_UNDONE: pick button click event
                 # ask to open a certain xml file
                 filepath = filedialog.askopenfilename(initialdir="/", title="Select xml file", filetypes=(("xml files", "*.xml"), ("all files", "*.*")))
                 # verify if file exists

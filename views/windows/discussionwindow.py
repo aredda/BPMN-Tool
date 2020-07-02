@@ -7,6 +7,11 @@ from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.factories.listitemfactory import ListItemFactory
 
+from models.entities.Entities import Collaboration,Session,Message
+from models.entities.Container import Container
+from sqlalchemy import and_,or_,func
+import datetime
+
 class DiscussionWindow(SessionWindow):
 
     # Chat Session Item Styles
@@ -41,9 +46,10 @@ class DiscussionWindow(SessionWindow):
         self.msgItems = []
 
         self.fill_sessions()
-        self.fill_discussion()
+        self.configure_session_click()
+        # self.fill_discussion()
 
-        self.change_session_item_style(self.msgItems[0], DiscussionWindow.CHAT_ACTIVE)
+        self.change_session_item_style(self.msgItems[0])#, DiscussionWindow.CHAT_ACTIVE
         self.change_session_item_style(self.msgItems[1])
 
     def design(self):
@@ -103,20 +109,37 @@ class DiscussionWindow(SessionWindow):
         frm_border_top = Frame(frm_discussion, highlightthickness=1, highlightbackground=border)
         frm_border_top.pack(side=BOTTOM, fill=X)
 
-    # BOOKMARK: Fill chat sessions
+    # Configure sessionlistitem click event
+    def configure_session_click(self):
+        def Configure_session(event,session):
+            self.fill_discussion(session)
+            self.lbl_sessionName['text'] = session.title
+            self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == session.id).count()} members'
+
+        for li in self.msgItems:
+            li.lbl_username.bind('<Button-1>', lambda event,session=li.dataObject.session: Configure_session(event,session))
+            
+            
+    # BOOKMARK_DONE: Fill chat sessions
     def fill_sessions(self):
         self.lv_sessions.empty()
         
-        for i in range(20):
-            self.msgItems.append (ListItemFactory.DiscussionListItem(self.lv_sessions.interior, None))
+        for i in Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == DiscussionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == DiscussionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all():
+            self.msgItems.append(ListItemFactory.DiscussionListItem(self.lv_sessions.interior, i))
 
-    # BOOKMARK: Fill Messages
-    def fill_discussion(self):
+    # BOOKMARK_DONE: Fill Messages
+    def fill_discussion(self, session):
         self.lv_messages.empty()
 
-        for i in range(10):
-            createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if i % 2 == 0 else DiscussionWindow.MSG_OUTGOING)
-            ListItem(self.lv_messages.interior, None, {}, None, createMethod)
+        messages = Container.filter(Message,Message.sessionId == session.id).order_by(Message.sentDate.asc()).all()
+        for i in messages:
+            createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if messages.index(i) % 2 == 0 else DiscussionWindow.MSG_OUTGOING)
+            ListItem(self.lv_messages.interior, None, 
+            {
+                'username':i.user.userName,
+                'content':i.content,
+                'time': i.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != i.sentDate.strftime("%x") else i.sentDate.strftime("%X")
+            }, None, createMethod)
 
     # To change session list item style easily
     def change_session_item_style(self, item, style=CHAT_UNREAD):
