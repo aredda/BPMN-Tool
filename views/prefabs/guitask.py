@@ -10,7 +10,7 @@ class GUITask(GUIActivity):
         GUIActivity.__init__(self, **args)
 
         self.temp_type = TaskType.Default
-        self.temp_text = 'Task Name Will Be Displayed Here'
+        self.temp_text = 'Task Name Will Be Displayed Here, Now We Will What Happens If The Text Is Seriously Long'
 
     def draw_at(self, x, y):
         # draw the border

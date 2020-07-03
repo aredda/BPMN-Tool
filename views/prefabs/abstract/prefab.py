@@ -54,3 +54,8 @@ class Prefab:
 
     def draw_text(self, text, x, y, width=0):
         self.id.append(self.canvas.create_text(x, y, text=text, width=width))
+
+    def set_text(self, text):
+        self.temp_text = text
+        self.destroy()
+        self.draw()

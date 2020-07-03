@@ -121,8 +121,9 @@ class EditorWindow(SessionWindow):
             if self.SELECTED_MODE == self.CREATE_MODE:
                 justCreated = True
                 self.SELECTED_MODE = self.DRAG_MODE
-            # hide menu
+            # hide components
             self.hide_component('frm_menu')
+            self.hide_component('txt_input')
             # retrieve the last element (top element) to be found in the canvas
             last_element = self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2)
             if len (last_element) > 0: last_element = last_element[-1]
@@ -137,7 +138,8 @@ class EditorWindow(SessionWindow):
                     opts = [
                         {
                             'text': 'Change Name',
-                            'icon': 'text.png'
+                            'icon': 'text.png',
+                            'cmnd': lambda e: self.show_input(e.x_root, e.y_root, self.SELECTED_ELEMENT.set_text)
                         },
                         {
                             'text': 'Associate',
@@ -178,7 +180,6 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind('<B1-Motion>', action_mouse_move)
         self.cnv_canvas.bind('<ButtonRelease-1>', action_mouse_release)
         
-
     def select_event(self, tag, value):
         # create event
         if tag == 'create':
@@ -218,4 +219,25 @@ class EditorWindow(SessionWindow):
         def cmnd(e):
             callable(e)
             self.hide_component('frm_menu')
-        return cmnd    
+        return cmnd 
+
+    # show entry 
+    def show_input(self, x, y, onReturn=None):
+        # hide menu component
+        self.hide_component('frm_menu')
+        # create an input if there's none
+        if hasattr(self, 'txt_input') == False:
+            self.txt_input = Entry(self, highlightthickness=1, highlightbackground=border, bd=0)
+        # clean entry
+        self.txt_input.delete(0, len(self.txt_input.get()))
+        # prepare a command
+        def inputReturn(e):
+            onReturn(self.txt_input.get())
+            self.hide_component('txt_input')
+        # bind 
+        self.txt_input.unbind('<Return>')
+        if onReturn != None:
+            self.txt_input.bind('<Return>', inputReturn)
+        # convert the relative position to world position
+        worldPos = self.to_window_coords(x, y)
+        self.txt_input.place(x=worldPos[0], y=worldPos[1])
