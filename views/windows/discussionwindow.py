@@ -11,6 +11,7 @@ from models.entities.Entities import Collaboration,Session,Message
 from models.entities.Container import Container
 from sqlalchemy import and_,or_,func
 import datetime
+from views.windows.collaborationwindow import CollaborationWindow
 
 class DiscussionWindow(SessionWindow):
 
@@ -40,6 +41,8 @@ class DiscussionWindow(SessionWindow):
 
     def __init__(self, root, **args):
         SessionWindow.__init__(self, root, 'Discussions')
+        
+        self.currentItem = None
 
         self.design()
 
@@ -85,7 +88,7 @@ class DiscussionWindow(SessionWindow):
         self.lbl_memberCount = Label (frm_group, bg=white, fg=black, text='X members')
         self.lbl_memberCount.pack(anchor=N+W)
 
-        self.btn_open_session = MainButton(frm_head, 'Open Session', 'open.png')
+        self.btn_open_session = MainButton(frm_head, 'Open Session', 'open.png',btnCmd=lambda event:self.open_session(event))
         self.btn_open_session.config(pady=5)
         self.btn_open_session.pack(side=RIGHT)
 
@@ -104,22 +107,36 @@ class DiscussionWindow(SessionWindow):
         self.txt_message.bind('<FocusIn>', lambda e: self.txt_message.delete(0, len(self.txt_message.get())))
         self.txt_message.pack(side=LEFT, fill=BOTH, expand=1)
 
-        IconFrame(frm_footer, 'resources/icons/ui/send.png', 25, teal).pack(side=RIGHT)
+        IconFrame(frm_footer, 'resources/icons/ui/send.png', 25, teal,command=lambda event, listItem= None: self.send_message(event,listItem)).pack(side=RIGHT)
 
         frm_border_top = Frame(frm_discussion, highlightthickness=1, highlightbackground=border)
         frm_border_top.pack(side=BOTTOM, fill=X)
 
+    def open_session(self, event):
+        if self.currentItem != None:
+            CollaborationWindow(self,self.currentItem.dataObject.session)
+
     # Configure sessionlistitem click event
     def configure_session_click(self):
-        def Configure_session(event,session):
-            self.fill_discussion(session)
-            self.lbl_sessionName['text'] = session.title
-            self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == session.id).count()} members'
+        def Configure_session(event, listItem):
+            self.fill_discussion(listItem.dataObject.session)
+            self.lbl_sessionName['text'] = listItem.dataObject.session.title
+            self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()} members'
+            self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
+            self.currentItem = listItem
 
         for li in self.msgItems:
-            li.lbl_username.bind('<Button-1>', lambda event,session=li.dataObject.session: Configure_session(event,session))
+            li.lbl_username.bind('<Button-1>', lambda event,listItem=li: Configure_session(event,listItem))
             
+    def send_message(self, event, listItem):
+        if listItem == None : listItem = self.currentItem
+        if self.txt_message.get() != '' and listItem != None:
+            Container.save(Message(content=self.txt_message.get(), sentDate=datetime.datetime.now(), user=DiscussionWindow.ACTIVE_USER, session=listItem.dataObject.session))
+            listItem.lbl_content['text']=self.txt_message.get()
+            self.txt_message.delete(0,END)
+            self.fill_discussion(listItem.dataObject.session)
             
+
     # BOOKMARK_DONE: Fill chat sessions
     def fill_sessions(self):
         self.lv_sessions.empty()

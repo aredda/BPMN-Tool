@@ -7,6 +7,15 @@ from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 from views.components.textbox import TextBox
 
+from models.entities.Container import Container
+from models.entities.Entities import User,Relation
+
+from helpers.imageutility import getdisplayableimage
+from helpers.filehelper import filetobytes
+import tkinter.filedialog as filedialog
+import re
+from views.windows.modals.messagemodal import MessageModal
+
 class ProfileWindow(TabbedWindow):
 
     tabSettings = [
@@ -73,9 +82,12 @@ class ProfileWindow(TabbedWindow):
         TabbedWindow.__init__(self, root, ProfileWindow.tabSettings, 'Profile', **args)
 
         self.textBoxes = {}
+        self.image = {'bytes':ProfileWindow.ACTIVE_USER.image, 'label':None}
 
         self.design()
         self.fill_collaborators()
+        self.fill_profile()
+        self.get_form_data()
 
     def design(self):
         # Setup the tab of profile
@@ -90,8 +102,16 @@ class ProfileWindow(TabbedWindow):
 
         Label(frm_image_column, pady=10, bg=background, font='-size 10 -weight bold', fg=black, text='Profile Photo:', anchor=N+W).pack(side=TOP, fill=X)
         frm_image = Frame(frm_image_column, bg=black, height=150)
+
+        if self.image['bytes'] != None:
+            photo = getdisplayableimage(self.image['bytes'], (150,150))
+            lbl_image = Label(frm_image, image = photo)
+            lbl_image.image=photo
+            lbl_image.pack(fill=BOTH)
+            self.image['label'] = lbl_image
+
         frm_image.pack(side=TOP, fill=X, pady=(0, 10))
-        SecondaryButton(frm_image_column, 'Upload Image', 'upload.png').pack (side=TOP, fill=X)
+        SecondaryButton(frm_image_column, 'Upload Image', 'upload.png',btnCmd=lambda event: self.open_image(event)).pack (side=TOP, fill=X)
 
         for column in ProfileWindow.formSettings:
             # Prepare a form column
@@ -112,7 +132,7 @@ class ProfileWindow(TabbedWindow):
         frm_footer = Frame(self.tb_info, bg=background)
         frm_footer.pack(side=BOTTOM, fill=X)
 
-        MainButton(frm_footer, 'Save Changes', 'save.png').pack(side=LEFT)
+        MainButton(frm_footer, 'Save Changes', 'save.png',btnCmd= lambda event: self.save_changes(event)).pack(side=LEFT)
 
         # Setup the tab of saved collabs
         frm_tip = IconButton(self.tb_collabs, 'Saved Collaborators are all the users who have participated in a collaboration session with you.', '-size 12 -weight bold', white, 'resources/icons/ui/info.png', 10, None, black, bg=black, pady=10, padx=5)
@@ -122,12 +142,86 @@ class ProfileWindow(TabbedWindow):
         self.lv_collabs.set_gridcols(2)
         self.lv_collabs.pack(expand=1, fill=BOTH)
 
-    # BOOKMARK: this one is responsible for filling the scrollable container 
+    # BOOKMARK_DONE: this one is responsible for filling the scrollable container 
     def fill_collaborators(self):
         self.lv_collabs.empty()
-        for i in range(10):
-            self.lv_collabs.grid_item(None, None, [{'text': 'Remove', 'icon': 'cancel.png'}], None, 15)
+        for i in Container.filter(Relation,Relation.userOneId == ProfileWindow.ACTIVE_USER.id):
+            self.lv_collabs.grid_item(None,
+             {
+                 'username':i.userTwo.userName,
+                 'image':i.userTwo.image
+             },
+             [{'text': 'Remove', 'icon': 'cancel.png','cmd':lambda event, relation= i : self.remove_collaborator(event,relation)}], None, 15)
 
-    # BOOKMARK: this method takes care of getting the date from the form in a form of dictionary
+    # BOOKMARK_DONE: this method takes care of getting the data from the form in a form of dictionary
     def get_form_data(self):
-        return {}
+        dic = {}
+
+        for key,value in self.textBoxes.items():
+            dic[key] = value.entry.get()
+            # print(f'{key} : {value.entry.get()}')
+
+        dic['image'] = self.image['bytes']
+        return dic
+
+    def fill_profile(self):
+        for key,value in self.textBoxes.items():
+            if hasattr(ProfileWindow.ACTIVE_USER, key) and getattr(ProfileWindow.ACTIVE_USER, key) != None:
+                value.entry.insert(0, getattr(ProfileWindow.ACTIVE_USER, key))
+
+    def open_image(self, event):
+        self.image['bytes'] = filetobytes(filedialog.askopenfilename(initialdir="/", title="Select file", filetypes=(("jpeg/jpg files", "*.jpg"), ("png files", "*.png"), ("all files", "*.*"))))
+        photo = getdisplayableimage(self.image['bytes'], (150,150))
+        self.image['label'].configure(image= photo)
+        self.image['label'].image = photo
+
+    def validate_form_data(self,data):
+        validated = True
+
+        def show_message(key,msg):
+            MessageModal(self,title=f'{key} error',message=msg,messageType='error')
+            return False
+
+        for key, value in data.items():
+            if key in ['firstName','lastName']:
+                if not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):
+                    validated = show_message(key,f'\n1. can contain 2 words \n2. must be between 2 - 15 alphabets each \n3. can contain 1 space in the middle only \n4. should not contain any special characters or numbers')
+                    break
+            elif key in ['userName','password']:
+                if not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', value):
+                    validated = show_message(key,f'\n1. must be between 6 - 14 characters \n2. must contain 1 Capital letter \n3. must contain 1 special character (^$@-)')
+                    break
+            elif key == 'email':
+                if not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
+                    validated = show_message(key,f'please enter a valid email ex: emailName@email.com')
+                    break
+            elif key == 'company':
+                if value != '' and not re.fullmatch('[a-zA-Z0-9]{4,20}?', value):
+                    validated = show_message(key,f'\n1. must be between 4 - 20 characters \n2. should contain alphabets and numbers only')
+                    break
+            elif key == 'gender':
+                if value != '' and value.lower() not in ['female','male']:
+                    validated = show_message(key,f'gender must be either male or female')
+                    break
+            elif key == 'confirmPwd':
+                if value != data['password']:
+                    validated = show_message(key,f'password doesn\'t match, please confirm your password')
+                    break                   
+
+        return validated
+
+
+    def save_changes(self, event):
+        data = self.get_form_data()
+        if self.validate_form_data(data) == True:
+            for key,value in self.textBoxes.items():
+                if hasattr(ProfileWindow.ACTIVE_USER, key):
+                    setattr(ProfileWindow.ACTIVE_USER,key,value.entry.get() if value.entry.get() != '' else None)
+            ProfileWindow.ACTIVE_USER.image = self.image['bytes']
+            Container.save(ProfileWindow.ACTIVE_USER)
+            MessageModal(self,title=f'success',message='changes saved',messageType='info')
+
+    def remove_collaborator(self,event,relation):
+        Container.deleteObject(relation)
+        MessageModal(self,title=f'success',message='Collaborator removed',messageType='info')
+   

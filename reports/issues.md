@@ -37,3 +37,19 @@ because we are going to add other models concerning data..
 - [X] Share modal
 ### SessionWindow
 - [X] Invite modal
+
+# Minor Issues and things that should be optimised
+### Session Window 
+- [ ] Discussion image doesn't show
+- [ ] notification image doesn't show
+### Saved Collaborators
+- [ ] collaborator's image doesn't show
+- [ ] listItem width when the number is impair
+### discussion window 
+- [ ] scrollbar should be at the end when we enter a session + minor issue when switching between sessions
+- [ ] hide session's name section and textmessage part
+### profile window
+- [ ] password and confirmPwd must be hidden
+- [ ] MessageModal button disappears when message is big
+### form modal factory
+- [ ] modal interfers with openfiledialog 

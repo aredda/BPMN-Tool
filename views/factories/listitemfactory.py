@@ -18,7 +18,7 @@ class ListItemFactory(Factory):
         return Factory.get_instance()
 
     # Notification list item
-    # BOOKMARK :  find a way to get the Container data
+    # BOOKMARK:  find a way to get the Container data
     def NotificationListItem(root, dataItem):
         # creation method of notification list item
         def create(item: ListItem):
@@ -57,7 +57,7 @@ class ListItemFactory(Factory):
             lbl_label.pack(side=RIGHT, anchor=N)
             # configure item
             item.config(bg=white, padx=8, pady=10)
-        # BOOKMARK_UNDONE: notification list item, bindings should be configured here
+        # BOOKMARK_DONE: notification list item, bindings should be configured here
         return ListItem(root, dataItem, {
             'content': getNotificationContent(dataItem),
             'time': dataItem.notificationTime.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.notificationTime.strftime("%x") else dataItem.notificationTime.strftime("%X")  ,
@@ -97,7 +97,7 @@ class ListItemFactory(Factory):
             item.lbl_time = Label(item, bg=white, fg=gray, text=item.bindings.get('time', '{time}'), font='-size 8', pady=5)
             item.lbl_time.pack(side=RIGHT, anchor=N)
 
-        # BOOKMARK_UNDONE: configure discussion list item
+        # BOOKMARK_DONE: configure discussion list item
         return ListItem(root, dataItem, {
             'session': dataItem.session.title,
             'content': dataItem.content,
