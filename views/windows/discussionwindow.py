@@ -121,7 +121,7 @@ class DiscussionWindow(SessionWindow):
         def Configure_session(event, listItem):
             self.fill_discussion(listItem.dataObject.session)
             self.lbl_sessionName['text'] = listItem.dataObject.session.title
-            self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()} members'
+            self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1} members'
             self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
             self.currentItem = listItem
 

@@ -84,6 +84,8 @@ class ProfileWindow(TabbedWindow):
         self.textBoxes = {}
         self.image = {'bytes':ProfileWindow.ACTIVE_USER.image, 'label':None}
 
+        self.collaboratorsItems = []
+
         self.design()
         self.fill_collaborators()
         self.fill_profile()
@@ -146,12 +148,13 @@ class ProfileWindow(TabbedWindow):
     def fill_collaborators(self):
         self.lv_collabs.empty()
         for i in Container.filter(Relation,Relation.userOneId == ProfileWindow.ACTIVE_USER.id):
-            self.lv_collabs.grid_item(None,
-             {
-                 'username':i.userTwo.userName,
-                 'image':i.userTwo.image
-             },
-             [{'text': 'Remove', 'icon': 'cancel.png','cmd':lambda event, relation= i : self.remove_collaborator(event,relation)}], None, 15)
+            self.collaboratorsItems.append(
+                self.lv_collabs.grid_item(i,
+                {
+                    'username':i.userTwo.userName,
+                    'image':i.userTwo.image
+                },
+                [{'text': 'Remove', 'icon': 'cancel.png','cmd':lambda e, relation= i : self.remove_collaborator(relation)}], None, 15))
 
     # BOOKMARK_DONE: this method takes care of getting the data from the form in a form of dictionary
     def get_form_data(self):
@@ -221,7 +224,16 @@ class ProfileWindow(TabbedWindow):
             Container.save(ProfileWindow.ACTIVE_USER)
             MessageModal(self,title=f'success',message='changes saved',messageType='info')
 
-    def remove_collaborator(self,event,relation):
-        Container.deleteObject(relation)
-        MessageModal(self,title=f'success',message='Collaborator removed',messageType='info')
+    def remove_collaborator(self,relation):
+        def delete_relation(relation):
+            Container.deleteObject(relation)
+            msg.destroy()
+            for li in self.collaboratorsItems:
+                if li.dataObject == relation: 
+                    li.destroy()
+                    self.collaboratorItems.remove(li)
+            MessageModal(self,title=f'success',message='Collaborator removed',messageType='info')
+
+        msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to remove {relation.userTwo.userName}',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
+
    
