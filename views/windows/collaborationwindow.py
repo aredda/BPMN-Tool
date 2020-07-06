@@ -11,7 +11,10 @@ from models.entities.Entities import Collaboration,User,History
 from sqlalchemy import or_,func
 import datetime
 from helpers.imageutility import getdisplayableimage
+from helpers.filehelper import bytestofile
 from views.windows.modals.messagemodal import MessageModal
+import tkinter.filedialog as filedialog
+
 
 class CollaborationWindow(TabbedWindow):
 
@@ -161,7 +164,8 @@ class CollaborationWindow(TabbedWindow):
                 {
                     'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}'
                 },
-                self.get_btn_list(i))
+                self.get_btn_list(i))#here, i'm using a function that prepares the buttons and return that list of buttons, ealla hssab dik admin and collaborators eadiyin
+                # okay stop, did u forget bli garbage collector kieemel wahd issue.. always kieeti last value n nas kamlin
             li.pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
             self.historyItems.append(li)
 
@@ -184,11 +188,16 @@ class CollaborationWindow(TabbedWindow):
             
             msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
 
-        
+        def export_project(history):
+                folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
+                bytestofile(folderName,f'{history.project.title}_{history.editDate.strftime("%d-%m-%Y_%H-%M-%S")}','xml',history.file)
+                MessageModal(self,title=f'success',message=f'file saved',messageType='info')
 
+        # hadi hia list dial commands? yeah dial buttons , hiya li kanssarda n listItem
         btn_list = [{
                     'icon': 'save.png',
-                    'text': 'Export to XML'
+                    'text': 'Export to XML',
+                    'cmd': lambda e: export_project(history)
                 },
                 {
                     'icon': 'revert_history.png',
