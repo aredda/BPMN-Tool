@@ -1,5 +1,13 @@
 class Prefab:
 
+    WIDTH = 0
+    HEIGHT = 0
+
+    LEFT_PORT = 1
+    BOTTOM_PORT = 2
+    RIGHT_PORT = 3
+    TOP_PORT = 4
+
     def __init__(self, **args):
         # abstract fields
         self.id = args.get('id', [])
@@ -59,3 +67,26 @@ class Prefab:
         self.temp_text = text
         self.destroy()
         self.draw()
+    
+    def get_ports(self):
+        return {
+            self.LEFT_PORT: (self.x, self.y + self.HEIGHT/2),
+            self.BOTTOM_PORT: (self.x + self.WIDTH/2, self.y + self.HEIGHT),
+            self.RIGHT_PORT: (self.x + self.WIDTH, self.y + self.HEIGHT/2),
+            self.TOP_PORT: (self.x + self.WIDTH/2, self.y)
+        }
+
+    def get_port(self, port_key):
+        for key in self.get_ports().keys():
+            if key == port_key:
+                return self.get_ports()[port_key]
+        return None
+
+    def get_port_to(self, guielement):
+        # calculate distance
+        xDist, yDist = guielement.x - self.x, guielement.y - self.y
+        # find the appropriate port
+        if abs(xDist) > abs(yDist):
+            return self.get_port(self.RIGHT_PORT if self.x < guielement.x else self.LEFT_PORT)
+        else:
+            return self.get_port(self.BOTTOM_PORT if self.y < guielement.y else self.TOP_PORT)

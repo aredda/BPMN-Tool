@@ -6,12 +6,13 @@ from models.bpmn.enums.gatewaytype import GatewayType
 
 class GUIGateway(GUILinkable):
 
-    WIDTH = 60
     ICON_SIZE = 34
     LABEL_OFFSET = 16
 
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
+
+        self.WIDTH = self.HEIGHT = 60
 
         self.temp_type = GatewayType.Exclusive
         self.temp_text = 'Gateway Name'

@@ -14,6 +14,8 @@ class GUIEvent(GUILinkable):
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
+        self.WIDTH = self.HEIGHT = self.PERIMETER
+
         self.temp_type = EventType.Start
         self.temp_def = EventDefinition.Cancel
         self.temp_text = 'Event Name'
@@ -95,5 +97,3 @@ class GUIEvent(GUILinkable):
         self.temp_def = edefinition
         self.destroy()
         self.draw()
-
-    

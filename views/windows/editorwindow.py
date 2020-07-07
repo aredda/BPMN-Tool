@@ -12,6 +12,7 @@ from views.prefabs.guitask import GUITask
 from views.prefabs.guiprocess import GUIProcess
 from views.prefabs.guidatastore import GUIDataStore
 from views.prefabs.guidataobject import GUIDataObject
+from views.prefabs.guiflow import GUIFlow
 from threading import Thread
 
 class EditorWindow(SessionWindow):
@@ -63,6 +64,7 @@ class EditorWindow(SessionWindow):
     DRAG_MODE = 0
     SELECT_MODE = 1
     MOVE_MODE = 2
+    LINK_MODE = 4
 
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
@@ -112,6 +114,17 @@ class EditorWindow(SessionWindow):
         # prepare control frames
         self.setup_tools()
 
+    def select_element(self, x, y):
+        # retrieve the last element (top element) to be found in the canvas
+        last_element = self.cnv_canvas.find_overlapping(x - 2, y - 2, x + 2, y + 2)
+        if len (last_element) > 0: 
+            last_element = last_element[-1]
+        # return 
+        return last_element
+
+    def set_mode(self, mode):
+        self.SELECTED_MODE = mode
+
     def setup_actions(self):
         
         # single click
@@ -124,41 +137,55 @@ class EditorWindow(SessionWindow):
             # hide components
             self.hide_component('frm_menu')
             self.hide_component('txt_input')
-            # retrieve the last element (top element) to be found in the canvas
-            last_element = self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2)
-            if len (last_element) > 0: last_element = last_element[-1]
+            # save the previous selected element
+            previous_selected = self.SELECTED_ELEMENT
             # find gui element that has this element id
-            self.SELECTED_ELEMENT = self.DRAG_ELEMENT = self.find_element(last_element)
-            # show the list of options
+            self.SELECTED_ELEMENT = self.DRAG_ELEMENT = self.find_element(self.select_element(e.x, e.y))
+            # linking elements
             if self.SELECTED_ELEMENT != None and justCreated == False:
-                def showmenu():  
-                    # adjust menu coords
-                    menu_coords = self.to_window_coords(e.x_root, e.y_root)
-                    # prepare options
-                    opts = [
-                        {
-                            'text': 'Change Name',
-                            'icon': 'text.png',
-                            'cmnd': lambda e: self.show_input(e.x_root, e.y_root, self.SELECTED_ELEMENT.set_text)
-                        },
-                        {
-                            'text': 'Associate',
-                            'icon': 'associate.png'
-                        },
-                        {
-                            'text': 'Delete',
-                            'icon': 'delete.png',
-                            'fg': danger,
-                            'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
-                        }
-                    ]
-                    # if the element has options
-                    if self.SELECTED_ELEMENT.get_options() != None:
-                        opts += self.SELECTED_ELEMENT.get_options()
-                    # show menu
-                    self.show_menu(x=menu_coords[0], y=menu_coords[1], options=opts)
-                # starting a thread
-                Thread(target=showmenu).start()
+                # if an element is selected
+                if self.SELECTED_MODE == self.LINK_MODE:
+                    if self.SELECTED_ELEMENT != previous_selected:
+                        # creating a flow
+                        flow = GUIFlow(canvas=self.cnv_canvas, guisource=previous_selected, guitarget=self.SELECTED_ELEMENT)
+                        flow.draw_at(0, 0)
+                        # finish linking
+                        self.SELECTED_MODE = self.DRAG_MODE
+
+        # single right click
+        def action_mouse_rclick(e):
+            # select element
+            self.SELECTED_ELEMENT = self.find_element(self.select_element(e.x, e.y))
+            # prepare menu command
+            def showmenu():  
+                # adjust menu coords
+                menu_coords = self.to_window_coords(e.x_root, e.y_root)
+                # prepare options
+                opts = [
+                    {
+                        'text': 'Change Name',
+                        'icon': 'text.png',
+                        'cmnd': lambda e: self.show_input(e.x_root, e.y_root, self.SELECTED_ELEMENT.set_text)
+                    },
+                    {
+                        'text': 'Associate',
+                        'icon': 'associate.png',
+                        'cmnd': self.close_menu_after(lambda e: self.set_mode(self.LINK_MODE))
+                    },
+                    {
+                        'text': 'Delete',
+                        'icon': 'delete.png',
+                        'fg': danger,
+                        'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
+                    }
+                ]
+                # if the element has options
+                if self.SELECTED_ELEMENT.get_options() != None:
+                    opts += self.SELECTED_ELEMENT.get_options()
+                # show menu
+                self.show_menu(x=menu_coords[0], y=menu_coords[1], options=opts)
+            # starting a thread
+            Thread(target=showmenu).start()
 
         # mouse moving
         def action_mouse_move(e):
@@ -176,6 +203,7 @@ class EditorWindow(SessionWindow):
                 self.DRAG_ELEMENT = None
 
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
+        self.cnv_canvas.bind('<Button-3>', action_mouse_rclick)
         self.cnv_canvas.bind('<Motion>', action_mouse_move)
         self.cnv_canvas.bind('<B1-Motion>', action_mouse_move)
         self.cnv_canvas.bind('<ButtonRelease-1>', action_mouse_release)

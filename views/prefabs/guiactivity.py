@@ -6,8 +6,6 @@ from models.bpmn.enums.activityflag import ActivityFlag
 
 class GUIActivity(GUILinkable):
     
-    WIDTH = 150
-    HEIGHT = 100
     RADIUS = 10
 
     ICON_MARGIN = 16
@@ -15,6 +13,9 @@ class GUIActivity(GUILinkable):
 
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
+
+        self.WIDTH = 150
+        self.HEIGHT = 100
 
         self.temp_flag = ActivityFlag.Default
 

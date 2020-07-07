@@ -5,8 +5,12 @@ from views.prefabs.guiactivity import GUIActivity
 
 class GUISubProcess(GUIActivity):
 
+    TEXT_OFFSET_Y = 16
+
     def __init__(self, **args):
         GUIActivity.__init__(self, **args)
+
+        self.temp_text = 'Sub-Process'
 
     def draw_at(self, x, y):
         # change the size
@@ -19,3 +23,5 @@ class GUISubProcess(GUIActivity):
         self.type_icon = imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE)))
         cnv: Canvas = self.canvas
         self.id.append (cnv.create_image(x + (self.WIDTH / 2) + (self.ICON_MARGIN / 4) + (self.ICON_SIZE / 2), y + self.HEIGHT - self.ICON_MARGIN, image=self.type_icon))
+        # draw text
+        self.draw_text(self.temp_text, x + self.WIDTH/2, y - self.TEXT_OFFSET_Y)
