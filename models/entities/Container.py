@@ -63,29 +63,33 @@ class Container():
         parentModelName: str = parentModel().__class__.__name__
         childModelName: str = childModel().__class__.__name__
 
-        # Create the child relationship
-        childRelation = relationship(
-            parentModelName, foreign_keys=f'[{childModelName}.{foreignkey}]')
-
         # get parent's child's property name
         propName = childModelName.lower()
+        if propName[-1] == 'y':
+            propName = propName.replace('y', 'ie')
+        propName += 's'
+
+        # Create the child relationship
+        childRelation = relationship(
+            parentModelName, foreign_keys=f'[{childModelName}.{foreignkey}]',backref= backref(propName, uselist=True, cascade="all,delete") if hasattr(parentModel, propName) == False else None)
+
         if isOnetoOne == True:
             # we use set useList = False in both parent and child to show that it's a O2O relationship
             childRelation.uselist = False
-            childRelation.backref = backref(propName, uselist=False)
-        else:
-            # if it's not O2O then we add a relationship on the parent side , which will be a list of children
-            # we set up the parent's child's property according to the childModel name
-            if propName[-1] == 'y':
-                propName = propName.replace('y', 'ie')
-            propName += 's'
-            # check if the Model doesn't have a list of childModel given
-            if hasattr(parentModel, propName) == False:
-                # Create parent relationship
-                parentRelation = relationship(
-                    childModelName, primaryjoin=f'{parentModelName}.id == {childModelName}.{foreignkey}')
-                # set the parentrelation to the parentModel
-                setattr(parentModel, propName, parentRelation)
+            childRelation.backref = backref(propName, uselist=False, cascade="all,delete")
+        # else:
+        #     # if it's not O2O then we add a relationship on the parent side , which will be a list of children
+        #     # we set up the parent's child's property according to the childModel name
+        #     if propName[-1] == 'y':
+        #         propName = propName.replace('y', 'ie')
+        #     propName += 's'
+        #     # check if the Model doesn't have a list of childModel given
+        #     if hasattr(parentModel, propName) == False:
+        #         # Create parent relationship
+        #         parentRelation = relationship(
+        #             childModelName, primaryjoin=f'{parentModelName}.id == {childModelName}.{foreignkey}')
+        #         # set the parentrelation to the parentModel
+        #         setattr(parentModel, propName, parentRelation)
 
         # set the childrelation to childModel
         setattr(childModel, propertyName, childRelation)

@@ -82,7 +82,8 @@ class ProfileWindow(TabbedWindow):
         TabbedWindow.__init__(self, root, ProfileWindow.tabSettings, 'Profile', **args)
 
         self.textBoxes = {}
-        self.image = {'bytes':ProfileWindow.ACTIVE_USER.image, 'label':None}
+        # self.image = {'bytes':ProfileWindow.ACTIVE_USER.image, 'label':None}
+        self.lblimage = self.ACTIVE_USER.image
 
         self.collaboratorsItems = []
 
@@ -104,15 +105,13 @@ class ProfileWindow(TabbedWindow):
 
         Label(frm_image_column, pady=10, bg=background, font='-size 10 -weight bold', fg=black, text='Profile Photo:', anchor=N+W).pack(side=TOP, fill=X)
         frm_image = Frame(frm_image_column, bg=black, height=150)
-
-        if self.image['bytes'] != None:
-            photo = getdisplayableimage(self.image['bytes'], (150,150))
-            lbl_image = Label(frm_image, image = photo)
-            lbl_image.image=photo
-            lbl_image.pack(fill=BOTH)
-            self.image['label'] = lbl_image
-
         frm_image.pack(side=TOP, fill=X, pady=(0, 10))
+
+        self.lbl_image = Label(frm_image)
+        
+        # self.image['label'] = lbl_image
+        self.set_image()
+
         SecondaryButton(frm_image_column, 'Upload Image', 'upload.png',btnCmd=lambda event: self.open_image(event)).pack (side=TOP, fill=X)
 
         for column in ProfileWindow.formSettings:
@@ -164,7 +163,7 @@ class ProfileWindow(TabbedWindow):
             dic[key] = value.entry.get()
             # print(f'{key} : {value.entry.get()}')
 
-        dic['image'] = self.image['bytes']
+        dic['image'] = self.lblimage
         return dic
 
     def fill_profile(self):
@@ -173,10 +172,15 @@ class ProfileWindow(TabbedWindow):
                 value.entry.insert(0, getattr(ProfileWindow.ACTIVE_USER, key))
 
     def open_image(self, event):
-        self.image['bytes'] = filetobytes(filedialog.askopenfilename(initialdir="/", title="Select file", filetypes=(("jpeg/jpg files", "*.jpg"), ("png files", "*.png"), ("all files", "*.*"))))
-        photo = getdisplayableimage(self.image['bytes'], (150,150))
-        self.image['label'].configure(image= photo)
-        self.image['label'].image = photo
+        self.lblimage = filetobytes(filedialog.askopenfilename(initialdir="/", title="Select file", filetypes=(("jpeg/jpg files", "*.jpg"), ("png files", "*.png"), ("all files", "*.*"))))
+        self.set_image()
+
+    def set_image(self):  
+        if self.lblimage != None:
+            photo = getdisplayableimage(self.lblimage, (160,150))
+            self.lbl_image.configure(image= photo)
+            self.lbl_image.image = photo
+            self.lbl_image.pack()
 
     def validate_form_data(self,data):
         validated = True
@@ -192,7 +196,7 @@ class ProfileWindow(TabbedWindow):
                     break
             elif key in ['userName','password']:
                 if not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', value):
-                    validated = show_message(key,f'\n1. must be between 6 - 14 characters \n2. must contain 1 Capital letter \n3. must contain 1 special character (^$@-)')
+                    validated = show_message(key,f'\n1. must be between 6 - 14 characters \n2. must contain 1 Capital letter \n3. must contain 1 special character ($@-)')
                     break
             elif key == 'email':
                 if not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
@@ -220,9 +224,11 @@ class ProfileWindow(TabbedWindow):
             for key,value in self.textBoxes.items():
                 if hasattr(ProfileWindow.ACTIVE_USER, key):
                     setattr(ProfileWindow.ACTIVE_USER,key,value.entry.get() if value.entry.get() != '' else None)
-            ProfileWindow.ACTIVE_USER.image = self.image['bytes']
+            ProfileWindow.ACTIVE_USER.image = self.lblimage
             Container.save(ProfileWindow.ACTIVE_USER)
             MessageModal(self,title=f'success',message='changes saved',messageType='info')
+            self.windowManager.run(ProfileWindow(self.master))
+            self.close()
 
     def remove_collaborator(self,relation):
         def delete_relation(relation):

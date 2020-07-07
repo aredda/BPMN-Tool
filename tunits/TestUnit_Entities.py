@@ -1,5 +1,5 @@
 from models.entities.Container import Container
-from models.entities.Entities import Seen, User, Notification, Invitation, Session, Project
+from models.entities.Entities import SeenMessage,SeenNotification, User, Notification, Invitation, Session, Project
 from models.entities.Entities import *
 from models.entities.enums.notificationtype import NotificationType 
 import datetime
@@ -81,83 +81,87 @@ from sqlalchemy import or_,and_,func
 #     confirmtest()
 
 def run():
-    # sender = User(firstName='Mohamed', lastName='El Kalai', userName='Mohamed123')
-    # recipient = User(firstName='Ibrahim', lastName='Areda', userName='Ibrahim123')
-    # recipient2 = User(firstName='Chakir', email='Chakir@123.com')
-    # recipient3 = User(firstName='Hodaifa', email='Hodaifa@123.com')
+    # Container.deleteObject(Container.filter(Project).first())
+    sender = User(firstName='Mohamed', lastName='El Kalai', userName='Mohamed123')
+    recipient = User(firstName='Ibrahim', lastName='Areda', userName='Ibrahim123')
+    recipient2 = User(firstName='Chakir', email='Chakir@123.com')
+    recipient3 = User(firstName='Hodaifa', email='Hodaifa@123.com')
 
-    # project = Project(title='bpmntool', owner=sender)
+    project = Project(title='bpmntool', owner=sender)
 
-    # session = Session(title='bpmntoolsession', owner=sender, project=project)
-    # session2 = Session(title='session2', owner=recipient, project=project)
+    session = Session(title='bpmntoolsession', owner=sender, project=project)
+    session2 = Session(title='session2', owner=recipient, project=project)
 
-    # collab1 = Collaboration(user=recipient, session=session, joiningDate=datetime.datetime.now(),privilege='edit')
-    # collab2 = Collaboration(user=recipient2, session=session,joiningDate=datetime.datetime.now(), privilege='edit')
-    # collab3 = Collaboration(user=recipient3, session=session2,joiningDate=datetime.datetime.now(), privilege='edit')
+    collab1 = Collaboration(user=recipient, session=session, joiningDate=datetime.datetime.now(),privilege='edit')
+    collab2 = Collaboration(user=recipient2, session=session,joiningDate=datetime.datetime.now(), privilege='edit')
+    collab3 = Collaboration(user=recipient3, session=session2,joiningDate=datetime.datetime.now(), privilege='edit')
 
-    # message1 = Message(user=recipient, session=session, sentDate=datetime.datetime.now(), content='message2')
-    # message2 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message1')
-    # message3 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message3')
-    # message4 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message4')
-    # message5 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong')
-    # message6 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong2')
-    # message7 = Message(user=sender, session=session2, sentDate=datetime.datetime.now(), content='i sent it in session2')
-    # message8 = Message(user=sender, session=session, sentDate=datetime.datetime.now(), content='wrong i sent it')
+    message1 = Message(user=recipient, session=session, sentDate=datetime.datetime.now(), content='message2')
+    message2 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message1')
+    message3 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message3')
+    message4 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message4')
+    message5 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong')
+    message6 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong2')
+    message7 = Message(user=sender, session=session2, sentDate=datetime.datetime.now(), content='i sent it in session2')
+    message8 = Message(user=sender, session=session, sentDate=datetime.datetime.now(), content='wrong i sent it')
 
-    # invitation = Invitation(sender=sender, recipient=recipient,
-    #                         session=session, privilege='edit')
+    invitation = Invitation(sender=sender, recipient=recipient,
+                            session=session, privilege='edit')
      
 
-    # invitationLink = InvitationLink(sender=sender, session=session, link='invlinkkkkkkkkkkkk')
+    invitationLink = InvitationLink(sender=sender, session=session, link='invlinkkkkkkkkkkkk')
 
-    # shareLink = ShareLink(project=project, link='sharelinkkkkkkkkk')
+    shareLink = ShareLink(project=project, link='sharelinkkkkkkkkk')
 
-    # Container.save(sender, recipient, project, session,
-    #                invitation,invitationLink,shareLink,collab1,collab2,collab3,message1,message2,message3,message4,message5,message6,message7,message8)
+    Container.save(sender, recipient, project, session,
+                   invitation,invitationLink,shareLink,collab1,collab2,collab3,message1,message2,message3,message4,message5,message6,message7,message8)
     
-    # notification = Notification(
-    #     type=NotificationType.INVITED.value, nature='invitation', notificationTime='2020-07-01 10:46:38',recipient=recipient, actor=sender, invitationId=invitation.id)
+    notification = Notification(
+        type=NotificationType.INVITED.value, nature='invitation', notificationTime='2020-07-01 10:46:38',recipient=recipient, actor=sender, invitationId=invitation.id)
 
 
-    # notification2 = Notification(
-    #     type=NotificationType.JOINED.value, nature='invitationLink',notificationTime='2020-07-02 11:34:00',recipient=invitationLink.sender, actor=recipient, invitationId=invitationLink.id)
+    notification2 = Notification(
+        type=NotificationType.JOINED.value, nature='invitationLink',notificationTime='2020-07-02 11:34:00',recipient=invitationLink.sender, actor=recipient, invitationId=invitationLink.id)
 
-    # notification3 = Notification(
-    #     type=NotificationType.JOINED.value, nature='shareLink',notificationTime='2020-07-24 15:28:00',recipient=shareLink.project.owner, actor=recipient, invitationId=shareLink.id)
+    notification3 = Notification(
+        type=NotificationType.JOINED.value, nature='shareLink',notificationTime='2020-07-24 15:28:00',recipient=shareLink.project.owner, actor=recipient, invitationId=shareLink.id)
     
-    # notification4 =Notification(
-    #     type=NotificationType.ACCEPTED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
+    notification4 =Notification(
+        type=NotificationType.ACCEPTED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
 
-    # notification5 =Notification(
-    #     type=NotificationType.DECLINED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
+    notification5 =Notification(
+        type=NotificationType.DECLINED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
 
-    # Container.save(notification,notification2,notification3,notification4,notification5)
+    Container.save(notification,notification2,notification3,notification4,notification5)
 
-    # seen = Seen(type='notification', typeId=notification.id, seer=recipient)
-    # Container.save(seen)
+    seennotification = SeenNotification(notification=notification, seer=recipient)
+    seenmessage = SeenMessage(message=message1, seer=sender)
+    Container.save(seenmessage,seennotification)
 
     # invitation = Container.filter(Invitation).get(notification.invitationId)
     # print(f'notifcation recipient\'s name: {notification.recipient.firstName}')
 
 
-    user = Container.filter(User).get(48)
+    # user = Container.filter(User).get(48)
 
-    ### show last message in each session ( CURRENTUSER's one exclude - doesn't show session if he sent the last message there)
-    # messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != user.id,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all()
+    # ### show last message in each session ( CURRENTUSER's one exclude - doesn't show session if he sent the last message there)
+    # # messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,Message.userId != user.id,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all()
     
-    ### show last message for each session ( CURRENTUSER's one included ) / currently used
-    messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
+    # ### show last message for each session ( CURRENTUSER's one included ) / currently used
+    # messages = Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == user.id, and_(Message.sessionId == Session.id, Session.ownerId == user.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
     
-    for msg in messages:
-        print(msg.content)
+    # for msg in messages:
+    #     print(msg.content)
 
 
 
-'''
+
 
 
 # The Cheated Testing Method
-def run():
-    for att in vars(User):
-        print(att)
-'''
+# def run():
+#     for table in [vars(User),vars(SeenMessage),vars(SeenNotification), vars(Notification), vars(Invitation), vars(Session), vars(Project)]:
+#         print('\n\n')
+#         for att in table:
+#             print(att)
+

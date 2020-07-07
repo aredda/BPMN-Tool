@@ -7,7 +7,7 @@ from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.factories.listitemfactory import ListItemFactory
 
-from models.entities.Entities import Collaboration,Session,Message
+from models.entities.Entities import Collaboration,Session,Message,SeenMessage
 from models.entities.Container import Container
 from sqlalchemy import and_,or_,func
 import datetime
@@ -52,8 +52,8 @@ class DiscussionWindow(SessionWindow):
         self.configure_session_click()
         # self.fill_discussion()
 
-        self.change_session_item_style(self.msgItems[0])#, DiscussionWindow.CHAT_ACTIVE
-        self.change_session_item_style(self.msgItems[1])
+        # self.change_session_item_style(self.msgItems[0])#, DiscussionWindow.CHAT_ACTIVE
+        # self.change_session_item_style(self.msgItems[1])
 
     def design(self):
         # Session items section
@@ -114,7 +114,7 @@ class DiscussionWindow(SessionWindow):
 
     def open_session(self, event):
         if self.currentItem != None:
-            CollaborationWindow(self,self.currentItem.dataObject.session)
+            self.windowManager.run(CollaborationWindow(self,self.currentItem.dataObject.session))
 
     # Configure sessionlistitem click event
     def configure_session_click(self):
@@ -123,7 +123,16 @@ class DiscussionWindow(SessionWindow):
             self.lbl_sessionName['text'] = listItem.dataObject.session.title
             self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1} members'
             self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
+
+            if self.currentItem != None:
+                self.change_session_item_style(self.currentItem,self.CHAT_NORMAL)
+
             self.currentItem = listItem
+            self.change_session_item_style(self.currentItem,self.CHAT_ACTIVE)
+
+            if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == self.currentItem.dataObject.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
+                    Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=self.currentItem.dataObject))
+
 
         for li in self.msgItems:
             li.lbl_username.bind('<Button-1>', lambda event,listItem=li: Configure_session(event,listItem))
@@ -131,7 +140,8 @@ class DiscussionWindow(SessionWindow):
     def send_message(self, event, listItem):
         if listItem == None : listItem = self.currentItem
         if self.txt_message.get() != '' and listItem != None:
-            Container.save(Message(content=self.txt_message.get(), sentDate=datetime.datetime.now(), user=DiscussionWindow.ACTIVE_USER, session=listItem.dataObject.session))
+            msg= Message(content=self.txt_message.get(), sentDate=datetime.datetime.now(), user=DiscussionWindow.ACTIVE_USER, session=listItem.dataObject.session)
+            Container.save(msg)
             listItem.lbl_content['text']=self.txt_message.get()
             self.txt_message.delete(0,END)
             self.fill_discussion(listItem.dataObject.session)
@@ -141,8 +151,14 @@ class DiscussionWindow(SessionWindow):
     def fill_sessions(self):
         self.lv_sessions.empty()
         
-        for i in Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == DiscussionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == DiscussionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all():
-            self.msgItems.append(ListItemFactory.DiscussionListItem(self.lv_sessions.interior, i))
+        #, Message.sentDate == Container.filter(func.max(Message.sentDate))
+        # Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == DiscussionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == DiscussionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all()
+        for i in Container.filter(Session, or_(and_(Collaboration.userId == DiscussionWindow.ACTIVE_USER.id, Session.id == Collaboration.sessionId,), Session.ownerId == DiscussionWindow.ACTIVE_USER.id)):
+            msg = Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first()
+            li = ListItemFactory.DiscussionListItem(self.lv_sessions.interior, msg if msg != None else Message(content=f'  ',user=i.owner, session=i, sentDate=i.creationDate))
+            self.msgItems.append(li)
+            if msg.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
+                self.change_session_item_style(li,self.CHAT_UNREAD)
 
     # BOOKMARK_DONE: Fill Messages
     def fill_discussion(self, session):
@@ -150,7 +166,7 @@ class DiscussionWindow(SessionWindow):
 
         messages = Container.filter(Message,Message.sessionId == session.id).order_by(Message.sentDate.asc()).all()
         for i in messages:
-            createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if messages.index(i) % 2 == 0 else DiscussionWindow.MSG_OUTGOING)
+            createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if i.user != DiscussionWindow.ACTIVE_USER else DiscussionWindow.MSG_OUTGOING)
             ListItem(self.lv_messages.interior, None, 
             {
                 'username':i.user.userName,

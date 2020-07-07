@@ -65,8 +65,11 @@ class SparePwd(Base):
 # SEEN
 
 
-class Seen(Base):
-    __table__ = Table('seen', metaData, autoload=True)
+class SeenNotification(Base):
+    __table__ = Table('seenNotifications', metaData, autoload=True)
+
+class SeenMessage(Base):
+    __table__ = Table('seenMessages', metaData, autoload=True)
 
 
 # RELATIONSHIPS
@@ -90,7 +93,10 @@ relationships = [
     [InvitationLink, User, 'sender', 'senderId'],
     [InvitationLink, Session, 'session', 'sessionId'],
     [ShareLink, Project, 'project', 'projectId'],
-    [Seen, User, 'seer', 'seerId'],
+    [SeenNotification, User, 'seer', 'seerId'],
+    [SeenNotification, Notification, 'notification', 'notificationId'],
+    [SeenMessage, User, 'seer', 'seerId'],
+    [SeenMessage, Message, 'message', 'messageId'],
     [SparePwd, User, 'user', 'userId', True]
 ]
 

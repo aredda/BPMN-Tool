@@ -71,7 +71,7 @@ class CollaborationWindow(TabbedWindow):
                 'text': 'End Session',
                 'type': DangerButton,
                 # BOOKARK: Ending Session Command
-                'cmnd': lambda e: self.show_prompt('Are you really sure to terminate the session?', lambda e: print ('termination logic'), 'Terminating the session')
+                'cmnd': lambda e: self.show_prompt('Are you really sure to terminate the session?', lambda e: self.delete_session(), 'Terminating the session')
             },
             {
                 'icon': 'invite.png',
@@ -93,7 +93,8 @@ class CollaborationWindow(TabbedWindow):
             {
                 'icon': 'save.png',
                 'text': 'Export as XML',
-                'dock': LEFT
+                'dock': LEFT,
+                'cmnd': lambda e: self.export_project(f'current_{self.session.project.title}',self.session.project.lastEdited,self.session.project.file)
             }
         ]
 
@@ -104,6 +105,11 @@ class CollaborationWindow(TabbedWindow):
         self.design()
         # Fill session members
         self.fill_members()
+
+    def delete_session(self):
+        Container.deleteObject(self.session.project)
+        self.windowManager.close()
+        MessageModal(self,title=f'success',message=f'session terminated',messageType='info')
     
     def configure_settings(self,session):
         CollaborationWindow.lblSettings[0]['prop'] = session.project.title
@@ -169,6 +175,13 @@ class CollaborationWindow(TabbedWindow):
             li.pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
             self.historyItems.append(li)
 
+    def export_project(self, title, date, fileBytes):
+            folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
+
+            if folderName != '':
+                bytestofile(f'{folderName}{self.session.title}',f'{title}_{date.strftime("%d-%m-%Y_%H-%M-%S")}','xml',fileBytes)
+                MessageModal(self,title=f'success',message=f'file saved',messageType='info')
+    
     def get_btn_list(self,history):
           
         def ask_revert_changes(history):
@@ -188,16 +201,12 @@ class CollaborationWindow(TabbedWindow):
             
             msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
 
-        def export_project(history):
-                folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
-                bytestofile(folderName,f'{history.project.title}_{history.editDate.strftime("%d-%m-%Y_%H-%M-%S")}','xml',history.file)
-                MessageModal(self,title=f'success',message=f'file saved',messageType='info')
 
         # hadi hia list dial commands? yeah dial buttons , hiya li kanssarda n listItem
         btn_list = [{
                     'icon': 'save.png',
                     'text': 'Export to XML',
-                    'cmd': lambda e: export_project(history)
+                    'cmd': lambda e: self.export_project(history.project.title, history.editDate,history.file)
                 },
                 {
                     'icon': 'revert_history.png',
@@ -241,7 +250,6 @@ class CollaborationWindow(TabbedWindow):
                     getattr(self, 'lbl_'+ CollaborationWindow.lblSettings[3]['prop'])['text'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
                     
             MessageModal(self,title=f'success',message=f'collaborator kicked',messageType='info')
-
 
         msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to kick {user.userName}',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})
 

@@ -15,7 +15,7 @@ from sqlalchemy import and_,or_,func
 class SessionWindow(Window):
 
     # BOOKMARK_UNDONE: Signed in user
-    ACTIVE_USER = Container.filter(User).get(48)
+    ACTIVE_USER = Container.filter(User).get(1)
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
