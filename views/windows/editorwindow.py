@@ -6,6 +6,7 @@ from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.components.textbox import TextBox
 from views.factories.iconbuttonfactory import *
+from views.prefabs.abstract.guicontainer import GUIContainer
 from views.prefabs.guievent import GUIEvent
 from views.prefabs.guigateway import GUIGateway
 from views.prefabs.guisubprocess import GUISubProcess
@@ -60,11 +61,12 @@ class EditorWindow(SessionWindow):
     }
 
     # EDITOR Modes
-    CREATE_MODE = 3
     DRAG_MODE = 0
     SELECT_MODE = 1
     MOVE_MODE = 2
+    CREATE_MODE = 3
     LINK_MODE = 4
+    RESIZE_MODE = 5
 
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
@@ -133,7 +135,10 @@ class EditorWindow(SessionWindow):
             # finish creation
             if self.SELECTED_MODE == self.CREATE_MODE:
                 justCreated = True
-                self.SELECTED_MODE = self.DRAG_MODE
+                self.set_mode(self.DRAG_MODE)
+            # finish resizing
+            if self.SELECTED_MODE == self.RESIZE_MODE:
+                self.set_mode(self.DRAG_MODE)
             # hide components
             self.hide_component('frm_menu')
             self.hide_component('txt_input')
@@ -150,7 +155,7 @@ class EditorWindow(SessionWindow):
                         flow = GUIFlow(canvas=self.cnv_canvas, guisource=previous_selected, guitarget=self.SELECTED_ELEMENT)
                         flow.draw_at(0, 0)
                         # finish linking
-                        self.SELECTED_MODE = self.DRAG_MODE
+                        self.set_mode(self.DRAG_MODE)
 
         # single right click
         def action_mouse_rclick(e):
@@ -163,6 +168,12 @@ class EditorWindow(SessionWindow):
                 # prepare options
                 opts = [
                     {
+                        'text': 'Delete',
+                        'icon': 'delete.png',
+                        'fg': danger,
+                        'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
+                    },
+                    {
                         'text': 'Change Name',
                         'icon': 'text.png',
                         'cmnd': lambda e: self.show_input(e.x_root, e.y_root, self.SELECTED_ELEMENT.set_text)
@@ -171,14 +182,15 @@ class EditorWindow(SessionWindow):
                         'text': 'Associate',
                         'icon': 'associate.png',
                         'cmnd': self.close_menu_after(lambda e: self.set_mode(self.LINK_MODE))
-                    },
-                    {
-                        'text': 'Delete',
-                        'icon': 'delete.png',
-                        'fg': danger,
-                        'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
                     }
                 ]
+                # if the element is a container
+                if isinstance(self.SELECTED_ELEMENT, GUIContainer) == True:
+                    opts.append({
+                        'text': 'Resize',
+                        'icon': 'resize.png',
+                        'cmnd': self.close_menu_after(lambda e: self.set_mode(self.RESIZE_MODE))
+                    })
                 # if the element has options
                 if self.SELECTED_ELEMENT.get_options() != None:
                     opts += self.SELECTED_ELEMENT.get_options()
@@ -197,6 +209,11 @@ class EditorWindow(SessionWindow):
                     # drag element
                     self.DRAG_ELEMENT.move(e.x, e.y)
                     self.DRAG_ELEMENT.bring_front()
+            if self.SELECTED_MODE == self.RESIZE_MODE:
+                # calculate width & height
+                w, h = abs(e.x - self.SELECTED_ELEMENT.x), abs(e.y - self.SELECTED_ELEMENT.y)
+                # update element's size
+                self.SELECTED_ELEMENT.resize(w, h)
 
         # mouse release
         def action_mouse_release(e):

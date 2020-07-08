@@ -45,7 +45,9 @@ class Prefab:
         pass
 
     def resize(self, width, height):
-        pass
+        self.WIDTH, self.HEIGHT = width, height
+        self.destroy()
+        self.draw()
 
     def draw(self):
         self.draw_at(self.x, self.y)

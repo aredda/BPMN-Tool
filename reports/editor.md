@@ -3,7 +3,7 @@
 - [X] Changing element's name
   - [X] Displaying a floating Entry to type something
 - [X] Displaying a pop-up of an element's actions
-- [ ] Resizing container elements
+- [X] Resizing container elements
 - [ ] Linking the front with the back
 - [ ] Optimizing the returned list of options for each element
 - [ ] Draw diagram from deserialized definitions

@@ -2,20 +2,22 @@ from tkinter import Canvas
 from PIL import Image as img, ImageTk as imgTk
 from resources.colors import *
 from views.prefabs.guiactivity import GUIActivity
+from views.prefabs.abstract.guicontainer import GUIContainer
 
-class GUISubProcess(GUIActivity):
+class GUISubProcess(GUIActivity, GUIContainer):
 
     TEXT_OFFSET_Y = 16
 
     def __init__(self, **args):
         GUIActivity.__init__(self, **args)
 
+        # default size
+        self.WIDTH = 250
+        self.HEIGHT = 200
+
         self.temp_text = 'Sub-Process'
 
     def draw_at(self, x, y):
-        # change the size
-        self.WIDTH = 250
-        self.HEIGHT = 200
         # draw the border
         GUIActivity.draw_at(self, x, y)
         # draw collapsed subprocess icon
