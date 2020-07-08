@@ -86,7 +86,9 @@ class Prefab:
         # calculate distance
         xDist, yDist = guielement.x - self.x, guielement.y - self.y
         # find the appropriate port
+        port = self.BOTTOM_PORT if self.y < guielement.y else self.TOP_PORT
         if abs(xDist) > abs(yDist):
-            return self.get_port(self.RIGHT_PORT if self.x < guielement.x else self.LEFT_PORT)
-        else:
-            return self.get_port(self.BOTTOM_PORT if self.y < guielement.y else self.TOP_PORT)
+            port = self.RIGHT_PORT if self.x < guielement.x else self.LEFT_PORT
+        # return 
+        return [port, self.get_port(port)]
+        

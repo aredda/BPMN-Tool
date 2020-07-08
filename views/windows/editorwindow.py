@@ -4,6 +4,7 @@ from views.windows.abstract.sessionwindow import SessionWindow
 from views.components.scrollable import Scrollable
 from views.components.listitem import ListItem
 from views.components.icon import IconFrame
+from views.components.textbox import TextBox
 from views.factories.iconbuttonfactory import *
 from views.prefabs.guievent import GUIEvent
 from views.prefabs.guigateway import GUIGateway
@@ -185,7 +186,8 @@ class EditorWindow(SessionWindow):
                 # show menu
                 self.show_menu(x=menu_coords[0], y=menu_coords[1], options=opts)
             # starting a thread
-            Thread(target=showmenu).start()
+            if self.SELECTED_ELEMENT != None:
+                Thread(target=showmenu).start()
 
         # mouse moving
         def action_mouse_move(e):
@@ -251,21 +253,25 @@ class EditorWindow(SessionWindow):
 
     # show entry 
     def show_input(self, x, y, onReturn=None):
+        # change mode
+        self.set_mode(self.DRAG_MODE)
         # hide menu component
         self.hide_component('frm_menu')
         # create an input if there's none
         if hasattr(self, 'txt_input') == False:
-            self.txt_input = Entry(self, highlightthickness=1, highlightbackground=border, bd=0)
+            self.txt_input = TextBox(self, 'resources/icons/ui/text.png')
         # clean entry
-        self.txt_input.delete(0, len(self.txt_input.get()))
+        self.txt_input.clear()
+        # set foucs
+        self.txt_input.entry.focus()
         # prepare a command
         def inputReturn(e):
-            onReturn(self.txt_input.get())
+            onReturn(self.txt_input.get_text())
             self.hide_component('txt_input')
         # bind 
-        self.txt_input.unbind('<Return>')
+        self.txt_input.entry.unbind('<Return>')
         if onReturn != None:
-            self.txt_input.bind('<Return>', inputReturn)
+            self.txt_input.entry.bind('<Return>', inputReturn)
         # convert the relative position to world position
         worldPos = self.to_window_coords(x, y)
         self.txt_input.place(x=worldPos[0], y=worldPos[1])

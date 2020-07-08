@@ -1,17 +1,18 @@
 from tkinter import Canvas
 from resources.colors import *
 from views.prefabs.abstract.guicontainer import GUIContainer
+from views.prefabs.abstract.guilinkable import GUILinkable
 
-class GUIProcess(GUIContainer):
+class GUIProcess(GUILinkable):
 
     WIDTH = 600
     HEIGHT = 400
 
     def __init__(self, **args):
-        GUIContainer.__init__(self, **args)
+        GUILinkable.__init__(self, **args)
 
     def draw_at(self, x, y):
-        GUIContainer.draw_at(self, x, y)
+        GUILinkable.draw_at(self, x, y)
         # retrieve canvas
         cnv: Canvas = self.canvas
         # draw process borders
