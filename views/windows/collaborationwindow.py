@@ -7,7 +7,9 @@ from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 
 from models.entities.Container import Container
-from models.entities.Entities import Collaboration,User,History
+from models.entities.Entities import Collaboration,User,History,Invitation,InvitationLink,Notification
+from models.entities.enums.notificationnature import NotificationNature
+from models.entities.enums.notificationtype import NotificationType
 from sqlalchemy import or_,func
 import datetime
 from helpers.imageutility import getdisplayableimage
@@ -79,10 +81,10 @@ class CollaborationWindow(TabbedWindow):
                 'type': SecondaryButton,
                 'cmnd': lambda e: (self.windowManager.get_module('InviteModal'))(
                     self,
-                    # BOOKMARK: Activate Link Command
-                    lambda modal: print(modal.get_form_data()),
-                    # BOOKMARK: Invite User Command
-                    lambda modal: print(modal.get_form_data())
+                    # BOOKMARK_DONE: Activate Link Command
+                    lambda modal: self.generate_inviationlink(modal),# modal.get_form_data()['txt_link']
+                    # BOOKMARK_DONE: Invite User Command
+                    lambda modal: self.invite_user(modal.get_form_data()['txt_username'])
                 )
             },
             {
@@ -105,6 +107,55 @@ class CollaborationWindow(TabbedWindow):
         self.design()
         # Fill session members
         self.fill_members()
+
+    def generate_inviationlink(self, modal):
+        # modal.form[0]['input'].entry.get()
+        def set_link(link):
+            modal.form[0]['input'].entry.delete(0,END)
+            modal.form[0]['input'].entry.insert(0,link)
+
+
+        def check_privilege(msg, modal, inv):
+            def generate_link(msg2, modal, inv, privilege):
+                set_link(f'bpmntool//{self.session.title}/{datetime.datetime.now()}/')
+                msg2.destroy()
+                if inv != None: Container.deleteObject(inv)
+                Container.save(InvitationLink(link=f'bpmntool//{self.session.title}/{datetime.datetime.now()}/', expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, sender=CollaborationWindow.ACTIVE_USER, session=self.session))
+            
+            
+            if msg != None: msg.destroy()
+            msg2 = MessageModal(self,title=f'confirmation',message=f'do you want to create an "edit" link ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, inv, 'edit'), 'no' : lambda e: generate_link(msg2, modal, inv, 'read')})
+
+        def set_old_link(msg,modal):
+            set_link(inv.link)
+            msg.destroy()
+
+        inv = Container.filter(InvitationLink, InvitationLink.senderId == CollaborationWindow.ACTIVE_USER.id, InvitationLink.sessionId == self.session.id).first()
+        if inv != None:
+            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='a link found',message=f'a link already exists: \n " {inv.link} "\n do you want to override it ?',messageType='error',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
+        else:
+            check_privilege(None, modal, None)
+
+    def invite_user(self, username):
+        def send_invite(msg, user, privilege):
+            inv = Invitation(privilege= privilege, invitationTime= datetime.datetime.now(), sender=CollaborationWindow.ACTIVE_USER, recipient= user, session= self.session)
+            Container.save(inv)
+            notif =  Notification(type= NotificationType.INVITED.value, notificationTime= datetime.datetime.now(), nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.sender, recipient= inv.recipient)
+            Container.save(notif)
+            msg.destroy()
+            MessageModal(self,title=f'success',message=f'invitation sent',messageType='info')
+
+
+        user = Container.filter(User, User.userName == username).first()
+        collabs = Container.filter(User, Collaboration.sessionId == self.session.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all()
+        if user == None:
+            MessageModal(self,title='user error 404',message=f'{username} doesn\'t exist',messageType='error')
+        elif user in collabs:
+            MessageModal(self,title='user already in',message=f'{username} already is in the session',messageType='error')
+        elif Container.filter(Invitation, Invitation.recipientId == user.id, Invitation.sessionId == self.session.id).first() != None:
+            MessageModal(self,title='user already invited',message=f'an invite is already sent to {username}',messageType='info')
+        else:
+            msg = MessageModal(self,title=f'confirmation',message=f'do you want to give {username} the right to make changes ?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
 
     def delete_session(self):
         Container.deleteObject(self.session.project)
@@ -202,7 +253,6 @@ class CollaborationWindow(TabbedWindow):
             msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
 
 
-        # hadi hia list dial commands? yeah dial buttons , hiya li kanssarda n listItem
         btn_list = [{
                     'icon': 'save.png',
                     'text': 'Export to XML',

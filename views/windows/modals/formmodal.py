@@ -12,11 +12,14 @@ class FormModal(Modal):
         if buttons == None: 
             buttons = []
 
+        def correct(call, obj):
+            return lambda e: call(obj)
+    
         # re-configure commands
         for setting in buttons:
             if 'cmnd' in setting:
                 command = setting.get('cmnd')
-                setting['cmnd'] = lambda e: command(self)
+                setting['cmnd'] = correct(command, self)
         # add cancel button
         buttons.insert(0, {
             'text': 'Cancel',
