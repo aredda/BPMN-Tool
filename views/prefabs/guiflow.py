@@ -21,7 +21,6 @@ class GUIFlow(Prefab):
 
     def draw_at(self, x, y):
         super().draw_at(x, y)
-
         cnv: Canvas = self.canvas
         # figure out which ports to use
         sourceport = self.guisource.get_port_to(self.guitarget)
@@ -46,6 +45,6 @@ class GUIFlow(Prefab):
             points[2][0] += edge
             vTargetPort[1] += longEdge * (1 if targetport[0] == self.BOTTOM_PORT else -1)
         # draw line
-        self.id.append (cnv.create_line(sourceport[1], vTargetPort, width=2, fill=black))
+        self.id.append(cnv.create_line(sourceport[1], vTargetPort, width=2, fill=black))
         # draw arrow
         self.id.append(cnv.create_polygon(points, fill=black))

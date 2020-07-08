@@ -38,7 +38,6 @@ class EditorWindow(SessionWindow):
                 { 'icon': 'task.png', 'create': GUITask },
                 { 'icon': 'subprocess-expanded.png', 'create': GUISubProcess },
                 { 'icon': 'participant.png', 'create': GUIProcess },
-                { 'icon': 'connection-multi.png' },
                 { 'icon': 'data-object.png', 'create': GUIDataObject },
                 { 'icon': 'data-store.png', 'create': GUIDataStore },
                 { 'icon': 'text-annotation.png' }

@@ -11,14 +11,15 @@ class GUIDataStore(Prefab):
         super().__init__(**args)
 
         self.temp_text = 'Data Store'
+        self.WIDTH = self.HEIGHT = self.ICON_SIZE
 
     def draw_at(self, x, y):
         super().draw_at(x, y)
         # draw icon
         cnv: Canvas = self.canvas
         self.icon = ImgTk.PhotoImage(Img.open('resources/icons/notation/guidatastore.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
-        self.id.append(cnv.create_image(x, y, image=self.icon))
+        self.id.append(cnv.create_image(x + self.WIDTH/2, y + self.HEIGHT/2, image=self.icon))
         # draw text
-        self.draw_text(self.temp_text, x, y - (self.ICON_SIZE/2) - self.TEXT_OFFSET)
+        self.draw_text(self.temp_text, x + self.WIDTH/2, y + self.HEIGHT/2 - (self.ICON_SIZE/2) - self.TEXT_OFFSET)
 
     

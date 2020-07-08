@@ -14,6 +14,15 @@ class Prefab:
         self.canvas = args.get('canvas', None)
         self.element = args.get('element', None)
         self.dielement = args.get('dielement', None)
+        self.flows = []
+
+    def add_flow(self, flow):
+        self.flows.append(flow)
+
+    def draw_flows(self):
+        for flow in self.flows:
+            flow.destroy()
+            flow.draw()
 
     def move(self, x, y):
         # calculate the offset
@@ -29,6 +38,8 @@ class Prefab:
             self.canvas.coords(id, *newcoords)
         # update the current position
         self.x, self.y = x, y
+        # re draw flows
+        self.draw_flows()
 
     def scale(self, factor):
         pass
@@ -56,12 +67,18 @@ class Prefab:
         for id in self.id:
             self.canvas.delete(id)
         self.id.clear()
+        # remove all flows
+        for flow in self.flows:
+            flow.destroy()
+        self.flows.clear()
 
     def get_options(self):
         pass
 
     def draw_text(self, text, x, y, width=0):
         self.id.append(self.canvas.create_text(x, y, text=text, width=width))
+        # redraw flows
+        self.draw_flows()
 
     def set_text(self, text):
         self.temp_text = text
