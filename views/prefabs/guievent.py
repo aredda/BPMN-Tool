@@ -53,9 +53,6 @@ class GUIEvent(GUILinkable):
             self.id.append (cnv.create_image(x + self.PERIMETER/2, y + self.PERIMETER/2, image=self.def_icon))
         # draw event's name
         self.draw_text(text, x + self.PERIMETER/2, y - self.LABEL_OFFSET)
-            
-    def move(self, x, y):
-        super().move(x - (self.PERIMETER/2), y - (self.PERIMETER/2))
 
     def get_options(self):
         option_list = []

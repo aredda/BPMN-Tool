@@ -40,9 +40,6 @@ class GUIGateway(GUILinkable):
         # Draw text
         self.draw_text(self.temp_text, x + self.WIDTH/2, y - self.LABEL_OFFSET)
 
-    def move(self, x, y):
-        super().move(x - (self.WIDTH/2), y - (self.WIDTH/2))
-
     def get_options(self):
         olist = []
 

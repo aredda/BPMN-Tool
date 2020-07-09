@@ -29,3 +29,7 @@
 
 ### 7th of July
 - [X] Figuring out which ports to use when linking
+
+### 9th of July
+- [X] When renaming an element, all flows are destroyed and lost
+- [X] When resizing a container, all children are destroyed and lost

@@ -25,6 +25,7 @@ class Prefab:
             flow.draw()
 
     def move(self, x, y):
+        x, y = x - self.WIDTH/2, y - self.HEIGHT/2
         # calculate the offset
         xDiff, yDiff = (x - self.x), (y - self.y)
         # move all the elements
@@ -51,6 +52,9 @@ class Prefab:
 
     def draw(self):
         self.draw_at(self.x, self.y)
+        # re drawn flows
+        for flow in self.flows:
+            flow.draw()
 
     def draw_at(self, x, y):
         # updating the current position
@@ -72,7 +76,6 @@ class Prefab:
         # remove all flows
         for flow in self.flows:
             flow.destroy()
-        self.flows.clear()
 
     def get_options(self):
         pass

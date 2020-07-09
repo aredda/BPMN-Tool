@@ -134,8 +134,11 @@ class EditorWindow(SessionWindow):
             justCreated = False
             # finish creation
             if self.SELECTED_MODE == self.CREATE_MODE:
-                justCreated = True
+                # reset mode
                 self.set_mode(self.DRAG_MODE)
+                # mark as 'just created'
+                justCreated = True
+                
             # finish resizing
             if self.SELECTED_MODE == self.RESIZE_MODE:
                 self.set_mode(self.DRAG_MODE)
@@ -207,8 +210,8 @@ class EditorWindow(SessionWindow):
                     # hide menu
                     self.hide_component('frm_menu')
                     # drag element
-                    self.DRAG_ELEMENT.move(e.x, e.y)
                     self.DRAG_ELEMENT.bring_front()
+                    self.DRAG_ELEMENT.move(e.x, e.y)
             if self.SELECTED_MODE == self.RESIZE_MODE:
                 # calculate width & height
                 w, h = abs(e.x - self.SELECTED_ELEMENT.x), abs(e.y - self.SELECTED_ELEMENT.y)
@@ -217,6 +220,17 @@ class EditorWindow(SessionWindow):
 
         # mouse release
         def action_mouse_release(e):
+            # check if there's a container behind
+            container: GUIContainer = None
+            checked = self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2)
+            for item in checked:
+                element = self.find_element(item)
+                if isinstance(element, GUIContainer) == True and element != self.DRAG_ELEMENT:
+                    container = element
+                    break
+            if container != None:
+                container.append_child(self.DRAG_ELEMENT)
+            # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None
 

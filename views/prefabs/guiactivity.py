@@ -61,9 +61,6 @@ class GUIActivity(GUILinkable):
                 flag_x -= self.ICON_MARGIN / 4
             self.id.append (cnv.create_image(flag_x, y + self.HEIGHT - self.ICON_MARGIN, image=self.flag_icon))
 
-    def move(self, x, y):
-        GUILinkable.move(self, x - (self.WIDTH/2), y - (self.HEIGHT/2))
-
     def get_options(self):
         optlist = []
 

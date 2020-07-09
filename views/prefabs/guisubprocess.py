@@ -10,7 +10,7 @@ class GUISubProcess(GUIActivity, GUIContainer):
 
     def __init__(self, **args):
         GUIActivity.__init__(self, **args)
-
+        GUIContainer.__init__(self, **args)
         # default size
         self.WIDTH = 250
         self.HEIGHT = 200
@@ -27,3 +27,6 @@ class GUISubProcess(GUIActivity, GUIContainer):
         self.id.append (cnv.create_image(x + (self.WIDTH / 2) + (self.ICON_MARGIN / 4) + (self.ICON_SIZE / 2), y + self.HEIGHT - self.ICON_MARGIN, image=self.type_icon))
         # draw text
         self.draw_text(self.temp_text, x + self.WIDTH/2, y - self.TEXT_OFFSET_Y)
+
+    def move(self, x, y):
+        GUIContainer.move(self, x, y)
