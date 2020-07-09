@@ -43,7 +43,10 @@ class Prefab:
         self.draw_flows()
 
     def scale(self, factor):
-        pass
+        self.WIDTH += factor
+        self.HEIGHT += factor
+        self.destroy()
+        self.draw()
 
     def resize(self, width, height):
         self.WIDTH, self.HEIGHT = width, height

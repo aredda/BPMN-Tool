@@ -10,7 +10,7 @@
 - [ ] Serialize when finishing
 - [ ] A link effect
 - [ ] Adding lanes to a process
-- [ ] Zoom-in & Zoom-out Actions
+- [X] Zoom-in & Zoom-out Actions
 - [ ] Selection Action
 - [ ] Re-Doing & Un-Doing Action 
 - [ ] Keyboard Shortcuts

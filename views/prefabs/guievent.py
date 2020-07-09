@@ -94,3 +94,12 @@ class GUIEvent(GUILinkable):
         self.temp_def = edefinition
         self.destroy()
         self.draw()
+
+    def scale(self, factor):
+        if factor < 0 and (self.PERIMETER <= abs(factor) or self.ICON_SIZE <= abs(factor)):
+            return
+        # change values
+        self.PERIMETER += factor
+        self.ICON_SIZE += factor
+        # redraw
+        super().scale(factor)

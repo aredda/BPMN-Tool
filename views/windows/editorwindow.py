@@ -54,8 +54,8 @@ class EditorWindow(SessionWindow):
                 { 'icon': 'undo.png' },
                 { 'icon': 'move.png' },
                 { 'icon': 'select.png' },
-                { 'icon': 'zoom_in.png' },
-                { 'icon': 'zoom_out.png' }
+                { 'icon': 'zoom_in.png', 'cmnd': 'zoom_in' },
+                { 'icon': 'zoom_out.png', 'cmnd': 'zoom_out' }
             ]
         }
     }
@@ -79,6 +79,8 @@ class EditorWindow(SessionWindow):
         
         self.DRAG_ELEMENT = None
 
+        self.ZOOM_SCALE = 6
+
         self.design()
         self.setup_actions()
 
@@ -96,11 +98,14 @@ class EditorWindow(SessionWindow):
                 align = settings.get('align', TOP)
                 spacing = { 'padx': 0 if align == TOP else (0, 5), 'pady': 0 if align != TOP else (0, 5) }
 
+                # command getter
+                def get_cmnd(tag, value):
+                    return self.select_event(tag, value)
                 # process command
                 cmnd = None
-                for t in ['create', 'do']:
+                for t in ['create', 'do', 'cmnd']:
                     if t in j: 
-                        cmnd = self.select_event(t, j.get(t))
+                        cmnd = get_cmnd(t, j.get(t))
 
                 ic_tool = IconFrame(frm_container, settings['path'] + j.get('icon'), 15, j.get('bg', settings.get('bg', black)), settings['size'], cmnd, settings.get('hoverBg', None), bg=white)
                 ic_tool.pack(side=align) 
@@ -257,6 +262,10 @@ class EditorWindow(SessionWindow):
                 self.guielements.append(guie)
             # return it
             return cmnd_create
+        # command event
+        elif tag == 'cmnd':
+
+            return lambda e: (getattr(self, value))()
 
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
@@ -305,3 +314,16 @@ class EditorWindow(SessionWindow):
         # convert the relative position to world position
         worldPos = self.to_window_coords(x, y)
         self.txt_input.place(x=worldPos[0], y=worldPos[1])
+
+    # zooming functionalities
+    def zoom_in(self):
+        self.ZOOM_SCALE = abs (self.ZOOM_SCALE)
+        self.zoom()
+
+    def zoom_out(self):
+        self.ZOOM_SCALE = -1 * abs (self.ZOOM_SCALE)
+        self.zoom()
+
+    def zoom(self):
+        for guie in self.guielements:
+            guie.scale(self.ZOOM_SCALE)

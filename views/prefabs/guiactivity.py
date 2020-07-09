@@ -84,3 +84,13 @@ class GUIActivity(GUILinkable):
         self.temp_flag = flag
         self.destroy()
         self.draw()
+
+    def scale(self, factor):
+        # conditions
+        if factor < 0 and self.ICON_SIZE < factor:
+            return
+        # adjust
+        self.ICON_SIZE += factor
+        self.ICON_MARGIN += factor/2
+        # refresh
+        super().scale(factor)
