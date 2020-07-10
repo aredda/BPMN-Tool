@@ -132,6 +132,15 @@ class EditorWindow(SessionWindow):
     def set_mode(self, mode):
         self.SELECTED_MODE = mode
 
+        # change cursor
+        if mode in [self.CREATE_MODE]:
+            self.cnv_canvas.config(cursor='hand2')
+        if mode in [self.RESIZE_MODE]:
+            self.cnv_canvas.config(cursor='size_ne_sw')
+        else:
+            self.cnv_canvas.config(cursor='')
+            
+
     def setup_actions(self):
         
         # single click
@@ -217,6 +226,8 @@ class EditorWindow(SessionWindow):
                     # drag element
                     self.DRAG_ELEMENT.bring_front()
                     self.DRAG_ELEMENT.move(e.x, e.y)
+                    # change cursor
+                    self.cnv_canvas.config(cursor='hand2')
             if self.SELECTED_MODE == self.RESIZE_MODE:
                 # calculate width & height
                 w, h = abs(e.x - self.SELECTED_ELEMENT.x), abs(e.y - self.SELECTED_ELEMENT.y)
@@ -238,6 +249,8 @@ class EditorWindow(SessionWindow):
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None
+            # reset mode
+            self.set_mode(self.DRAG_MODE)
 
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
         self.cnv_canvas.bind('<Button-3>', action_mouse_rclick)
@@ -255,7 +268,7 @@ class EditorWindow(SessionWindow):
                 # draw
                 guie.draw_at(0, 0)
                 # change mode
-                self.SELECTED_MODE = self.CREATE_MODE
+                self.set_mode(self.CREATE_MODE)
                 # set as the drag element
                 self.DRAG_ELEMENT = guie
                 # appen

@@ -17,7 +17,7 @@ class GUIEvent(GUILinkable):
         self.WIDTH = self.HEIGHT = self.PERIMETER
 
         self.temp_type = EventType.Start
-        self.temp_def = EventDefinition.Cancel
+        self.temp_def = EventDefinition.Default
         self.temp_text = 'Event Name'
 
     def draw_at(self, x, y):
@@ -69,7 +69,7 @@ class GUIEvent(GUILinkable):
                 'text': f'Change to {tstr} Event',
                 'fg': silver,
                 'textfg': gray,
-                'cmnd': mediator(t, self.temp_def)
+                'cmnd': mediator(t, None)
             })
 
         # change definition options
@@ -77,8 +77,7 @@ class GUIEvent(GUILinkable):
             dstr = str(d).split('.')[1]
             # adjust path
             path = dstr.lower()
-            etype = EventType.End
-            if d == EventDefinition.Message: path = 'receive' if etype not in [EventType.Start, EventType.IntermediateThrow] else 'send'
+            if d == EventDefinition.Message: path = 'receive' if self.temp_type not in [EventType.Start, EventType.IntermediateThrow] else 'send'
             # add option item
             option_list.append({
                 'folder': 'resources/icons/notation/',
@@ -86,14 +85,14 @@ class GUIEvent(GUILinkable):
                 'text': f'Define as {dstr}',
                 'fg': gray2,
                 'textfg': gray,
-                'cmnd': mediator(self.temp_type, d)
+                'cmnd': mediator(None, d)
             })
 
         return option_list
 
     def configure(self, etype, edefinition):
-        self.temp_type = etype
-        self.temp_def = edefinition
+        self.temp_type = etype if etype != None else self.temp_type
+        self.temp_def = edefinition if edefinition != None else self.temp_def
         self.destroy()
         self.draw()
 
