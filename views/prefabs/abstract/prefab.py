@@ -104,13 +104,18 @@ class Prefab:
 
     # removing & erasing the gui element from the canvas
     def destroy(self):
-        # remove all drawn elements
-        for id in self.id:
-            self.canvas.delete(id)
-        self.id.clear()
+        # erase
+        self.erase()
         # remove all flows
         for flow in self.flows:
             flow.destroy()
+
+    # erasing
+    def erase(self):
+        # erase all drawn elements
+        for id in self.id:
+            self.canvas.delete(id)
+        self.id.clear()
 
     # useful for getting commands that concerns the gui element itself
     def get_options(self):

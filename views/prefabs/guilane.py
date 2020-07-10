@@ -21,3 +21,9 @@ class GUILane(GUIContainer):
     def append_child(self, child):
         if child.__class__.__name__ not in ['GUIProcess', 'GUILane']:
             super().append_child(child)
+
+    def destroy(self):
+        # remove from parent
+        self.guiprocess.remove_lane(self)
+        # remove self
+        super().destroy()
