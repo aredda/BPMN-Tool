@@ -264,7 +264,6 @@ class EditorWindow(SessionWindow):
             return cmnd_create
         # command event
         elif tag == 'cmnd':
-
             return lambda e: (getattr(self, value))()
 
     # a searching method to find the corresponding gui element from the given id
@@ -278,6 +277,8 @@ class EditorWindow(SessionWindow):
     def remove_element(self, element):
         # remove the drawn element
         element.destroy()
+        # unlink all flows
+        element.unlink()
         # remove from list
         self.guielements.remove(element)
         # hide menu

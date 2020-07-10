@@ -60,6 +60,7 @@ class GUIEvent(GUILinkable):
         def mediator(t, d):
             return lambda e: self.configure(t, d)
 
+        # change type options
         for t in list(EventType):
             tstr = str(t).split('.')[1]
             option_list.append({
@@ -71,6 +72,7 @@ class GUIEvent(GUILinkable):
                 'cmnd': mediator(t, self.temp_def)
             })
 
+        # change definition options
         for d in list(EventDefinition):
             dstr = str(d).split('.')[1]
             # adjust path

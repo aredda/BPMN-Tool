@@ -24,6 +24,14 @@ class Prefab:
             flow.destroy()
             flow.draw()
 
+    # dispose of all flows
+    def unlink(self):
+        for flow in self.flows:
+            for ref in [flow.guisource, flow.guitarget]:
+                if ref != flow:
+                    ref.flows.remove(flow)
+        self.flows.clear()
+
     def move(self, x, y):
         x, y = x - self.WIDTH/2, y - self.HEIGHT/2
         # calculate the offset
