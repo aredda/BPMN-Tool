@@ -15,6 +15,7 @@ from views.prefabs.guiprocess import GUIProcess
 from views.prefabs.guidatastore import GUIDataStore
 from views.prefabs.guidataobject import GUIDataObject
 from views.prefabs.guiflow import GUIFlow
+from views.prefabs.guilane import GUILane
 from threading import Thread
 
 class EditorWindow(SessionWindow):
@@ -221,6 +222,9 @@ class EditorWindow(SessionWindow):
         def action_mouse_move(e):
             if self.SELECTED_MODE in [self.DRAG_MODE, self.CREATE_MODE]:
                 if self.DRAG_ELEMENT != None:
+                    # if the drag element is a lane, switch to its process instead
+                    if isinstance(self.DRAG_ELEMENT, GUILane) == True:
+                        self.DRAG_ELEMENT = self.DRAG_ELEMENT.guiprocess
                     # hide menu
                     self.hide_component('frm_menu')
                     # drag element
@@ -282,8 +286,8 @@ class EditorWindow(SessionWindow):
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
         for guie in self.guielements:
-            if id in guie.id:
-                return guie
+            if guie.match(id) != None:
+                return guie.match(id)
         return None
 
     # delete an element
@@ -293,7 +297,8 @@ class EditorWindow(SessionWindow):
         # unlink all flows
         element.unlink()
         # remove from list
-        self.guielements.remove(element)
+        if element in self.guielements:
+            self.guielements.remove(element)
         # hide menu
         self.hide_component('frm_menu')
 

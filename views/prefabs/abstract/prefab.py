@@ -16,15 +16,23 @@ class Prefab:
         self.dielement = args.get('dielement', None)
         self.flows = []
 
+    # necessary for finding the gui element
+    def match(self, id):
+        if id in self.id:
+            return self
+        return None
+
+    # add the gui flow to the container
     def add_flow(self, flow):
         self.flows.append(flow)
 
+    # draw all contained flows
     def draw_flows(self):
         for flow in self.flows:
             flow.destroy()
             flow.draw()
 
-    # dispose of all flows
+    # clear all flows and erase them
     def unlink(self):
         for flow in self.flows:
             for ref in [flow.guisource, flow.guitarget]:
@@ -32,6 +40,7 @@ class Prefab:
                     ref.flows.remove(flow)
         self.flows.clear()
 
+    # move to another position
     def move(self, x, y):
         x, y = x - self.WIDTH/2, y - self.HEIGHT/2
         # calculate the offset
@@ -50,17 +59,20 @@ class Prefab:
         # re draw flows
         self.draw_flows()
 
+    # necessary for zooming functionalities
     def scale(self, factor):
         self.WIDTH += factor
         self.HEIGHT += factor
         self.destroy()
         self.draw()
 
+    # used by containers only
     def resize(self, width, height):
         self.WIDTH, self.HEIGHT = width, height
         self.destroy()
         self.draw()
 
+    # drawing methods
     def draw(self):
         self.draw_at(self.x, self.y)
         # re drawn flows
@@ -71,26 +83,6 @@ class Prefab:
         # updating the current position
         self.x, self.y = x, y
 
-    def bring_front(self):
-        for id in self.id:
-            self.canvas.tag_raise(id)
-    
-    def bring_back(self):
-        for id in self.id:
-            self.canvas.tag_lower(id)
-
-    def destroy(self):
-        # remove all drawn elements
-        for id in self.id:
-            self.canvas.delete(id)
-        self.id.clear()
-        # remove all flows
-        for flow in self.flows:
-            flow.destroy()
-
-    def get_options(self):
-        pass
-
     def draw_text(self, text, x, y, width=0):
         self.id.append(self.canvas.create_text(x, y, text=text, width=width))
         # redraw flows
@@ -100,7 +92,31 @@ class Prefab:
         self.temp_text = text
         self.destroy()
         self.draw()
+
+    # to control the z index
+    def bring_front(self):
+        for id in self.id:
+            self.canvas.tag_raise(id)
     
+    def bring_back(self):
+        for id in self.id:
+            self.canvas.tag_lower(id)
+
+    # removing & erasing the gui element from the canvas
+    def destroy(self):
+        # remove all drawn elements
+        for id in self.id:
+            self.canvas.delete(id)
+        self.id.clear()
+        # remove all flows
+        for flow in self.flows:
+            flow.destroy()
+
+    # useful for getting commands that concerns the gui element itself
+    def get_options(self):
+        pass
+    
+    # necessary for establishing a smooth linking between elements
     def get_ports(self):
         return {
             self.LEFT_PORT: (self.x, self.y + self.HEIGHT/2),

@@ -26,11 +26,13 @@ class GUIContainer(Prefab):
 
     def draw(self):
         super().draw()
-        # for each child
+        # draw each child
         for child in self.children:
             child.draw()
 
     def destroy(self):
+        # child disposal
         for child in self.children:
             child.destroy()
+        # self destruction
         super().destroy()

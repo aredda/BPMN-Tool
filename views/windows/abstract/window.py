@@ -86,7 +86,6 @@ class Window(Toplevel):
     def show_menu(self, **options):
         if hasattr(self, 'frm_menu') == False:
             self.frm_menu = Frame(self, bg=options.get('bg', white), width=options.get('width', 0), height=options.get('height', 0), highlightthickness=1, highlightbackground=border, padx=5, pady=5)
-
         # reposition menu modal
         self.frm_menu.place(x=options.get('x'), y=options.get('y'), anchor=N+E)
         # destroy children
