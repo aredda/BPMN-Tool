@@ -82,15 +82,12 @@ class ProfileWindow(TabbedWindow):
         TabbedWindow.__init__(self, root, ProfileWindow.tabSettings, 'Profile', **args)
 
         self.textBoxes = {}
-        # self.image = {'bytes':ProfileWindow.ACTIVE_USER.image, 'label':None}
-        self.lblimage = self.ACTIVE_USER.image
 
         self.collaboratorsItems = []
 
         self.design()
         self.fill_collaborators()
         self.fill_profile()
-        self.get_form_data()
 
     def design(self):
         # Setup the tab of profile
@@ -108,9 +105,6 @@ class ProfileWindow(TabbedWindow):
         frm_image.pack(side=TOP, fill=X, pady=(0, 10))
 
         self.lbl_image = Label(frm_image)
-        
-        # self.image['label'] = lbl_image
-        self.set_image()
 
         SecondaryButton(frm_image_column, 'Upload Image', 'upload.png',btnCmd=lambda event: self.open_image(event)).pack (side=TOP, fill=X)
 
@@ -143,6 +137,28 @@ class ProfileWindow(TabbedWindow):
         self.lv_collabs.set_gridcols(2)
         self.lv_collabs.pack(expand=1, fill=BOTH)
 
+    # select a ne image
+    def open_image(self, event):
+        self.set_image(filetobytes(filedialog.askopenfilename(initialdir="/", title="Select file", filetypes=(("jpeg/jpg files", "*.jpg"), ("png files", "*.png"), ("all files", "*.*")))))
+
+
+    # display current image
+    def set_image(self, img):
+        setattr(self, 'image', img)
+
+        if img != None:
+            photo = getdisplayableimage(img, (160,150))
+            self.lbl_image.configure(image= photo)
+            self.lbl_image.image = photo
+            self.lbl_image.pack()
+
+    # fill current user's profile
+    def fill_profile(self):
+        self.set_image(ProfileWindow.ACTIVE_USER.image)
+        for key,value in self.textBoxes.items():
+            if hasattr(ProfileWindow.ACTIVE_USER, key) and getattr(ProfileWindow.ACTIVE_USER, key) != None:
+                value.entry.insert(0, getattr(ProfileWindow.ACTIVE_USER, key))
+
     # BOOKMARK_DONE: this one is responsible for filling the scrollable container 
     def fill_collaborators(self):
         self.lv_collabs.empty()
@@ -158,88 +174,75 @@ class ProfileWindow(TabbedWindow):
     # BOOKMARK_DONE: this method takes care of getting the data from the form in a form of dictionary
     def get_form_data(self):
         dic = {}
-
+        # get data from textboxes
         for key,value in self.textBoxes.items():
-            dic[key] = value.entry.get()
-            # print(f'{key} : {value.entry.get()}')
-
-        dic['image'] = self.lblimage
+            dic[key] = value.entry.get()  if value.entry.get() != '' else None
+        # get images
+        dic['image'] = getattr(self, 'image')
         return dic
 
-    def fill_profile(self):
-        for key,value in self.textBoxes.items():
-            if hasattr(ProfileWindow.ACTIVE_USER, key) and getattr(ProfileWindow.ACTIVE_USER, key) != None:
-                value.entry.insert(0, getattr(ProfileWindow.ACTIVE_USER, key))
 
-    def open_image(self, event):
-        self.lblimage = filetobytes(filedialog.askopenfilename(initialdir="/", title="Select file", filetypes=(("jpeg/jpg files", "*.jpg"), ("png files", "*.png"), ("all files", "*.*"))))
-        self.set_image()
-
-    def set_image(self):  
-        if self.lblimage != None:
-            photo = getdisplayableimage(self.lblimage, (160,150))
-            self.lbl_image.configure(image= photo)
-            self.lbl_image.image = photo
-            self.lbl_image.pack()
-
+    # validate form data
     def validate_form_data(self,data):
-        validated = True
+        try:
+            for key, value in data.items():
+                if value == None and key not in ['confirmPwd', 'company', 'gender', 'image']:
+                    raise Exception(key,f'{key} cannot be null')
 
-        def show_message(key,msg):
-            MessageModal(self,title=f'{key} error',message=msg,messageType='error')
+                elif key in ['firstName','lastName'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):
+                    raise Exception(key,f'\n1. can contain 2 words \n2. must be between 2 - 15 alphabets each \n3. can contain 1 space in the middle only \n4. should not contain any special characters or numbers')
+                        
+                elif key in ['userName','password'] and not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', value):
+                    raise Exception(key,f'\n1. must be between 6 - 14 characters \n2. must contain 1 Capital letter \n3. must contain 1 special character ($@-)')
+                        
+                elif key == 'email' and not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
+                    raise Exception(key,f'please enter a valid email ex: emailName@email.com')
+                        
+                elif key == 'company' and value != None and not re.fullmatch('[a-zA-Z0-9]{4,20}?', value):
+                    raise Exception(key,f'\n1. must be between 4 - 20 characters \n2. should contain alphabets and numbers only')
+                        
+                elif key == 'gender' and value != None and value.lower() not in ['female','male']:
+                    raise Exception(key,f'gender must be either male or female!')
+                        
+                elif key == 'confirmPwd' and value != data['password']:
+                    raise Exception(key,f'password doesn\'t match, please confirm your password!')
+
+            return True
+
+        except Exception as ex:
+            MessageModal(self,title=f'{ex.args[0]} error',message=ex.args[1],messageType='error')
             return False
-
-        for key, value in data.items():
-            if key in ['firstName','lastName']:
-                if not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):
-                    validated = show_message(key,f'\n1. can contain 2 words \n2. must be between 2 - 15 alphabets each \n3. can contain 1 space in the middle only \n4. should not contain any special characters or numbers')
-                    break
-            elif key in ['userName','password']:
-                if not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', value):
-                    validated = show_message(key,f'\n1. must be between 6 - 14 characters \n2. must contain 1 Capital letter \n3. must contain 1 special character ($@-)')
-                    break
-            elif key == 'email':
-                if not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
-                    validated = show_message(key,f'please enter a valid email ex: emailName@email.com')
-                    break
-            elif key == 'company':
-                if value != '' and not re.fullmatch('[a-zA-Z0-9]{4,20}?', value):
-                    validated = show_message(key,f'\n1. must be between 4 - 20 characters \n2. should contain alphabets and numbers only')
-                    break
-            elif key == 'gender':
-                if value != '' and value.lower() not in ['female','male']:
-                    validated = show_message(key,f'gender must be either male or female')
-                    break
-            elif key == 'confirmPwd':
-                if value != data['password']:
-                    validated = show_message(key,f'password doesn\'t match, please confirm your password')
-                    break                   
-
-        return validated
 
 
     def save_changes(self, event):
         data = self.get_form_data()
+        # check if data is validated
         if self.validate_form_data(data) == True:
-            for key,value in self.textBoxes.items():
+            # make changes on current user
+            for key,value in data.items():
                 if hasattr(ProfileWindow.ACTIVE_USER, key):
-                    setattr(ProfileWindow.ACTIVE_USER,key,value.entry.get() if value.entry.get() != '' else None)
-            ProfileWindow.ACTIVE_USER.image = self.lblimage
+                    setattr(ProfileWindow.ACTIVE_USER,key,value)
+            # save changes
             Container.save(ProfileWindow.ACTIVE_USER)
-            MessageModal(self,title=f'success',message='changes saved',messageType='info')
+            MessageModal(self,title=f'success',message='changes saved succefully!',messageType='info')
+            # reload the window
             self.windowManager.run(ProfileWindow(self.master))
             self.close()
 
     def remove_collaborator(self,relation):
         def delete_relation(relation):
+            # delete relation
             Container.deleteObject(relation)
+            # destroy message
             msg.destroy()
+            # remove deleted collaborator's listItem
             for li in self.collaboratorsItems:
                 if li.dataObject == relation: 
                     li.destroy()
                     self.collaboratorItems.remove(li)
-            MessageModal(self,title=f'success',message='Collaborator removed',messageType='info')
 
-        msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to remove {relation.userTwo.userName}',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
+            MessageModal(self,title=f'success',message=f'{relation.userTwo.userName} has been removed succefully!',messageType='info')
+        # confirm with the user
+        msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to remove {relation.userTwo.userName} from your collaboration list?',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
 
    

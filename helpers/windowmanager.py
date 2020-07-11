@@ -18,7 +18,7 @@ class WindowManager:
     def run(self, window):
         # Hide running window
         if self.running() != None:
-            self.running().withdraw()
+            self.running().hide()
         # Configure close
         window.protocol ('WM_DELETE_WINDOW', lambda: self.close())
         # Pass window manager
@@ -28,7 +28,7 @@ class WindowManager:
         # Add the newly created window to the queue
         self.windows.append(window)
         # Focus on the new window
-        window.deiconify()
+        window.show()
         # Refresh the new window
         window.refresh()
     
@@ -44,7 +44,7 @@ class WindowManager:
         if self.running() == None:
             self.root.destroy()
         else:
-            self.running().deiconify()
+            self.running().show()
             self.running().refresh()
 
     def running(self):
