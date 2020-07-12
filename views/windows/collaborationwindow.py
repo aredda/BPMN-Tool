@@ -73,7 +73,7 @@ class CollaborationWindow(TabbedWindow):
                 'text': 'End Session',
                 'type': DangerButton,
                 # BOOKARK: Ending Session Command
-                'cmnd': lambda e: self.show_prompt('Are you really sure to terminate the session?', lambda e: self.delete_session(), 'Terminating the session')
+                'cmnd': lambda e: self.show_prompt('Are you sure you want to terminate the session ?', lambda e: self.delete_session(), 'Terminating the session')
             },
             {
                 'icon': 'invite.png',
@@ -117,14 +117,15 @@ class CollaborationWindow(TabbedWindow):
 
         def check_privilege(msg, modal, inv):
             def generate_link(msg2, modal, inv, privilege):
-                set_link(f'bpmntool//{self.session.title}/{datetime.datetime.now()}/')
                 msg2.destroy()
                 if inv != None: Container.deleteObject(inv)
-                Container.save(InvitationLink(link=f'bpmntool//{self.session.title}/{datetime.datetime.now()}/', expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, sender=CollaborationWindow.ACTIVE_USER, session=self.session))
+                link= f'bpmntool//{self.session.title}/{datetime.datetime.now()}/'
+                Container.save(InvitationLink(link=link, expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, sender=CollaborationWindow.ACTIVE_USER, session=self.session))
+                set_link(link)
             
             
             if msg != None: msg.destroy()
-            msg2 = MessageModal(self,title=f'confirmation',message=f'do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, inv, 'edit'), 'no' : lambda e: generate_link(msg2, modal, inv, 'read')})
+            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, inv, 'edit'), 'no' : lambda e: generate_link(msg2, modal, inv, 'read')})
 
         def set_old_link(msg,modal):
             set_link(inv.link)
@@ -132,7 +133,7 @@ class CollaborationWindow(TabbedWindow):
 
         inv = Container.filter(InvitationLink, InvitationLink.senderId == CollaborationWindow.ACTIVE_USER.id, InvitationLink.sessionId == self.session.id).first()
         if inv != None:
-            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='a link found',message=f'a link already exists: \n {inv.link}\n do you want to override it ?',messageType='error',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{inv.link}\nDo you want to override it ?',messageType='error',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)
 
@@ -143,25 +144,25 @@ class CollaborationWindow(TabbedWindow):
             notif =  Notification(type= NotificationType.INVITED.value, notificationTime= datetime.datetime.now(), nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.sender, recipient= inv.recipient)
             Container.save(notif)
             msg.destroy()
-            MessageModal(self,title=f'success',message=f'invitation sent to {user.userName} successfully!',messageType='info')
+            MessageModal(self,title=f'success',message=f'Invitation sent to {user.userName} successfully !',messageType='info')
 
 
         user = Container.filter(User, User.userName == username).first()
         collabs = Container.filter(User, Collaboration.sessionId == self.session.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all()
         
         if user == None:
-            MessageModal(self,title='user error 404',message=f'{username} doesn\'t exist',messageType='error')
+            MessageModal(self,title='user error 404',message=f'{username} doesn\'t exist !' if username != '' and not str.isspace(username) else 'Please enter a userName !',messageType='error')
         elif user in collabs:
-            MessageModal(self,title='user already in',message=f'{username} is already in the session!',messageType='error')
+            MessageModal(self,title='user already in',message=f'{username} is already in the session !',messageType='error')
         elif Container.filter(Invitation, Invitation.recipientId == user.id, Invitation.sessionId == self.session.id).first() != None:
-            MessageModal(self,title='user already invited',message=f'an invite is already sent to {username}!',messageType='info')
+            MessageModal(self,title='user already invited',message=f'An invite is already sent to {username} !',messageType='info')
         else:
-            msg = MessageModal(self,title=f'confirmation',message=f'do you want to give {username} the right to make changes?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
+            msg = MessageModal(self,title=f'confirmation',message=f'Do you want to give {username} the right to make changes ?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
 
     def delete_session(self):
         Container.deleteObject(self.session.project)
         self.windowManager.close()
-        MessageModal(self,title=f'success',message=f'session terminated!',messageType='info')
+        MessageModal(self,title=f'success',message=f'Session terminated !',messageType='info')
     
     def configure_settings(self):
         CollaborationWindow.lblSettings[0]['prop'] = self.session.project.title
@@ -230,8 +231,8 @@ class CollaborationWindow(TabbedWindow):
             folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
 
             if folderName != '':
-                bytestofile(f'{folderName}{self.session.title}',f'{title}_{date.strftime("%d-%m-%Y_%H-%M-%S")}','xml',fileBytes)
-                MessageModal(self,title=f'success',message=f'file saved in {folderName}{self.session.title}',messageType='info')
+                bytestofile(f'{folderName}',f'{title}_{date.strftime("%d-%m-%Y_%H-%M-%S")}','xml',fileBytes)
+                MessageModal(self,title=f'success',message=f'File saved in {folderName} !',messageType='info')
     
     def get_btn_list(self,history):
         
@@ -247,10 +248,10 @@ class CollaborationWindow(TabbedWindow):
                         Container.deleteObject(li.dataObject)
                         li.destroy()
                 
-                MessageModal(self,title=f'success',message=f'changes reverted to {history.editDate.strftime("%x - %X")}!',messageType='info')
+                MessageModal(self,title=f'success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}',messageType='info')
                 getattr(self, 'lbl_'+ CollaborationWindow.lblSettings[2]['prop'])['text'] = history.editDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != history.editDate.strftime("%x") else 'Today at - '+history.editDate.strftime("%X")
             
-            msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to revert to that change?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
+            msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
 
 
         btn_list = [{
@@ -299,8 +300,8 @@ class CollaborationWindow(TabbedWindow):
                     li.destroy()
                     getattr(self, 'lbl_'+ CollaborationWindow.lblSettings[3]['prop'])['text'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
                     
-            MessageModal(self,title=f'success',message=f'{user.userName} has been kicked out of the session!',messageType='info')
+            MessageModal(self,title=f'success',message=f'{user.userName} has been kicked out of the session !',messageType='info')
 
-        msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to kick {user.userName}?',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})
+        msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to kick {user.userName} ?',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})
 
         

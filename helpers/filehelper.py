@@ -1,9 +1,10 @@
 from pathlib import Path
 
 def filetobytes(filename):
-    with open(filename, 'rb') as file:
-        data = file.read()
-    return data
+    if filename != '':
+        with open(filename, 'rb') as file:
+            data = file.read()
+        return data
 
 
 def bytestofile(directory, filename, extension, data: bytes):

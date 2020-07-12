@@ -44,12 +44,15 @@ because we are going to add other models concerning data..
 - [ ] notification image doesn't show
 ### Saved Collaborators
 - [ ] collaborator's image doesn't show
-- [ ] listItem width when the number is impair
+- [ ] listItem width issue when the number is impair
 ### discussion window 
-- [ ] scrollbar should be at the end when we enter a session + minor issue when switching between sessions
+- [ ] scrollbar should be at the end when we enter a session + minor issue when switching between sessions / issue on discussions switch
 - [ ] hide session's name section and textmessage part
 ### profile window
 - [ ] password and confirmPwd must be hidden
 - [ ] MessageModal button disappears when message is big
-### form modal factory
+### form modal factory in home window
 - [ ] modal interfers with openfiledialog 
+### collaboration window
+- [ ] members listItem issue (size and button)
+- [ ] image resize issue

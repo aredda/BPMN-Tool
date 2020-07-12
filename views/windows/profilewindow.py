@@ -187,25 +187,25 @@ class ProfileWindow(TabbedWindow):
         try:
             for key, value in data.items():
                 if value == None and key not in ['confirmPwd', 'company', 'gender', 'image']:
-                    raise Exception(key,f'{key} cannot be null')
+                    raise Exception(key,f'{key} Cannot be null !')
 
                 elif key in ['firstName','lastName'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):
-                    raise Exception(key,f'\n1. can contain 2 words \n2. must be between 2 - 15 alphabets each \n3. can contain 1 space in the middle only \n4. should not contain any special characters or numbers')
+                    raise Exception(key,f'\n1. Can contain 2 words \n2. Must be between 2 - 15 alphabets each \n3. Can contain 1 space between the 2 words only \n4. Should not contain any special characters or numbers')
                         
                 elif key in ['userName','password'] and not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', value):
-                    raise Exception(key,f'\n1. must be between 6 - 14 characters \n2. must contain 1 Capital letter \n3. must contain 1 special character ($@-)')
+                    raise Exception(key,f'\n1. Must be between 6 - 14 characters \n2. Must contain 1 Capital letter \n3. Must contain 1 special character ($@-)')
                         
                 elif key == 'email' and not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
-                    raise Exception(key,f'please enter a valid email ex: emailName@email.com')
+                    raise Exception(key,f'Please enter a valid email\nEX: emailName@email.com')
                         
-                elif key == 'company' and value != None and not re.fullmatch('[a-zA-Z0-9]{4,20}?', value):
-                    raise Exception(key,f'\n1. must be between 4 - 20 characters \n2. should contain alphabets and numbers only')
+                elif key == 'company' and value != None and not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', value):
+                    raise Exception(key,f'\n1. Must be between 4 - 20 characters \n2. Should contain alphabets and numbers only')
                         
                 elif key == 'gender' and value != None and value.lower() not in ['female','male']:
-                    raise Exception(key,f'gender must be either male or female!')
+                    raise Exception(key,f'Gender must be either male or female !')
                         
                 elif key == 'confirmPwd' and value != data['password']:
-                    raise Exception(key,f'password doesn\'t match, please confirm your password!')
+                    raise Exception('password confirmation',f'Password doesn\'t match.\nPlease confirm your password !')
 
             return True
 
@@ -224,10 +224,9 @@ class ProfileWindow(TabbedWindow):
                     setattr(ProfileWindow.ACTIVE_USER,key,value)
             # save changes
             Container.save(ProfileWindow.ACTIVE_USER)
-            MessageModal(self,title=f'success',message='changes saved succefully!',messageType='info')
+            MessageModal(self,title=f'success',message='Changes saved succefully !',messageType='info')
             # reload the window
             self.windowManager.run(ProfileWindow(self.master))
-            self.close()
 
     def remove_collaborator(self,relation):
         def delete_relation(relation):
@@ -241,8 +240,8 @@ class ProfileWindow(TabbedWindow):
                     li.destroy()
                     self.collaboratorItems.remove(li)
 
-            MessageModal(self,title=f'success',message=f'{relation.userTwo.userName} has been removed succefully!',messageType='info')
+            MessageModal(self,title=f'success',message=f'{relation.userTwo.userName} has been removed succefully !',messageType='info')
         # confirm with the user
-        msg = MessageModal(self,title=f'confirmation',message=f'are you sure you want to remove {relation.userTwo.userName} from your collaboration list?',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
+        msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to remove {relation.userTwo.userName} from your collaboration list ?',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
 
    
