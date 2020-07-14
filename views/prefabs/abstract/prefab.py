@@ -146,4 +146,13 @@ class Prefab:
             port = self.RIGHT_PORT if self.x < guielement.x else self.LEFT_PORT
         # return 
         return [port, self.get_port(port)]
+
+    # crucial for knowing which type of flows
+    def get_process(self):
+        target = self.parent
+        # fetch
+        while target.__class__.__name__ != 'GUIProcess' and target != None:
+            target = target.parent
+        # return result
+        return target
         

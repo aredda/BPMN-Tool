@@ -28,7 +28,7 @@ class BPMNElement(XMLSerializable):
 
     # A default serialization
     def serialize(self):
-        e = et.Element(bpmn + camel_case(self.__class__.__name__))
+        e = et.Element(bpmn + self.get_tag())
         # Foreach property in class, add it as an attribute to the element
         for attr in vars(self):
             if attr not in self.ignore and getattr(self, attr) != None:
@@ -38,3 +38,7 @@ class BPMNElement(XMLSerializable):
     # toString
     def __str__(self):
         return str(self.id)
+
+    # get tag
+    def get_tag(self):
+        return camel_case(self.__class__.__name__)

@@ -13,6 +13,8 @@ class GUIFlow(Prefab):
         self.guisource: Prefab = args.get('guisource', None)
         self.guitarget: Prefab = args.get('guitarget', None)
 
+        print (type(self.element))
+
         # finish set up
         if self.guisource != None:
             self.guisource.add_flow(self)
@@ -44,7 +46,14 @@ class GUIFlow(Prefab):
             points[0][0] -= edge
             points[2][0] += edge
             vTargetPort[1] += longEdge * (1 if targetport[0] == self.BOTTOM_PORT else -1)
+        # line options
+        lineOpts = {
+            'width': 2,
+            'fill': black
+        }
+        if isinstance(self.element, SequenceFlow) == False:
+            lineOpts['dash'] = (20, 10) if isinstance(self.element, MessageFlow) == True else (1, 10)
         # draw line
-        self.id.append(cnv.create_line(sourceport[1], vTargetPort, width=2, fill=black))
+        self.id.append(cnv.create_line(sourceport[1], vTargetPort, **lineOpts))
         # draw arrow
         self.id.append(cnv.create_polygon(points, fill=black))

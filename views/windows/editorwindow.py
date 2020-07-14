@@ -1,5 +1,9 @@
 from tkinter import *
 from resources.colors import *
+from models.bpmn.definitions import Definitions
+from models.bpmn.sequenceflow import SequenceFlow
+from models.bpmn.messageflow import MessageFlow
+from models.bpmn.dataassociation import DataAssociation, DataAssocDirection
 from views.windows.abstract.sessionwindow import SessionWindow
 from views.components.scrollable import Scrollable
 from views.components.listitem import ListItem
@@ -7,6 +11,7 @@ from views.components.icon import IconFrame
 from views.components.textbox import TextBox
 from views.factories.iconbuttonfactory import *
 from views.prefabs.abstract.guicontainer import GUIContainer
+from views.prefabs.abstract.guilinkable import GUILinkable
 from views.prefabs.guievent import GUIEvent
 from views.prefabs.guigateway import GUIGateway
 from views.prefabs.guisubprocess import GUISubProcess
@@ -25,7 +30,7 @@ class EditorWindow(SessionWindow):
             'size': 35,
             'path': 'resources/icons/ui/',
             'tools': [
-                { 'icon': 'save.png' },
+                { 'icon': 'save.png', 'cmnd': 'save_work' },
                 { 'icon': 'open.png', 'bg': danger }
             ]
         },
@@ -61,6 +66,29 @@ class EditorWindow(SessionWindow):
         }
     }
 
+    # command & event config method
+    def select_event(self, tag, value):
+        # create event
+        if tag == 'create':
+            # prepare create command
+            def cmnd_create(e):
+                # instantiate
+                guie = value(canvas=self.cnv_canvas)
+                # draw
+                guie.draw_at(0, 0)
+                # change mode
+                self.set_mode(self.CREATE_MODE)
+                # set as the drag element
+                self.DRAG_ELEMENT = guie
+                # append
+                self.guielements.append(guie)
+                self.definitions.add(guie.element.get_tag(), guie.element)
+            # return it
+            return cmnd_create
+        # command event
+        elif tag == 'cmnd':
+            return lambda e: (getattr(self, value))()
+
     # EDITOR Modes
     DRAG_MODE = 0
     SELECT_MODE = 1
@@ -72,14 +100,15 @@ class EditorWindow(SessionWindow):
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
 
+        # data related attributes
         self.subject = subject
         self.guielements = []
+        self.definitions: Definitions = Definitions()
 
+        # editor's gears
         self.SELECTED_MODE = self.DRAG_MODE
         self.SELECTED_ELEMENT = None
-        
         self.DRAG_ELEMENT = None
-
         self.ZOOM_SCALE = 6
 
         self.design()
@@ -141,7 +170,7 @@ class EditorWindow(SessionWindow):
         else:
             self.cnv_canvas.config(cursor='')
             
-
+    # pretty much the most important member of this module
     def setup_actions(self):
         
         # single click
@@ -153,7 +182,6 @@ class EditorWindow(SessionWindow):
                 self.set_mode(self.DRAG_MODE)
                 # mark as 'just created'
                 justCreated = True
-                
             # finish resizing
             if self.SELECTED_MODE == self.RESIZE_MODE:
                 self.set_mode(self.DRAG_MODE)
@@ -170,7 +198,7 @@ class EditorWindow(SessionWindow):
                 if self.SELECTED_MODE == self.LINK_MODE:
                     if self.SELECTED_ELEMENT != previous_selected:
                         # creating a flow
-                        flow = GUIFlow(canvas=self.cnv_canvas, guisource=previous_selected, guitarget=self.SELECTED_ELEMENT)
+                        flow = GUIFlow(canvas=self.cnv_canvas, guisource=previous_selected, guitarget=self.SELECTED_ELEMENT, element=self.get_link_model(previous_selected, self.SELECTED_ELEMENT))
                         flow.draw_at(0, 0)
                         # finish linking
                         self.set_mode(self.DRAG_MODE)
@@ -272,27 +300,6 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind('<Motion>', action_mouse_move)
         self.cnv_canvas.bind('<B1-Motion>', action_mouse_move)
         self.cnv_canvas.bind('<ButtonRelease-1>', action_mouse_release)
-        
-    def select_event(self, tag, value):
-        # create event
-        if tag == 'create':
-            # prepare create command
-            def cmnd_create(e):
-                # instantiate
-                guie = value(canvas=self.cnv_canvas)
-                # draw
-                guie.draw_at(0, 0)
-                # change mode
-                self.set_mode(self.CREATE_MODE)
-                # set as the drag element
-                self.DRAG_ELEMENT = guie
-                # appen
-                self.guielements.append(guie)
-            # return it
-            return cmnd_create
-        # command event
-        elif tag == 'cmnd':
-            return lambda e: (getattr(self, value))()
 
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
@@ -357,3 +364,28 @@ class EditorWindow(SessionWindow):
     def zoom(self):
         for guie in self.guielements:
             guie.scale(self.ZOOM_SCALE)
+
+    # saving functionality
+    def save_work(self):
+        from helpers.stringhelper import to_pretty_xml
+
+        print (to_pretty_xml(self.definitions.serialize()))
+
+    # linking funcs
+    def can_link(self, source, target):
+        return True
+
+    def get_link_model(self, source, target):
+        """
+        Figure out which model to use in this case
+        """
+        # preparations
+        artifacts = [GUIDataObject, GUIDataStore]
+        # data association case
+        if type(source) in artifacts or type(target) in artifacts:
+            return DataAssociation(source=source.element, target=target.element, direction=(DataAssocDirection.IN if type(source) in artifacts else DataAssocDirection.OUT))
+        # message flow case
+        if source.get_process() != target.get_process():
+            return MessageFlow(source=source.element, target=target.element)
+        # sequence flow case
+        return SequenceFlow(source=source.element, target=target.element)

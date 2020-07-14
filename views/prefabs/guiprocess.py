@@ -57,6 +57,7 @@ class GUIProcess(GUIContainer):
     def add_lane(self):
         # create an empty lane
         lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
+        lane.parent = self
         # append it to
         self.children.append(lane)
         self.lanes.append(lane)

@@ -8,7 +8,6 @@
 - [ ] Optimizing the returned list of options for each element
 - [ ] Draw diagram from deserialized definitions
 - [ ] Serialize when finishing
-- [ ] A link effect
 - [X] Adding lanes to a process
 - [X] Zoom-in & Zoom-out Actions
 - [ ] Selection Action
@@ -33,3 +32,8 @@
 ### 9th of July
 - [X] When renaming an element, all flows are destroyed and lost
 - [X] When resizing a container, all children are destroyed and lost
+
+### 14th of July
+- [ ] Linking the front with the back
+- [X] Implementing the [Message | Data Association] GUI flows
+- [X] Serialize when finishing
