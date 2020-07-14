@@ -37,6 +37,8 @@ class GUIProcess(GUIContainer):
         correct_height = int (self.HEIGHT / len (self.lanes)) if self.lanes != [] else 0
         # proceed
         for lane in self.lanes:
+            # erase
+            lane.erase()
             # adjust height
             lane.HEIGHT = correct_height
             # adjust where the lane is created
@@ -45,7 +47,7 @@ class GUIProcess(GUIContainer):
                 if l == lane: break
                 yCorrect += lane.HEIGHT
             # refresh
-            lane.draw_at(self.x+self.POST_OFFSET, yCorrect)
+            lane.draw_at(self.x + self.POST_OFFSET, yCorrect)
 
     def add_lane(self):
         # create an empty lane
@@ -82,6 +84,11 @@ class GUIProcess(GUIContainer):
             lane.WIDTH = width - self.POST_OFFSET
             lane.HEIGHT = height / len (self.lanes)
         # redraw lanes
+        self.draw_lanes()
+
+    def scale(self, factor):
+        super().scale(factor)
+        # refresh
         self.draw_lanes()
 
     def get_options(self):

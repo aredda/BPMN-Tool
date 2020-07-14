@@ -23,6 +23,9 @@ class GUIContainer(Prefab):
             # keep the offset
             child.move(child.x + xDiff + child.WIDTH/2, child.y + yDiff + child.HEIGHT/2)
             child.bring_front()
+            if isinstance(child, GUIContainer) == True:
+                for c in child.children:
+                    c.bring_front()
 
     def draw(self):
         super().draw()
@@ -36,3 +39,9 @@ class GUIContainer(Prefab):
             child.destroy()
         # self destruction
         super().destroy()
+
+    def erase(self):
+        super().erase()
+        # erase children
+        for child in self.children:
+            child.erase()

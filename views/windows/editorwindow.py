@@ -242,12 +242,16 @@ class EditorWindow(SessionWindow):
         def action_mouse_release(e):
             # check if there's a container behind
             container: GUIContainer = None
-            checked = self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2)
-            for item in checked:
-                element = self.find_element(item)
+            # find container in canvas
+            checkList = list(self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2))
+            checkList.reverse()
+            for i in checkList:
+                # find the whole element
+                element = self.find_element(i)
                 if isinstance(element, GUIContainer) == True and element != self.DRAG_ELEMENT:
                     container = element
                     break
+            # if a container is found, append the element to that container
             if container != None:
                 container.append_child(self.DRAG_ELEMENT)
             # reset

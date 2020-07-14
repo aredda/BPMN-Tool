@@ -9,7 +9,7 @@
 - [ ] Draw diagram from deserialized definitions
 - [ ] Serialize when finishing
 - [ ] A link effect
-- [ ] Adding lanes to a process
+- [X] Adding lanes to a process
 - [X] Zoom-in & Zoom-out Actions
 - [ ] Selection Action
 - [ ] Re-Doing & Un-Doing Action 

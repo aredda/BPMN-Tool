@@ -63,13 +63,13 @@ class Prefab:
     def scale(self, factor):
         self.WIDTH += factor
         self.HEIGHT += factor
-        self.destroy()
+        self.erase()
         self.draw()
 
     # used by containers only
     def resize(self, width, height):
         self.WIDTH, self.HEIGHT = width, height
-        self.destroy()
+        self.erase()
         self.draw()
 
     # drawing methods
