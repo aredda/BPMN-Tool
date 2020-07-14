@@ -10,6 +10,12 @@ import datetime
 from helpers.backhelper import getNotificationContent
 from helpers.imageutility import getdisplayableimage
 from models.entities.enums.notificationtype import NotificationType
+from models.entities.enums.notificationnature import NotificationNature 
+from models.entities.enums.status import Status
+from models.entities.Container import Container
+from models.entities.Entities import Invitation, Notification, SeenNotification, Collaboration, Relation
+import datetime
+
 
 class ListItemFactory(Factory):
 
@@ -29,16 +35,16 @@ class ListItemFactory(Factory):
             frm_body = Frame(item, bg=white)
             frm_body.pack(side=LEFT, fill=BOTH, expand=1, padx=(10, 0))
 
-            lbl_content = Label(frm_body, fg=black, bg=white, font='-size 10 -weight bold', text=item.bindings.get('content', '{content}'), pady=0, padx=0)
-            lbl_content.pack(side=TOP, anchor=N+W, pady=(0, 10))
+            item.lbl_content = Label(frm_body, fg=black, bg=white, font='-size 10 -weight bold', text=item.bindings.get('content', '{content}'), pady=0, padx=0)
+            item.lbl_content.pack(side=TOP, anchor=N+W, pady=(0, 10))
 
             if item.buttonSettings != None:
-                frm_btn_container = Frame(frm_body, bg=white)
-                frm_btn_container.pack(side=TOP, expand=1, fill=BOTH)
+                item.frm_btn_container = Frame(frm_body, bg=white)
+                item.frm_btn_container.pack(side=TOP, expand=1, fill=BOTH)
 
                 for s in item.buttonSettings:
                     btn = IconButton(
-                        frm_btn_container, 
+                        item.frm_btn_container, 
                         s.get('text', 'Button Text'), 
                         '-size 9 -weight bold', 
                         (teal if s.get('mode', 'main') == 'main' else white), 
@@ -58,7 +64,7 @@ class ListItemFactory(Factory):
             # configure item
             item.config(bg=white, padx=8, pady=10)
         # BOOKMARK_DONE: notification list item, bindings should be configured here
-        return ListItem(root, dataItem, {
+        li= ListItem(root, dataItem, {
             'content': getNotificationContent(dataItem),
             'time': dataItem.notificationTime.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.notificationTime.strftime("%x") else dataItem.notificationTime.strftime("%X")  ,
             'image': dataItem.actor.image
@@ -68,15 +74,51 @@ class ListItemFactory(Factory):
         [
             {
                 'text': 'Accept',
-                'icon': 'yes.png'
+                'icon': 'yes.png',
+                'cmnd': lambda e: ListItemFactory.decision(li)
             },
             {
                 'text': 'Decline',
                 'icon': 'no.png',
-                'mode': 'danger'
+                'mode': 'danger',
+                'cmnd': lambda e: ListItemFactory.decision(li, accepted= False)
             }
         ] if dataItem.type == NotificationType.INVITED.value else None , create, bg=white)
+
+        return li
     
+    def decision(li, accepted= True):
+        inv = Container.filter(Invitation).get(li.dataObject.invitationId)
+        date = datetime.datetime.now()
+        noti = None
+        # if invitation is accepted
+        if accepted:
+            # create relations if they don't exist
+            if Container.filter(Relation,Relation.userOne == inv.recipient, Relation.userTwo == inv.sender ).first() == None: Container.save(Relation(userOne= inv.recipient, userTwo= inv.sender))
+            if Container.filter(Relation,Relation.userTwo == inv.recipient, Relation.userOne == inv.sender ).first() == None: Container.save(Relation(userTwo= inv.recipient, userOne= inv.sender))
+            # create collaboration
+            Container.save(Collaboration(joiningDate= date, privilege= inv.privilege, user= inv.recipient, session= inv.session))
+            # add an acceptedInv type notification
+            noti = Notification(notificationTime= date, type= NotificationType.ACCEPTED.value, nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.recipient, recipient= inv.sender)
+            inv.status = Status.ACCEPTED.value
+        # if invitation is accepted
+        else:
+            # add a rejectedInv type notification
+            noti = Notification(notificationTime= date, type= NotificationType.DECLINED.value, nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.recipient, recipient= inv.sender)
+            inv.status = Status.REJECTED.value
+        
+        # save the recieved invitation as recieved
+        seenNoti = SeenNotification(date= date, seer= inv.recipient, notification= li.dataObject)
+        Container.save(seenNoti, noti, inv)
+
+        # if it's a recievedInv kind of Notifications
+        if hasattr(li,'frm_btn_container'):
+            # change the listItem message 
+            li.lbl_content['text'] = f'you have joined ({inv.session.title})' if inv.status == Status.ACCEPTED.value else f'invitation to ({inv.session.title}) declined'
+            #  hide the buttons
+            li.frm_btn_container.pack_forget()
+
+
     def DiscussionListItem(root, dataItem):
         def create(item: ListItem):
             item.config(bg=white, pady=10, padx=10)

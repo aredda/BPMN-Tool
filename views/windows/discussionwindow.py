@@ -18,19 +18,19 @@ import threading
 
 class DiscussionWindow(SessionWindow):
 
-    # Chat Session Item Styles
-    CHAT_NORMAL = {
-        'bg': white,
-        'lbl_username': teal,
-        'lbl_content': black,
-        'lbl_time': gray 
-    }
-    CHAT_UNREAD = {
-        'bg': background,
-        'lbl_username': teal,
-        'lbl_content': black,
-        'lbl_time': gray 
-    }
+    # # Chat Session Item Styles
+    # CHAT_NORMAL = {
+    #     'bg': white,
+    #     'lbl_username': teal,
+    #     'lbl_content': black,
+    #     'lbl_time': gray 
+    # }
+    # CHAT_UNREAD = {
+    #     'bg': background,
+    #     'lbl_username': teal,
+    #     'lbl_content': black,
+    #     'lbl_time': gray 
+    # }
     CHAT_ACTIVE = {
         'bg': teal,
         'lbl_username': background,
@@ -39,7 +39,7 @@ class DiscussionWindow(SessionWindow):
     }
 
     # Message Item Styles
-    MSG_INCOMING = CHAT_NORMAL
+    MSG_INCOMING = SessionWindow.CHAT_NORMAL
     MSG_OUTGOING = CHAT_ACTIVE
 
     def __init__(self, root, **args):
@@ -53,6 +53,11 @@ class DiscussionWindow(SessionWindow):
 
         self.fill_sessions()
         self.configure_session_click()
+        if args.get('session', None) != None: 
+            for li in self.msgItems:
+                if li.dataObject.session == args['session']:
+                    self.Configure_session(None, li)
+                    break
 
     def design(self):
         # Session items section
@@ -111,62 +116,63 @@ class DiscussionWindow(SessionWindow):
         frm_border_top = Frame(frm_discussion, highlightthickness=1, highlightbackground=border)
         frm_border_top.pack(side=BOTTOM, fill=X)
 
-    def runnable(self):
-            while self.time_to_kill != True:
-                time.sleep(2)
-                Container.session.commit()
-                for li in self.msgItems:
-                    lastmsg = Container.filter(Message, Message.sessionId == li.dataObject.session.id).order_by(Message.sentDate.desc()).first()
-                    if lastmsg != None and lastmsg != li.dataObject:
-                        li.lbl_content['text']=lastmsg.content
-                        li.lbl_time['text'] = lastmsg.sentDate.strftime("%X")
-                        li.dataObject = lastmsg
-                        if self.currentItem != None and self.currentItem == li: 
-                            self.currentItem = li
-                            # self.fill_discussion(self.currentItem.dataObject.session)
-                            self.create_message(lastmsg)
+    def runnable2(self):
+        while self.time_to_kill != True:
+            time.sleep(2)
+            Container.session.commit()
+            for li in self.msgItems:
+                lastmsg = Container.filter(Message, Message.sessionId == li.dataObject.session.id).order_by(Message.sentDate.desc()).first()
+                if lastmsg != None and lastmsg != li.dataObject:
+                    li.lbl_content['text']=lastmsg.content
+                    li.lbl_time['text'] = lastmsg.sentDate.strftime("%X")
+                    li.dataObject = lastmsg
+                    self.change_session_item_style(li,self.CHAT_UNREAD)
+                    if self.currentItem != None and self.currentItem == li: 
+                        self.currentItem = li
+                        self.create_message(lastmsg)
         
     def hide(self):
         # thread killer logic will be here
         self.time_to_kill = True
-        # print ('the thread shall stop now')
         # continute the original work
         super().hide()
 
     def refresh(self):
-            self.time_to_kill = False
-            # start thread
-            threading.Thread(target=self.runnable).start()
+        super().refresh()
+        self.time_to_kill = False
+        # start thread
+        threading.Thread(target=self.runnable2).start()
+
 
     def open_session(self, event):
         if self.currentItem != None:
             self.windowManager.run(CollaborationWindow(self,self.currentItem.dataObject.session))
 
+    def Configure_session(self, event, listItem):
+        try:
+            self.fill_discussion(listItem.dataObject.session)
+
+            self.lbl_sessionName['text'] = listItem.dataObject.session.title
+            self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1} members'
+            
+            self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
+
+            if self.currentItem != None:
+                self.change_session_item_style(self.currentItem,self.CHAT_NORMAL)
+
+            self.currentItem = listItem
+            self.change_session_item_style(self.currentItem,self.CHAT_ACTIVE)
+
+            if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == self.currentItem.dataObject.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
+                Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=self.currentItem.dataObject))
+        
+        except Exception:
+            Container.session.rollback()
+
     # Configure sessionlistitem click event
     def configure_session_click(self):
-        def Configure_session(event, listItem):
-            try:
-                self.fill_discussion(listItem.dataObject.session)
-
-                self.lbl_sessionName['text'] = listItem.dataObject.session.title
-                self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1} members'
-                
-                self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
-
-                if self.currentItem != None:
-                    self.change_session_item_style(self.currentItem,self.CHAT_NORMAL)
-
-                self.currentItem = listItem
-                self.change_session_item_style(self.currentItem,self.CHAT_ACTIVE)
-
-                if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == self.currentItem.dataObject.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
-                    Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=self.currentItem.dataObject))
-            
-            except Exception:
-                Container.session.rollback()
-
         for li in self.msgItems:
-            li.lbl_username.bind('<Button-1>', lambda event,listItem=li: Configure_session(event,listItem))
+            li.lbl_username.bind('<Button-1>', lambda event,listItem=li: self.Configure_session(event,listItem))
 
             
     def send_message(self, event, listItem):
@@ -197,13 +203,7 @@ class DiscussionWindow(SessionWindow):
 
         for i in Container.filter(Message,Message.sessionId == session.id).order_by(Message.sentDate.asc()).all():
             self.create_message(i)
-            # createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if i.user != DiscussionWindow.ACTIVE_USER else DiscussionWindow.MSG_OUTGOING)
-            # ListItem(self.lv_messages.interior, None, 
-            # {
-            #     'username':i.user.userName,
-            #     'content':i.content,
-            #     'time': i.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != i.sentDate.strftime("%x") else i.sentDate.strftime("%X")
-            # }, None, createMethod)
+
 
     def create_message(self,i):
         createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if i.user != DiscussionWindow.ACTIVE_USER else DiscussionWindow.MSG_OUTGOING)
@@ -214,16 +214,6 @@ class DiscussionWindow(SessionWindow):
             'time': i.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != i.sentDate.strftime("%x") else i.sentDate.strftime("%X")
         }, None, createMethod)
 
-    # To change session list item style easily
-    def change_session_item_style(self, item, style=CHAT_UNREAD):
-        # Change background
-        changeBgTo = [item, item.frm_content, item.lbl_username, item.lbl_content, item.lbl_time, item.img_photo]
-        for w in changeBgTo:
-            w.config(bg=style['bg'])
-        # Change foreground
-        for i in style.keys():
-            if hasattr(item, i):
-                getattr(item, i).config(fg=style[i])
 
     # Message item
     def create_message_item(item, style=MSG_INCOMING):

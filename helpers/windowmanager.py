@@ -32,8 +32,8 @@ class WindowManager:
         # Refresh the new window
         window.refresh()
     
-    def run_tag(self, route):
-        self.run((get_cls(route))(self.root))
+    def run_tag(self, route, *args, **keyargs):
+        self.run((get_cls(route))(self.root, *args, **keyargs))
 
     def close(self):
         # Retrieve opened

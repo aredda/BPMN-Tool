@@ -54,5 +54,7 @@ because we are going to add other models concerning data..
 ### form modal factory in home window
 - [ ] modal interfers with openfiledialog 
 ### collaboration window
-- [ ] members listItem issue (size and button)
-- [ ] image resize issue
+- [ ] members listItem issue (size and kick button)
+- [ ] image resizing issue
+### ListItem
+- [ ] when content is long we can't see the rest of it and the date
