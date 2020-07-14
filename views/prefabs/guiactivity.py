@@ -17,12 +17,10 @@ class GUIActivity(GUILinkable):
         self.WIDTH = 150
         self.HEIGHT = 100
 
-        self.temp_flag = ActivityFlag.Default
-
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
         # extract info
-        flag = self.temp_flag
+        flag = self.element.flag
         # get canvas
         cnv: Canvas = self.canvas
         # border points
@@ -81,7 +79,7 @@ class GUIActivity(GUILinkable):
         return optlist
         
     def set_flag(self, flag):
-        self.temp_flag = flag
+        self.element.flag = flag
         self.destroy()
         self.draw()
 

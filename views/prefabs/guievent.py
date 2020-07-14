@@ -2,8 +2,8 @@ from tkinter import Canvas
 from PIL import Image as Img, ImageTk as ImgTk
 from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
-from models.bpmn.enums.eventtype import EventType
-from models.bpmn.enums.eventdefinition import EventDefinition
+from models.bpmn.event import Event, EventType, EventDefinition
+from models.bpmndi.shape import BPMNShape
 
 class GUIEvent(GUILinkable):
     
@@ -14,18 +14,17 @@ class GUIEvent(GUILinkable):
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
-        self.WIDTH = self.HEIGHT = self.PERIMETER
+        self.element = args.get('element', Event())
+        self.dielement = args.get('dielement', BPMNShape())
 
-        self.temp_type = EventType.Start
-        self.temp_def = EventDefinition.Default
-        self.temp_text = 'Event Name'
+        self.WIDTH = self.HEIGHT = self.PERIMETER
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
         # Extract info
-        eventtype = self.temp_type
-        eventdefinition = self.temp_def
-        text = self.temp_text
+        eventtype = self.element.type
+        eventdefinition = self.element.definition
+        text = self.element.name
         # cast
         cnv: Canvas = self.canvas
         # figure out the border width of the circle
@@ -77,7 +76,7 @@ class GUIEvent(GUILinkable):
             dstr = str(d).split('.')[1]
             # adjust path
             path = dstr.lower()
-            if d == EventDefinition.Message: path = 'receive' if self.temp_type not in [EventType.Start, EventType.IntermediateThrow] else 'send'
+            if d == EventDefinition.Message: path = 'receive' if self.element.type not in [EventType.Start, EventType.IntermediateThrow] else 'send'
             # add option item
             option_list.append({
                 'folder': 'resources/icons/notation/',
@@ -91,8 +90,8 @@ class GUIEvent(GUILinkable):
         return option_list
 
     def configure(self, etype, edefinition):
-        self.temp_type = etype if etype != None else self.temp_type
-        self.temp_def = edefinition if edefinition != None else self.temp_def
+        self.element.type = etype if etype != None else self.element.type
+        self.element.definition = edefinition if edefinition != None else self.element.definition
         self.destroy()
         self.draw()
 

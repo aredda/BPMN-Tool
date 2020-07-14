@@ -2,7 +2,8 @@ from tkinter import Canvas
 from PIL import Image as Img, ImageTk as ImgTk
 from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
-from models.bpmn.enums.gatewaytype import GatewayType
+from models.bpmn.gateway import Gateway, GatewayType
+from models.bpmndi.shape import BPMNShape
 
 class GUIGateway(GUILinkable):
 
@@ -12,15 +13,15 @@ class GUIGateway(GUILinkable):
     def __init__(self, **args):
         GUILinkable.__init__(self, **args)
 
-        self.WIDTH = self.HEIGHT = 60
+        self.element = args.get('element', Gateway())
+        self.dielement = args.get('dielement', BPMNShape())
 
-        self.temp_type = GatewayType.Exclusive
-        self.temp_text = 'Gateway Name'
+        self.WIDTH = self.HEIGHT = 60
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
         # get information
-        _type = self.temp_type
+        _type = self.element.type
         # get canvas
         cnv: Canvas = self.canvas
         # draw border
@@ -38,7 +39,7 @@ class GUIGateway(GUILinkable):
             self.type_icon = ImgTk.PhotoImage(Img.open(folder + filename + '.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
             self.id.append (cnv.create_image(x + self.WIDTH/2, y + self.WIDTH/2, image=self.type_icon))
         # Draw text
-        self.draw_text(self.temp_text, x + self.WIDTH/2, y - self.LABEL_OFFSET)
+        self.draw_text(self.element.name, x + self.WIDTH/2, y - self.LABEL_OFFSET)
 
     def get_options(self):
         olist = []
@@ -60,6 +61,6 @@ class GUIGateway(GUILinkable):
         return olist
 
     def configure(self, t):
-        self.temp_type = t
+        self.element.type = t
         self.destroy()
         self.draw()

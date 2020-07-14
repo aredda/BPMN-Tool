@@ -2,6 +2,8 @@ from tkinter import Canvas
 from resources.colors import *
 from views.prefabs.abstract.guicontainer import GUIContainer
 from views.prefabs.guilane import GUILane
+from models.bpmn.process import Process
+from models.bpmndi.plane import BPMNPlane
 
 class GUIProcess(GUIContainer):
 
@@ -12,6 +14,9 @@ class GUIProcess(GUIContainer):
 
     def __init__(self, **args):
         GUIContainer.__init__(self, **args)
+
+        self.element = args.get('element', Process())
+        self.dielement = args.get('dielement', BPMNPlane())
 
         self.lanes = []
 

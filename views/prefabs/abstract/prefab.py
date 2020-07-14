@@ -9,11 +9,12 @@ class Prefab:
     TOP_PORT = 4
 
     def __init__(self, **args):
-        # abstract fields
         self.id = args.get('id', [])
         self.canvas = args.get('canvas', None)
         self.element = args.get('element', None)
         self.dielement = args.get('dielement', None)
+
+        self.parent = None
         self.flows = []
 
     # necessary for finding the gui element
@@ -89,7 +90,7 @@ class Prefab:
         self.draw_flows()
 
     def set_text(self, text):
-        self.temp_text = text
+        self.element.name = text
         self.destroy()
         self.draw()
 

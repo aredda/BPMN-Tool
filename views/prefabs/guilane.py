@@ -1,13 +1,19 @@
 from tkinter import Canvas
 from resources.colors import *
 from views.prefabs.abstract.guicontainer import GUIContainer
+from models.bpmn.lane import Lane
+from models.bpmndi.shape import BPMNShape
 
 class GUILane(GUIContainer):
 
     def __init__(self, **args):
         GUIContainer.__init__(self, **args)
 
+        self.element = args.get('element', Lane())
+        self.dielement = args.get('dielement', BPMNShape())
+
         self.guiprocess = args.get('guiprocess', None)
+
         self.WIDTH = args.get('width', 0)
         self.HEIGHT = args.get('height', 100)
 

@@ -252,8 +252,15 @@ class EditorWindow(SessionWindow):
                     container = element
                     break
             # if a container is found, append the element to that container
-            if container != None:
-                container.append_child(self.DRAG_ELEMENT)
+            if self.DRAG_ELEMENT != None:
+                # if the element already had a parent, 
+                if self.DRAG_ELEMENT.parent != None:
+                    self.DRAG_ELEMENT.parent.remove_child(self.DRAG_ELEMENT)
+                self.DRAG_ELEMENT.parent = None
+                # append the element to the new container
+                if container != None:
+                    self.DRAG_ELEMENT.parent = container
+                    container.append_child(self.DRAG_ELEMENT)
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None

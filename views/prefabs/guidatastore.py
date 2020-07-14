@@ -1,6 +1,8 @@
 from tkinter import Canvas
 from PIL import Image as Img, ImageTk as ImgTk
 from views.prefabs.abstract.prefab import Prefab
+from models.bpmn.datastorereference import DataStoreReference
+from models.bpmndi.shape import BPMNShape
 
 class GUIDataStore(Prefab):
 
@@ -10,7 +12,9 @@ class GUIDataStore(Prefab):
     def __init__(self, **args):
         super().__init__(**args)
 
-        self.temp_text = 'Data Store'
+        self.element = args.get('element', DataStoreReference())
+        self.dielement = args.get('dielement', BPMNShape())
+
         self.WIDTH = self.HEIGHT = self.ICON_SIZE
 
     def draw_at(self, x, y):
@@ -20,6 +24,6 @@ class GUIDataStore(Prefab):
         self.icon = ImgTk.PhotoImage(Img.open('resources/icons/notation/guidatastore.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
         self.id.append(cnv.create_image(x + self.WIDTH/2, y + self.HEIGHT/2, image=self.icon))
         # draw text
-        self.draw_text(self.temp_text, x + self.WIDTH/2, y + self.HEIGHT/2 - (self.ICON_SIZE/2) - self.TEXT_OFFSET)
+        self.draw_text(self.element.name, x + self.WIDTH/2, y + self.HEIGHT/2 - (self.ICON_SIZE/2) - self.TEXT_OFFSET)
 
     
