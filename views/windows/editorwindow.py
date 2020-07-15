@@ -82,7 +82,7 @@ class EditorWindow(SessionWindow):
                 self.DRAG_ELEMENT = guie
                 # append
                 self.guielements.append(guie)
-                if isinstance(guie, GUIProcess) == True or (isinstance(guie, GUIProcess) != False and len (self.definitions.elements['process']) == 0):
+                if isinstance(guie, GUIProcess) == True:
                     self.definitions.add(guie.element.get_tag(), guie.element)
             # return it
             return cmnd_create
@@ -318,6 +318,9 @@ class EditorWindow(SessionWindow):
         # remove from list
         if element in self.guielements:
             self.guielements.remove(element)
+        # if it's a process
+        if isinstance (element, GUIProcess) == True:
+            self.definitions.remove('process', element.element)
         # hide menu
         self.hide_component('frm_menu')
 

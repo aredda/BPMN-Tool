@@ -2,6 +2,7 @@ from tkinter import Canvas
 from resources.colors import *
 from views.prefabs.abstract.guicontainer import GUIContainer
 from views.prefabs.guilane import GUILane
+from models.bpmn.lane import Lane
 from models.bpmn.process import Process
 from models.bpmndi.plane import BPMNPlane
 
@@ -59,12 +60,12 @@ class GUIProcess(GUIContainer):
         lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
         lane.parent = self
         # append it to
-        self.children.append(lane)
+        self.append_child(lane)
         self.lanes.append(lane)
         # can't possibly add one lane
         if len (self.lanes) == 1:
             extra_lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
-            self.children.append(extra_lane)
+            self.append_child(extra_lane)
             self.lanes.append(extra_lane)
         # draw 
         self.draw_lanes()
@@ -73,13 +74,13 @@ class GUIProcess(GUIContainer):
         # remove from containers
         lane.erase()
         self.lanes.remove(lane)
-        self.children.remove(lane)
+        self.remove_child(lane)
         # if there's only one lane left.. just delete it
         if len(self.lanes) == 1:
             last_lane = self.lanes[0]
             last_lane.erase()
-            self.children.remove(last_lane)
             self.lanes.clear()
+            self.remove_child(last_lane)
         # redraw
         self.draw_lanes()
 

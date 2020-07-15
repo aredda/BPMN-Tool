@@ -14,6 +14,8 @@ class GUILane(GUIContainer):
 
         self.guiprocess = args.get('guiprocess', None)
 
+        self.parent = self.guiprocess
+
         self.WIDTH = args.get('width', 0)
         self.HEIGHT = args.get('height', 100)
 
