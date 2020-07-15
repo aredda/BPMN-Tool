@@ -50,7 +50,7 @@ class Linkable(Container):
         return seqFlow
 
     # Responsible for connecting a data entity to a linkable
-    def link_data(self, data, direction):
+    def link_data(self, data, direction=DataAssocDirection.OUT):
         """
         Sets up a data association with a data object/data reference.
         Parameters:
@@ -69,6 +69,20 @@ class Linkable(Container):
             self.add('property', pty)
         # add assoc to elements
         self.add('dataAssociation', assoc)
+        # return
+        return assoc
+
+    # Takes care of disposing of a link
+    def remove_link(self, flow):
+        for lst in [self.incoming, self.outgoing]:
+            if flow in lst:
+                lst.remove(flow)
+
+    # Takes care of disposing of a data link
+    def remove_data_link(self, assoc):
+        self.remove('dataAssociation', assoc)
+        if 'property' in self.elements:
+            self.elements['property'].clear()
 
     # Overridding the functionality of serializing an element
     def serialize(self):

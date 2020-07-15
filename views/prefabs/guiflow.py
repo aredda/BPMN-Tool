@@ -1,9 +1,9 @@
 from tkinter import Canvas
 from resources.colors import *
-from views.prefabs.abstract.prefab import Prefab
-from models.bpmn.sequenceflow import SequenceFlow
+from views.prefabs.abstract.guilinkable import Prefab, GUILinkable
+from models.bpmn.sequenceflow import SequenceFlow, Flow
 from models.bpmn.messageflow import MessageFlow
-from models.bpmn.association import Association
+from models.bpmn.dataassociation import DataAssociation, Association
 
 class GUIFlow(Prefab):
 
@@ -12,8 +12,6 @@ class GUIFlow(Prefab):
 
         self.guisource: Prefab = args.get('guisource', None)
         self.guitarget: Prefab = args.get('guitarget', None)
-
-        print (type(self.element))
 
         # finish set up
         if self.guisource != None:
@@ -57,3 +55,17 @@ class GUIFlow(Prefab):
         self.id.append(cnv.create_line(sourceport[1], vTargetPort, **lineOpts))
         # draw arrow
         self.id.append(cnv.create_polygon(points, fill=black))
+
+    def destroy(self):
+        # unlinking
+        # remove from gui elements
+        self.guisource.flows.remove(self)
+        self.guitarget.flows.remove(self)
+        # removing from models
+        if isinstance(self.element, DataAssociation) == True:
+            linkable = self.guisource.element if isinstance (self.guisource, GUILinkable) == True else self.guitarget.element 
+            linkable.remove_data_link(self.element)
+        else:
+            self.element.separate()
+        # destroy anyway
+        super().destroy()

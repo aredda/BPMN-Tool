@@ -82,7 +82,8 @@ class EditorWindow(SessionWindow):
                 self.DRAG_ELEMENT = guie
                 # append
                 self.guielements.append(guie)
-                self.definitions.add(guie.element.get_tag(), guie.element)
+                if isinstance(guie, GUIProcess) == True or (isinstance(guie, GUIProcess) != False and len (self.definitions.elements['process']) == 0):
+                    self.definitions.add(guie.element.get_tag(), guie.element)
             # return it
             return cmnd_create
         # command event
@@ -192,7 +193,7 @@ class EditorWindow(SessionWindow):
             previous_selected = self.SELECTED_ELEMENT
             # find gui element that has this element id
             self.SELECTED_ELEMENT = self.DRAG_ELEMENT = self.find_element(self.select_element(e.x, e.y))
-            # linking elements
+            # BOOKMARK: LINK Functionality
             if self.SELECTED_ELEMENT != None and justCreated == False:
                 # if an element is selected
                 if self.SELECTED_MODE == self.LINK_MODE:
@@ -383,9 +384,16 @@ class EditorWindow(SessionWindow):
         artifacts = [GUIDataObject, GUIDataStore]
         # data association case
         if type(source) in artifacts or type(target) in artifacts:
-            return DataAssociation(source=source.element, target=target.element, direction=(DataAssocDirection.IN if type(source) in artifacts else DataAssocDirection.OUT))
+            # figure out sides
+            linkable, artifact = source, target
+            if type(target) in artifacts:
+                linkable, artifact = source, target
+            else:
+                linkable, artifact = target, source
+            # return 
+            return linkable.element.link_data(artifact.element, (DataAssocDirection.IN if type(source) in artifacts else DataAssocDirection.OUT))
         # message flow case
         if source.get_process() != target.get_process():
             return MessageFlow(source=source.element, target=target.element)
         # sequence flow case
-        return SequenceFlow(source=source.element, target=target.element)
+        return source.element.add_link(target.element)

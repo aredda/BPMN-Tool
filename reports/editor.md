@@ -7,14 +7,14 @@
 - [ ] Linking the front with the back
 - [ ] Optimizing the returned list of options for each element
 - [ ] Draw diagram from deserialized definitions
-- [ ] Serialize when finishing
+- [X] Serialize when finishing
 - [X] Adding lanes to a process
 - [X] Zoom-in & Zoom-out Actions
 - [ ] Selection Action
 - [ ] Re-Doing & Un-Doing Action 
 - [ ] Keyboard Shortcuts
 - [ ] Implementing the GUI of text annotations
-- [ ] Implementing the [Message | Data Association] GUI flows
+- [X] Implementing the [Message | Data Association] GUI flows
 - [ ] Adding the help panel
 
 ### 26th of June
@@ -34,6 +34,11 @@
 - [X] When resizing a container, all children are destroyed and lost
 
 ### 14th of July
-- [ ] Linking the front with the back
 - [X] Implementing the [Message | Data Association] GUI flows
 - [X] Serialize when finishing
+
+### 15th of july
+- [ ] Associate GUI items with their data
+- [ ] Generation of ID
+- [ ] Re-Doing & Un-Doing Actions
+- [ ] Selection Action

@@ -25,21 +25,23 @@ class Prefab:
 
     # add the gui flow to the container
     def add_flow(self, flow):
-        self.flows.append(flow)
+        self.flows.append(flow) 
+
+    # remove flow 
+    def remove_flow(self, flow):
+        if flow in self.flows:    
+            flow.destroy()
 
     # draw all contained flows
     def draw_flows(self):
         for flow in self.flows:
-            flow.destroy()
+            flow.erase()
             flow.draw()
 
     # clear all flows and erase them
     def unlink(self):
         for flow in self.flows:
-            for ref in [flow.guisource, flow.guitarget]:
-                if ref != flow:
-                    ref.flows.remove(flow)
-        self.flows.clear()
+            self.remove_flow(flow)
 
     # move to another position
     def move(self, x, y):
@@ -77,8 +79,7 @@ class Prefab:
     def draw(self):
         self.draw_at(self.x, self.y)
         # re drawn flows
-        for flow in self.flows:
-            flow.draw()
+        self.draw_flows()
 
     def draw_at(self, x, y):
         # updating the current position

@@ -9,7 +9,9 @@ class DataAssociation(Association):
     def __init__(self, **args):
         Association.__init__(self, **args)
 
-        self.direction = self.expects(args, "direction", DataAssocDirection.IN)
+        self.direction = self.expects(args, 'direction', DataAssocDirection.IN)
+
+    def separate(self): pass
 
     def serialize(self):
         dataAssociationElement = et.Element(

@@ -9,11 +9,15 @@ class GUIContainer(Prefab):
 
     def append_child(self, child):
         if child not in self.children:
+            # append in the list of gui children
             self.children.append(child)
+            # append in the list of model children
+            self.element.add(child.element.get_tag(), child.element)
 
     def remove_child(self, child):
         if child in self.children:
             self.children.remove(child)
+            self.element.remove(child.element.get_tag(), child.element)
     
     def move(self, x, y):
         # save previous
