@@ -20,7 +20,7 @@ class Flow(BPMNElement):
     def serialize(self):
         flowElement = BPMNElement.serialize(self)
 
-        flowElement.attrib["sourceRef"] = self.source.id
-        flowElement.attrib["targetRef"] = self.target.id
+        flowElement.attrib['sourceRef'] = self.source.id if self.source.id != None else 'undefined_id'
+        flowElement.attrib['targetRef'] = self.target.id if self.target.id != None else 'undefined_id'
 
         return flowElement

@@ -47,5 +47,5 @@ class GUITask(GUIActivity):
 
     def configure(self, ttype):
         self.element.type = ttype
-        self.destroy()
+        self.erase()
         self.draw()

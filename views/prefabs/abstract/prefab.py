@@ -106,6 +106,10 @@ class Prefab:
 
     # removing & erasing the gui element from the canvas
     def destroy(self):
+        # delete from parent
+        if self.parent != None:
+            if hasattr(self.parent, 'remove_child') == True:
+                self.parent.remove_child(self)
         # erase
         self.erase()
         # remove all flows

@@ -29,3 +29,8 @@ class Lane(Container):
         
         if addToProcess == True and self.process != None:
             self.process.add(name, item)
+
+    def remove(self, tag, child):
+        super().remove(tag, child)
+        # remove from the process as well
+        self.process.remove(tag, child)

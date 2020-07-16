@@ -198,9 +198,16 @@ class EditorWindow(SessionWindow):
                 # if an element is selected
                 if self.SELECTED_MODE == self.LINK_MODE:
                     if self.SELECTED_ELEMENT != previous_selected:
-                        # creating a flow
-                        flow = GUIFlow(canvas=self.cnv_canvas, guisource=previous_selected, guitarget=self.SELECTED_ELEMENT, element=self.get_link_model(previous_selected, self.SELECTED_ELEMENT))
-                        flow.draw_at(0, 0)
+                        # check if we can link
+                        if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
+                            # generating a flow model
+                            flowmodel = self.get_link_model(previous_selected, self.SELECTED_ELEMENT)
+                            # creating a flow
+                            flow = GUIFlow(canvas=self.cnv_canvas, guisource=previous_selected, guitarget=self.SELECTED_ELEMENT, element=flowmodel)
+                            flow.draw_at(0, 0)
+                            # if this model is a message flow
+                            if isinstance(flowmodel, MessageFlow) == True:
+                                self.definitions.add('message', flowmodel)
                         # finish linking
                         self.set_mode(self.DRAG_MODE)
 
@@ -372,11 +379,27 @@ class EditorWindow(SessionWindow):
     # saving functionality
     def save_work(self):
         from helpers.stringhelper import to_pretty_xml
+        from os import system
 
+        clean = lambda e: system('cls')
+
+        clean(None)
         print (to_pretty_xml(self.definitions.serialize()))
 
     # linking funcs
     def can_link(self, source, target):
+        # lanes can't be linked
+        if isinstance(source, GUILane) == True or isinstance(target, GUILane) == True:
+            return False
+        # you can't link a process with its child
+        if isinstance(source, GUIProcess) == True or isinstance(target, GUIProcess) == True:
+            # retrieve processes
+            process = source if isinstance(source, GUIProcess) == True else target
+            other = source.get_process() if isinstance(target, GUIProcess) == True else target.get_process()
+            # compare processes
+            if process == other:
+                return False
+
         return True
 
     def get_link_model(self, source, target):
@@ -396,7 +419,7 @@ class EditorWindow(SessionWindow):
             # return 
             return linkable.element.link_data(artifact.element, (DataAssocDirection.IN if type(source) in artifacts else DataAssocDirection.OUT))
         # message flow case
-        if source.get_process() != target.get_process():
+        if (source.get_process() != target.get_process()) or (source.get_process() == None and target.get_process() == None):
             return MessageFlow(source=source.element, target=target.element)
         # sequence flow case
         return source.element.add_link(target.element)

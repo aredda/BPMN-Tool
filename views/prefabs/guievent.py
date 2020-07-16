@@ -92,7 +92,7 @@ class GUIEvent(GUILinkable):
     def configure(self, etype, edefinition):
         self.element.type = etype if etype != None else self.element.type
         self.element.definition = edefinition if edefinition != None else self.element.definition
-        self.destroy()
+        self.erase()
         self.draw()
 
     def scale(self, factor):

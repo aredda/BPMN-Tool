@@ -62,5 +62,5 @@ class GUIGateway(GUILinkable):
 
     def configure(self, t):
         self.element.type = t
-        self.destroy()
+        self.erase()
         self.draw()

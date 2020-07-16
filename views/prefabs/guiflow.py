@@ -65,7 +65,7 @@ class GUIFlow(Prefab):
         if isinstance(self.element, DataAssociation) == True:
             linkable = self.guisource.element if isinstance (self.guisource, GUILinkable) == True else self.guitarget.element 
             linkable.remove_data_link(self.element)
-        else:
+        elif isinstance(self.element, SequenceFlow) == True:
             self.element.separate()
         # destroy anyway
         super().destroy()
