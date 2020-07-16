@@ -117,19 +117,22 @@ class DiscussionWindow(SessionWindow):
         frm_border_top.pack(side=BOTTOM, fill=X)
 
     def runnable2(self):
-        while self.time_to_kill != True:
-            time.sleep(2)
-            Container.session.commit()
-            for li in self.msgItems:
-                lastmsg = Container.filter(Message, Message.sessionId == li.dataObject.session.id).order_by(Message.sentDate.desc()).first()
-                if lastmsg != None and lastmsg != li.dataObject:
-                    li.lbl_content['text']=lastmsg.content
-                    li.lbl_time['text'] = lastmsg.sentDate.strftime("%X")
-                    li.dataObject = lastmsg
-                    self.change_session_item_style(li,self.CHAT_UNREAD)
-                    if self.currentItem != None and self.currentItem == li: 
-                        self.currentItem = li
-                        self.create_message(lastmsg)
+        try:
+            while self.time_to_kill != True:
+                time.sleep(2)
+                Container.session.commit()
+                for li in self.msgItems:
+                    lastmsg = Container.filter(Message, Message.sessionId == li.dataObject.session.id).order_by(Message.sentDate.desc()).first()
+                    if lastmsg != None and lastmsg != li.dataObject:
+                        li.lbl_content['text']=lastmsg.content
+                        li.lbl_time['text'] = lastmsg.sentDate.strftime("%X")
+                        li.dataObject = lastmsg
+                        self.change_session_item_style(li,self.CHAT_UNREAD)
+                        if self.currentItem != None and self.currentItem == li: 
+                            self.currentItem = li
+                            self.create_message(lastmsg)
+        except Exception:
+            print('RUNNABLE2 ERROR')
         
     def hide(self):
         # thread killer logic will be here
@@ -168,6 +171,7 @@ class DiscussionWindow(SessionWindow):
         
         except Exception:
             Container.session.rollback()
+            # print('CONFIGURE SESSION ERROR')
 
     # Configure sessionlistitem click event
     def configure_session_click(self):
@@ -189,13 +193,14 @@ class DiscussionWindow(SessionWindow):
         self.msgItems.clear()
         self.lv_sessions.empty()
         
-        for i in Container.filter(Session, or_(and_(Collaboration.userId == DiscussionWindow.ACTIVE_USER.id, Session.id == Collaboration.sessionId,), Session.ownerId == DiscussionWindow.ACTIVE_USER.id)):
-            msg = Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first()
-            if msg == None: msg = Message(content=f'welcome to the chat',user=i.owner, session=i, sentDate=i.creationDate)
-            li = ListItemFactory.DiscussionListItem(self.lv_sessions.interior, msg)
-            self.msgItems.append(li)
-            if msg.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
-                self.change_session_item_style(li,self.CHAT_UNREAD)
+        for i in Container.filter(Session):
+            if i.owner == DiscussionWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == DiscussionWindow.ACTIVE_USER.id, Collaboration.sessionId == i.id).first() != None:
+                msg = Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first()
+                if msg == None: msg = Message(content=f'welcome to the chat',user=i.owner, session=i, sentDate=i.creationDate)
+                li = ListItemFactory.DiscussionListItem(self.lv_sessions.interior, msg)
+                self.msgItems.append(li)
+                if msg.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
+                    self.change_session_item_style(li,self.CHAT_UNREAD)
 
     # BOOKMARK_DONE: Fill Messages
     def fill_discussion(self, session):

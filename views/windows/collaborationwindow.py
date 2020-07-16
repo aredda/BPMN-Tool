@@ -10,6 +10,7 @@ from models.entities.Container import Container
 from models.entities.Entities import Collaboration,User,History,Invitation,InvitationLink,Notification
 from models.entities.enums.notificationnature import NotificationNature
 from models.entities.enums.notificationtype import NotificationType
+from models.entities.enums.status import Status
 from sqlalchemy import or_,func
 import datetime
 from helpers.imageutility import getdisplayableimage
@@ -154,7 +155,7 @@ class CollaborationWindow(TabbedWindow):
             MessageModal(self,title='user error 404',message=f'{username} doesn\'t exist !' if username != '' and not str.isspace(username) else 'Please enter a userName !',messageType='error')
         elif user in collabs:
             MessageModal(self,title='user already in',message=f'{username} is already in the session !',messageType='error')
-        elif Container.filter(Invitation, Invitation.recipientId == user.id, Invitation.sessionId == self.session.id).first() != None:
+        elif Container.filter(Invitation, Invitation.recipientId == user.id, Invitation.sessionId == self.session.id, Invitation.status == Status.PENDING.value).first() != None:
             MessageModal(self,title='user already invited',message=f'An invite is already sent to {username} !',messageType='info')
         else:
             msg = MessageModal(self,title=f'confirmation',message=f'Do you want to give {username} the right to make changes ?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})

@@ -34,7 +34,7 @@ class SessionWindow(Window):
     }
 
     # BOOKMARK_UNDONE: Signed in user
-    ACTIVE_USER = Container.filter(User).get(1)
+    ACTIVE_USER = Container.filter(User).get(2)
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
@@ -89,6 +89,7 @@ class SessionWindow(Window):
                 time.sleep(2)
         except Exception:
             Container.session.rollback()
+            # print('RUNNABLE1 ERROR')
         
     def hide(self):
         # thread killer logic will be here

@@ -82,61 +82,61 @@ from sqlalchemy import or_,and_,func
 
 def run():
     # Container.deleteObject(Container.filter(Project).first())
-    sender = User(firstName='Mohamed', lastName='El Kalai', userName='Mohamed123')
-    recipient = User(firstName='Ibrahim', lastName='Areda', userName='Ibrahim123')
-    recipient2 = User(firstName='Chakir', email='Chakir@123.com')
-    recipient3 = User(firstName='Hodaifa', email='Hodaifa@123.com')
+    user1 = User(firstName='Mohamed', lastName='El Kalai', userName='Mohamed123')
+    user2 = User(firstName='Ibrahim', lastName='Areda', userName='Ibrahim123')
+    user3 = User(firstName='Chakir', email='Chakir@123.com')
+    user4 = User(firstName='Hodaifa', email='Hodaifa@123.com')
 
-    project = Project(title='bpmntool', owner=sender)
+    project1 = Project(title='bpmntool', owner=user1)
+    project2 = Project(title='bpmntool2', owner=user2)
 
-    session = Session(title='bpmntoolsession', owner=sender, project=project)
-    session2 = Session(title='session2', owner=recipient, project=project)
+    session1 = Session(title='bpmntoolsession', owner=user1, project=project1)
+    session2 = Session(title='session2', owner=user2, project=project2)
 
-    collab1 = Collaboration(user=recipient, session=session, joiningDate=datetime.datetime.now(),privilege='edit')
-    collab2 = Collaboration(user=recipient2, session=session,joiningDate=datetime.datetime.now(), privilege='edit')
-    collab3 = Collaboration(user=recipient3, session=session2,joiningDate=datetime.datetime.now(), privilege='edit')
+    # collab1 = Collaboration(user=recipient, session=session, joiningDate=datetime.datetime.now(),privilege='edit')
+    # collab2 = Collaboration(user=recipient2, session=session,joiningDate=datetime.datetime.now(), privilege='edit')
+    # collab3 = Collaboration(user=recipient3, session=session2,joiningDate=datetime.datetime.now(), privilege='edit')
 
-    message1 = Message(user=recipient, session=session, sentDate=datetime.datetime.now(), content='message2')
-    message2 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message1')
-    message3 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message3')
-    message4 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message4')
-    message5 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong')
-    message6 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong2')
-    message7 = Message(user=sender, session=session2, sentDate=datetime.datetime.now(), content='i sent it in session2')
-    message8 = Message(user=sender, session=session, sentDate=datetime.datetime.now(), content='wrong i sent it')
+    # message1 = Message(user=recipient, session=session, sentDate=datetime.datetime.now(), content='message2')
+    # message2 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message1')
+    # message3 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message3')
+    # message4 = Message(user=recipient2, session=session, sentDate=datetime.datetime.now(), content='message4')
+    # message5 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong')
+    # message6 = Message(user=recipient3, session=session2, sentDate=datetime.datetime.now(), content='wrong2')
+    # message7 = Message(user=sender, session=session2, sentDate=datetime.datetime.now(), content='i sent it in session2')
+    # message8 = Message(user=sender, session=session, sentDate=datetime.datetime.now(), content='wrong i sent it')
 
-    invitation = Invitation(sender=sender, recipient=recipient,
-                            session=session, privilege='edit')
+    # invitation = Invitation(sender=sender, recipient=recipient,
+    #                         session=session, privilege='edit')
      
 
-    invitationLink = InvitationLink(sender=sender, session=session, link='invlinkkkkkkkkkkkk')
+    # invitationLink = InvitationLink(sender=sender, session=session, link='invlinkkkkkkkkkkkk')
 
-    shareLink = ShareLink(project=project, link='sharelinkkkkkkkkk')
+    # shareLink = ShareLink(project=project, link='sharelinkkkkkkkkk')
 
-    Container.save(sender, recipient, project, session,
-                   invitation,invitationLink,shareLink,collab1,collab2,collab3,message1,message2,message3,message4,message5,message6,message7,message8)
+    Container.save(user1,user2, user3, user4, project1, project2, session1, session2)#,invitation,invitationLink,shareLink,collab1,collab2,collab3,message1,message2,message3,message4,message5,message6,message7,message8)
     
-    notification = Notification(
-        type=NotificationType.INVITED.value, nature='invitation', notificationTime='2020-07-01 10:46:38',recipient=recipient, actor=sender, invitationId=invitation.id)
+    # notification = Notification(
+    #     type=NotificationType.INVITED.value, nature='invitation', notificationTime='2020-07-01 10:46:38',recipient=recipient, actor=sender, invitationId=invitation.id)
 
 
-    notification2 = Notification(
-        type=NotificationType.JOINED.value, nature='invitationLink',notificationTime='2020-07-02 11:34:00',recipient=invitationLink.sender, actor=recipient, invitationId=invitationLink.id)
+    # notification2 = Notification(
+    #     type=NotificationType.JOINED.value, nature='invitationLink',notificationTime='2020-07-02 11:34:00',recipient=invitationLink.sender, actor=recipient, invitationId=invitationLink.id)
 
-    notification3 = Notification(
-        type=NotificationType.JOINED.value, nature='shareLink',notificationTime='2020-07-24 15:28:00',recipient=shareLink.project.owner, actor=recipient, invitationId=shareLink.id)
+    # notification3 = Notification(
+    #     type=NotificationType.JOINED.value, nature='shareLink',notificationTime='2020-07-24 15:28:00',recipient=shareLink.project.owner, actor=recipient, invitationId=shareLink.id)
     
-    notification4 =Notification(
-        type=NotificationType.ACCEPTED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
+    # notification4 =Notification(
+    #     type=NotificationType.ACCEPTED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
 
-    notification5 =Notification(
-        type=NotificationType.DECLINED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
+    # notification5 =Notification(
+    #     type=NotificationType.DECLINED.value, nature='invitation',notificationTime='2020-07-24 15:28:00',recipient=invitation.sender, actor=recipient, invitationId=invitation.id)
 
-    Container.save(notification,notification2,notification3,notification4,notification5)
+    # Container.save(notification,notification2,notification3,notification4,notification5)
 
-    seennotification = SeenNotification(notification=notification, seer=recipient)
-    seenmessage = SeenMessage(message=message1, seer=sender)
-    Container.save(seenmessage,seennotification)
+    # seennotification = SeenNotification(notification=notification, seer=recipient)
+    # seenmessage = SeenMessage(message=message1, seer=sender)
+    # Container.save(seenmessage,seennotification)
 
     # invitation = Container.filter(Invitation).get(notification.invitationId)
     # print(f'notifcation recipient\'s name: {notification.recipient.firstName}')
