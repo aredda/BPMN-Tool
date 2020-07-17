@@ -134,7 +134,7 @@ class CollaborationWindow(TabbedWindow):
 
         inv = Container.filter(InvitationLink, InvitationLink.senderId == CollaborationWindow.ACTIVE_USER.id, InvitationLink.sessionId == self.session.id).first()
         if inv != None:
-            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{inv.link}\nDo you want to override it ?',messageType='error',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{inv.link}\nDo you want to override it ?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)
 
@@ -162,8 +162,9 @@ class CollaborationWindow(TabbedWindow):
 
     def delete_session(self):
         Container.deleteObject(self.session.project)
-        self.windowManager.close()
-        MessageModal(self,title=f'success',message=f'Session terminated !',messageType='info')
+        self.clean_notifications()
+        self.windowManager.run_tag('home')
+        self.destroy()
     
     def configure_settings(self):
         CollaborationWindow.lblSettings[0]['prop'] = self.session.project.title
@@ -304,5 +305,3 @@ class CollaborationWindow(TabbedWindow):
             MessageModal(self,title=f'success',message=f'{user.userName} has been kicked out of the session !',messageType='info')
 
         msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to kick {user.userName} ?',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})
-
-        

@@ -199,7 +199,7 @@ class ProfileWindow(TabbedWindow):
                     raise Exception(key,f'Please enter a valid email\nEX: emailName@email.com')
                         
                 elif key == 'company' and value != None and not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', value):
-                    raise Exception(key,f'\n1. Must be between 4 - 20 characters \n2. Should contain alphabets and numbers only')
+                    raise Exception(key,f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character')
                         
                 elif key == 'gender' and value != None and value.lower() not in ['female','male']:
                     raise Exception(key,f'Gender must be either male or female !')
@@ -213,6 +213,11 @@ class ProfileWindow(TabbedWindow):
             MessageModal(self,title=f'{ex.args[0]} error',message=ex.args[1],messageType='error')
             return False
 
+    def refresh_window(self, message=None):
+        window = ProfileWindow(self.master)
+        self.windowManager.run(window)
+        if message != None: MessageModal(window,title=f'success',message=message,messageType='info')
+        self.destroy()
 
     def save_changes(self, event):
         data = self.get_form_data()
@@ -224,9 +229,8 @@ class ProfileWindow(TabbedWindow):
                     setattr(ProfileWindow.ACTIVE_USER,key,value)
             # save changes
             Container.save(ProfileWindow.ACTIVE_USER)
-            MessageModal(self,title=f'success',message='Changes saved succefully !',messageType='info')
             # reload the window
-            self.windowManager.run(ProfileWindow(self.master))
+            self.refresh_window('Changes saved succefully !')
 
     def remove_collaborator(self,relation):
         def delete_relation(relation):
@@ -238,9 +242,9 @@ class ProfileWindow(TabbedWindow):
             for li in self.collaboratorsItems:
                 if li.dataObject == relation: 
                     li.destroy()
-                    self.collaboratorItems.remove(li)
+                    # self.collaboratorItems.remove(li)
 
-            MessageModal(self,title=f'success',message=f'{relation.userTwo.userName} has been removed succefully !',messageType='info')
+            self.refresh_window(f'{relation.userTwo.userName} has been removed succefully !')
         # confirm with the user
         msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to remove {relation.userTwo.userName} from your collaboration list ?',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
 

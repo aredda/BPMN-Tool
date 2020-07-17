@@ -6,7 +6,16 @@ from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 from models.entities.Entities import *
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from models.entities.Container import Container
+from models.entities.Entities import Project, Session, User
+from models.entities.enums.notificationtype import NotificationType
+from models.entities.enums.notificationnature import NotificationNature
+from views.windows.projectwindow import ProjectWindow
+from views.windows.collaborationwindow import CollaborationWindow
+from views.windows.modals.messagemodal import MessageModal
+import re
 
 class HomeWindow(TabbedWindow):
 
@@ -32,21 +41,22 @@ class HomeWindow(TabbedWindow):
         # Design elements
         self.design()
         # Load hardcoded data
-        self.dummies()
+        # self.dummies()
         # Fill methods
-        self.fill_projects(self.dataContainer['project'])
+        self.fill_projects()
+        self.fill_sessions()
 
-    def dummies(self):
-        self.dataContainer = {
-            'project': [
-                Project(title='Situation 1', creationDate=datetime.now()),
-                Project(title='BMPN Dgm', creationDate=datetime.now()),
-                Project(title='Whatever', creationDate=datetime.now()),
-                Project(title='Situation 2', creationDate=datetime.now()),
-                Project(title='Another project', creationDate=datetime.now()),
-                Project(title='Purchase Process', creationDate=datetime.now())
-            ]
-        }
+    # def dummies(self):
+    #     self.dataContainer = {
+    #         'project': [
+    #             Project(title='Situation 1', creationDate=datetime.now()),
+    #             Project(title='BMPN Dgm', creationDate=datetime.now()),
+    #             Project(title='Whatever', creationDate=datetime.now()),
+    #             Project(title='Situation 2', creationDate=datetime.now()),
+    #             Project(title='Another project', creationDate=datetime.now()),
+    #             Project(title='Purchase Process', creationDate=datetime.now())
+    #         ]
+    #     }
 
     def design(self):
         # lay out the components to project tab
@@ -57,28 +67,28 @@ class HomeWindow(TabbedWindow):
         # configure redirections to form modals
         createProjectModalCmnd = lambda e: (self.windowManager.get_module('CreateProjectModal'))(
             self,
-            # BOOKMARK: create project button command
-            lambda formModal: print(formModal.get_form_data())
+            # BOOKMARK_DONE: create project button command
+            lambda formModal: self.create(formModal)
         )
         loadProjectModalCmnd = lambda e: (self.windowManager.get_module('LoadProjectModal'))(
             self,
-            # BOOKMARK: create loaded project button command
+            # BOOKMARK: create load project button command
             lambda formModal: print(formModal.get_form_data())
         )
         createSessionModalCmnd = lambda e: (self.windowManager.get_module('CreateSessionModal'))(
             self,
-            # BOOKMARK: create project button command
-            lambda formModal: print(formModal.get_form_data())
+            # BOOKMARK_DONE: create session button command
+            lambda formModal: self.create(formModal, HomeWindow.SESSION_LI)
         )
         joinSessionModalCmnd = lambda e: (self.windowManager.get_module('JoinModal'))(
             self,
-            # BOOKMARK: join session command
-            lambda formModal: print(formModal.get_form_data())
+            # BOOKMARK_DONE: join session command
+            lambda formModal: self.join_session(formModal)
         )
         joinProjectModalCmnd = lambda e: (self.windowManager.get_module('JoinModal'))(
             self,
-            # BOOKMARK: join session command
-            lambda formModal: print(formModal.get_form_data())
+            # BOOKMARK_DONE: join project command
+            lambda formModal: self.join_project(formModal)
         )
 
         self.btn_create_project = MainButton(self.btn_container1, 'Create New Project', 'new_project.png', createProjectModalCmnd)
@@ -108,21 +118,23 @@ class HomeWindow(TabbedWindow):
         self.lv_session.set_gridcols(4)
         self.lv_session.pack(fill=BOTH, expand=1)
 
-    # BOOKMARK: fill project items
-    def fill_projects(self, dataList: list):
+    # BOOKMARK_DONE: fill project items
+    def fill_projects(self):
         # cleaning up old items
         self.lv_project.empty()
         # refilling 
-        for item in dataList:
-            self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate}, None, lambda i: self.create_list_item(i), 15)
+        for item in Container.filter(Project, Project.ownerId == HomeWindow.ACTIVE_USER.id):
+            if Container.filter(Session, Session.projectId == item.id).first() == None:
+                self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.lastEdited, 'image': item.image}, None, lambda i: self.create_list_item(i), 15)
 
-    # BOOKMARK: fill session items
-    def fill_sessions(self, dataList: list):
+    # BOOKMARK_DONE: fill session items
+    def fill_sessions(self):
         # cleaning up old items
-        self.lv_project.empty()
+        self.lv_session.empty()
         # refilling 
-        for item in dataList:
-            self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+        for item in Container.filter(Session):
+            if item.owner == HomeWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == item.id).first() != None:
+                self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1)}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
 
     # BOOKMARK: Project List Item & Session List Item Creation Method
     def create_list_item(self, item: ListItem, liType: int = PROJECT_LI):
@@ -166,29 +178,137 @@ class HomeWindow(TabbedWindow):
         frm_info.pack(fill=X, side=TOP)
         frm_details.pack(fill=X, side=TOP)
 
-        # BOOKMARK: project item's menu
+        # BOOKMARK_DONE: project item's menu
         def options_menu(e):
             # convert screen mouse position
             win_coords = self.to_window_coords(e.x_root, e.y_root)
-            # show menu
-            self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=[
+            menu_buttons = [
                 {
                     'text': 'Open',
                     'icon': 'open.png',
-                    'cmnd': lambda e: HomeWindow.li_command(item.dataObject)
+                    'cmnd': lambda e: self.windowManager.run(ProjectWindow(self, item.dataObject)) if liType == HomeWindow.PROJECT_LI else self.windowManager.run(CollaborationWindow(self, item.dataObject))
                 },
                 {
                     'text': 'Share',
-                    'icon': 'share.png'
+                    'icon': 'share.png',
+                    'cmnd': lambda e: (self.windowManager.get_module('ShareModal'))(
+                    self,
+                    lambda modal: self.generate_share_link(item.dataObject, modal)
+                )
                 },
                 {
                     'text': 'Delete',
-                    'icon': 'delete.png'
+                    'icon': 'delete.png',
+                    'cmnd': lambda e: self.delete_project(item.dataObject) if liType == self.PROJECT_LI else self.delete_session(item.dataObject) 
                 }
-            ])
+            ]
+            # pop unwanted buttons
+            if liType == self.SESSION_LI: 
+                menu_buttons.pop(1)
+                if item.dataObject.owner != HomeWindow.ACTIVE_USER: menu_buttons.pop(1)
+            # show menu
+            self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=menu_buttons)
         # options icon
         IconFrame(item, 'resources/icons/ui/menu.png', 10, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
 
     # BOOKMARK: this is how a COMMAND should be
-    def li_command(dataObject):
-        print ('You are operating in', dataObject.title)
+    def create(self, modal, nature= PROJECT_LI):
+        title = modal.get_form_data()['txt_title']
+        date = datetime.now()
+
+        def create_project():
+            project = Project(title= title, creationDate= datetime.now(), lastEdited= datetime.now(), owner= HomeWindow.ACTIVE_USER)
+            Container.save(project)
+            self.lv_project.grid_item(project, {'title': project.title, 'creationDate': project.creationDate, 'lastEdited': project.lastEdited}, None, lambda i: self.create_list_item(i, HomeWindow.PROJECT_LI), 15)
+            
+
+        def create_session():
+            project = Project(title= title+'Project', creationDate= date, lastEdited= date, owner= HomeWindow.ACTIVE_USER)
+            session = Session(title= title, creationDate= date, owner= HomeWindow.ACTIVE_USER, project= project)
+            Container.save(project, session)
+            self.lv_session.grid_item(session, {'title': session.title, 'creationDate': project.creationDate, 'lastEdited': project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == session.id).count()+1)}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+
+
+        if not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', title):
+            MessageModal(self,title=f'title error',message=f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character',messageType='error')
+        else:
+            create_project() if nature == HomeWindow.PROJECT_LI else create_session()
+            modal.destroy()
+
+    def delete(self, dataObject):
+        Container.deleteObject(dataObject)
+        self.clean_notifications()
+        self.refresh_window()
+
+    def delete_project(self, dataObject):
+        MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} project ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
+
+    def delete_session(self, dataObject):
+        print(dataObject.__class__.__name__)
+        MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} session ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
+
+    def join_project(self, modal):
+        link = modal.get_form_data()['txt_link']
+        slink = Container.filter(ShareLink, ShareLink.link == link).first()
+        if slink == None: MessageModal(self, title= f'link error' ,message= 'This link doesn\'t exist !', messageType= 'error')
+        elif slink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired !', messageType= 'error')
+        else:
+            if slink.project.owner != HomeWindow.ACTIVE_USER :noti = Notification(notificationTime= datetime.now(), type= NotificationType.JOINED.value, nature= NotificationNature.SHARELINK.value, invitationId= slink.id, actor= HomeWindow.ACTIVE_USER, recipient= slink.project.owner)
+            modal.destroy()
+            self.windowManager.run(ProjectWindow(self.master, slink.project))
+            
+
+    def join_session(self, modal):
+        link = modal.get_form_data()['txt_link']
+        date = datetime.now()
+        invlink = Container.filter(InvitationLink, InvitationLink.link == link).first()
+        if invlink == None: MessageModal(self, title= f'link error' ,message= 'This link doesn\'t exist !', messageType= 'error')
+        elif invlink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired !', messageType= 'error')
+        elif Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == invlink.sessionId).first() != None or invlink.session.owner == HomeWindow.ACTIVE_USER:
+            MessageModal(self, title= f'error' ,message= f'You are already in {invlink.session.title} session !', messageType= 'error')
+        else:
+            # create relations if they don't exist
+            if Container.filter(Relation,Relation.userOne == HomeWindow.ACTIVE_USER, Relation.userTwo == invlink.sender ).first() == None: Container.save(Relation(userOne= HomeWindow.ACTIVE_USER, userTwo= invlink.sender))
+            if Container.filter(Relation,Relation.userTwo == HomeWindow.ACTIVE_USER, Relation.userOne == invlink.sender ).first() == None: Container.save(Relation(userTwo= HomeWindow.ACTIVE_USER, userOne= invlink.sender))
+            # create collaboration
+            Container.save(Collaboration(joiningDate= date, privilege= invlink.privilege, user= HomeWindow.ACTIVE_USER, session= invlink.session))
+            # add an acceptedInv type notification
+            noti = Notification(notificationTime= date, type= NotificationType.JOINED.value, nature= NotificationNature.INVLINK.value, invitationId= invlink.id, actor= HomeWindow.ACTIVE_USER, recipient= invlink.sender)
+            modal.destroy()
+            self.windowManager.run(CollaborationWindow(self.master, invlink.session))
+
+
+    def generate_share_link(self, dataObject, modal):
+        def set_link(link):
+            modal.form[0]['input'].entry.delete(0,END)
+            modal.form[0]['input'].entry.insert(0,link)
+
+
+        def check_privilege(msg, modal, slink):
+            def generate_link(msg2, modal, slink, privilege):
+                msg2.destroy()
+                if slink != None: Container.deleteObject(slink)
+                link= f'bpmntool//{dataObject.title}/{datetime.now()}/'
+                Container.save(ShareLink(link=link, expirationDate=datetime.now()+timedelta(days=1), privilege= privilege, project=dataObject))
+                set_link(link)
+            
+            
+            if msg != None: msg.destroy()
+            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
+
+        def set_old_link(msg,modal):
+            set_link(slink.link)
+            msg.destroy()
+
+        
+        slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
+        if slink != None:
+            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{slink.link}\nDo you want to override it ?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
+        else:
+            check_privilege(None, modal, None)
+
+    def refresh_window(self, message=None):
+        window = HomeWindow(self.master)
+        self.windowManager.run(window)
+        if message != None: MessageModal(window,title=f'success',message=message,messageType='info')
+        self.destroy()

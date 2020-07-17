@@ -38,6 +38,7 @@ class ProjectWindow(TabbedWindow):
 
     def __init__(self, root, project=None, **args):
         TabbedWindow.__init__(self, root, ProjectWindow.tabSettings, 'Project\'s Title', **args)
+        print(project.title)
 
         # Button settings
         self.btnSettings = [

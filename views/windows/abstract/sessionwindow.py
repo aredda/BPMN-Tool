@@ -4,7 +4,7 @@ from views.windows.abstract.window import Window
 from views.components.iconbutton import IconButton
 from views.components.icon import IconFrame
 from views.factories.listitemfactory import ListItemFactory
-from models.entities.Entities import Notification, Invitation, User,Collaboration,Session,Message, SeenNotification, SeenMessage
+from models.entities.Entities import Notification, Invitation, User,Collaboration,Session,Message, SeenNotification, SeenMessage, InvitationLink, ShareLink
 from models.entities.enums.notificationtype import NotificationType
 from models.entities.enums.notificationnature import NotificationNature
 import datetime
@@ -135,6 +135,16 @@ class SessionWindow(Window):
          # change notification icon's image on click
         self.icn_notification.set_image('resources/icons/ui/bell_outline.png')
         return li
+
+    def clean_notifications(self):
+        notifs = Container.filter(Notification)
+        for notif in notifs:
+            if notif.nature == NotificationNature.INV.value and Container.filter(Invitation, Invitation.id == notif.invitationId).first() == None:
+                Container.deleteObject(notif)
+            elif notif.nature == NotificationNature.INVLINK.value and Container.filter(InvitationLink, InvitationLink.id == notif.invitationId).first() == None:
+                Container.deleteObject(notif)
+            elif notif.nature == NotificationNature.SHARELINK.value and Container.filter(ShareLink, ShareLink.id == notif.invitationId).first() == None:
+                Container.deleteObject(notif)
 
     def config_vBar(self):
         
