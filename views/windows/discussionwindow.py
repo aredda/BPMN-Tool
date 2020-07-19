@@ -120,7 +120,7 @@ class DiscussionWindow(SessionWindow):
         try:
             while self.time_to_kill != True:
                 time.sleep(2)
-                Container.session.commit()
+                # Container.session.commit()
                 for li in self.msgItems:
                     lastmsg = Container.filter(Message, Message.sessionId == li.dataObject.session.id).order_by(Message.sentDate.desc()).first()
                     if lastmsg != None and lastmsg != li.dataObject:

@@ -16,6 +16,7 @@ from views.windows.projectwindow import ProjectWindow
 from views.windows.collaborationwindow import CollaborationWindow
 from views.windows.modals.messagemodal import MessageModal
 import re
+from helpers.filehelper import filetobytes
 
 class HomeWindow(TabbedWindow):
 
@@ -40,23 +41,10 @@ class HomeWindow(TabbedWindow):
 
         # Design elements
         self.design()
-        # Load hardcoded data
-        # self.dummies()
         # Fill methods
         self.fill_projects()
         self.fill_sessions()
 
-    # def dummies(self):
-    #     self.dataContainer = {
-    #         'project': [
-    #             Project(title='Situation 1', creationDate=datetime.now()),
-    #             Project(title='BMPN Dgm', creationDate=datetime.now()),
-    #             Project(title='Whatever', creationDate=datetime.now()),
-    #             Project(title='Situation 2', creationDate=datetime.now()),
-    #             Project(title='Another project', creationDate=datetime.now()),
-    #             Project(title='Purchase Process', creationDate=datetime.now())
-    #         ]
-    #     }
 
     def design(self):
         # lay out the components to project tab
@@ -72,8 +60,8 @@ class HomeWindow(TabbedWindow):
         )
         loadProjectModalCmnd = lambda e: (self.windowManager.get_module('LoadProjectModal'))(
             self,
-            # BOOKMARK: create load project button command
-            lambda formModal: print(formModal.get_form_data())
+            # BOOKMARK_DONE: create load project button command
+            lambda formModal: self.create(formModal, HomeWindow.PROJECT_LI, True)
         )
         createSessionModalCmnd = lambda e: (self.windowManager.get_module('CreateSessionModal'))(
             self,
@@ -212,12 +200,12 @@ class HomeWindow(TabbedWindow):
         IconFrame(item, 'resources/icons/ui/menu.png', 10, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
 
     # BOOKMARK: this is how a COMMAND should be
-    def create(self, modal, nature= PROJECT_LI):
+    def create(self, modal, nature= PROJECT_LI, load= False):
         title = modal.get_form_data()['txt_title']
         date = datetime.now()
 
-        def create_project():
-            project = Project(title= title, creationDate= datetime.now(), lastEdited= datetime.now(), owner= HomeWindow.ACTIVE_USER)
+        def create_project(bytesFile= None):
+            project = Project(title= title, creationDate= datetime.now(), lastEdited= datetime.now(), owner= HomeWindow.ACTIVE_USER, file= bytesFile)
             Container.save(project)
             self.lv_project.grid_item(project, {'title': project.title, 'creationDate': project.creationDate, 'lastEdited': project.lastEdited}, None, lambda i: self.create_list_item(i, HomeWindow.PROJECT_LI), 15)
             
@@ -228,12 +216,19 @@ class HomeWindow(TabbedWindow):
             Container.save(project, session)
             self.lv_session.grid_item(session, {'title': session.title, 'creationDate': project.creationDate, 'lastEdited': project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == session.id).count()+1)}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
 
+        def load_project():
+            title = modal.get_form_data()['txt_title']
+            filename: str= modal.lbl_filename['text']
+            if filename.endswith('...') != True and filename != '':
+                create_project(filetobytes(filename))
 
         if not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', title):
             MessageModal(self,title=f'title error',message=f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character',messageType='error')
         else:
-            create_project() if nature == HomeWindow.PROJECT_LI else create_session()
+            create_session() if nature == HomeWindow.SESSION_LI else ( create_project() if load == False else load_project())
             modal.destroy()
+
+
 
     def delete(self, dataObject):
         Container.deleteObject(dataObject)
@@ -257,7 +252,6 @@ class HomeWindow(TabbedWindow):
             modal.destroy()
             self.windowManager.run(ProjectWindow(self.master, slink.project))
             
-
     def join_session(self, modal):
         link = modal.get_form_data()['txt_link']
         date = datetime.now()

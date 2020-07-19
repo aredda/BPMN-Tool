@@ -175,4 +175,7 @@ class FormModalFactory(Factory):
                 'getter': lambda input: input['text'] 
             })
 
-        return FormModal(root, 'Create a new Project', 410, inputs, buttons, onCreated)
+        formModal: FormModal = FormModal(root, 'Create a new Project', 410, inputs, buttons, onCreated)
+        formModal.grab_release()
+
+        return formModal
