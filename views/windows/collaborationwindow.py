@@ -220,16 +220,20 @@ class CollaborationWindow(TabbedWindow):
         self.frm_list_view.pack(expand=1, fill=BOTH, pady=(0, 15))
 
         # BOOKMARK_DONE: Fill Collaboration Session Change History
-        for i in Container.filter(History, History.projectId == self.session.projectId, self.session.id == Collaboration.sessionId).order_by(History.editDate.desc()).all():#, or_(History.editorId == Collaboration.userId, History.editorId == self.session.ownerId) since the project is gonna be unique
-            li = ListItem(self.frm_list_view.interior, i,
-                {
-                    'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}'
-                },
-                self.get_btn_list(i))
-            li.pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
-            self.historyItems.append(li)
+        for i in Container.filter(History, History.projectId == self.session.projectId).order_by(History.editDate.desc()).all():#, or_(History.editorId == Collaboration.userId, History.editorId == self.session.ownerId) since the project is gonna be unique
+            if i.project.owner == CollaborationWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.sessionId == self.session.id, Collaboration.userId == CollaborationWindow.ACTIVE_USER.id).first() != None:
+                li = ListItem(self.frm_list_view.interior, i,
+                    {
+                        'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}'
+                    },
+                    self.get_btn_list(i))
+                li.pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
+                self.historyItems.append(li)
 
     def export_project(self, title, date, fileBytes):
+        if fileBytes == None:
+            MessageModal(self, title= 'error', message= 'No changes has been made yet on this session\'s project yet !', messageType= 'error')
+        else: 
             folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
 
             if folderName != '':

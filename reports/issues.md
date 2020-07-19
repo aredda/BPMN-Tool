@@ -58,7 +58,9 @@ because we are going to add other models concerning data..
 - [ ] image resizing issue
 ### ListItem
 - [ ] when content is long we can't see the rest of it and the date
-### homewindow
+### home window
+- [ ] project and session image doesn't show
+### project window
 - [ ] project image doesn't show
 
 - [ ] DEBUG WEIRD SQL/THREAD ERRORS 

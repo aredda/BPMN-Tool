@@ -6,6 +6,17 @@ from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 
+from models.entities.Container import Container
+from models.entities.Entities import User, Project, History, ShareLink
+
+import datetime
+
+from views.windows.modals.messagemodal import MessageModal
+import tkinter.filedialog as filedialog
+from helpers.filehelper import bytestofile
+
+
+
 class ProjectWindow(TabbedWindow):
 
     tabSettings = [
@@ -38,7 +49,11 @@ class ProjectWindow(TabbedWindow):
 
     def __init__(self, root, project=None, **args):
         TabbedWindow.__init__(self, root, ProjectWindow.tabSettings, 'Project\'s Title', **args)
-        print(project.title)
+        
+        self.project = project
+        self.configure_settings()
+
+        self.historyItems = []
 
         # Button settings
         self.btnSettings = [
@@ -53,8 +68,8 @@ class ProjectWindow(TabbedWindow):
                 'type': SecondaryButton,
                 'cmnd': lambda e: (self.windowManager.get_module('ShareModal'))(
                     self,
-                    # BOOKMARK: Share Project Command
-                    lambda modal: print(modal.get_form_data())
+                    # BOOKMARK_DONE: Share Project Command
+                    lambda modal: self.generate_share_link(self.project, modal)
                 )
             },
             {
@@ -63,11 +78,47 @@ class ProjectWindow(TabbedWindow):
             },
             {
                 'icon': 'save.png',
-                'text': 'Export as XML'
+                'text': 'Export as XML',
+                'cmnd': lambda e: self.export_project('current_'+self.project.title, self.project.lastEdited, self.project.file)
             }
         ]
+
         # Design elements
         self.design()
+
+    def get_btn_list(self, history):
+
+        def ask_revert_changes(history):
+            def revert_changes(msg,history):
+                history.project.file = history.file
+                history.project.lastEdited = history.editDate
+                Container.save(history.project)
+                msg.destroy()
+
+                for li in self.historyItems:
+                    if li.dataObject.editDate > history.editDate and li.dataObject.id != history.id: 
+                        Container.deleteObject(li.dataObject)
+                        li.destroy()
+
+                MessageModal(self,title=f'success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}',messageType='info')
+                getattr(self, 'lbl_'+ ProjectWindow.lblSettings[2]['prop'])['text'] = history.editDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != history.editDate.strftime("%x") else 'Today at - '+history.editDate.strftime("%X")
+            
+            msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
+
+        btns = [
+                {
+                    'icon': 'save.png',
+                    'text': 'Export to XML',
+                    'cmd': lambda e: self.export_project(history.project.title, history.editDate, history.file)
+                },
+                {
+                    'icon': 'revert_history.png',
+                    'text': 'Revert',
+                    'cmd': lambda e: ask_revert_changes(history)
+                }
+            ] 
+
+        return btns
 
     def design(self):
         # Putting the control buttons
@@ -104,14 +155,51 @@ class ProjectWindow(TabbedWindow):
         self.frm_list_view.pack(expand=1, fill=BOTH, pady=(0, 15))
 
         # BOOKMARK: fill history items
-        for i in range(15):
-            ListItem(self.frm_list_view.interior, None, None, [
-                {
-                    'icon': 'save.png',
-                    'text': 'Export to XML'
-                },
-                {
-                    'icon': 'revert_history.png',
-                    'text': 'Revert'
-                }
-            ]).pack(anchor=N+W, pady=(0, 10), fill=X, padx=5)
+        for i in Container.filter(History, History.projectId == self.project.id).order_by(History.editDate.desc()):
+            li = ListItem(self.frm_list_view.interior, i, {'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}'}, self.get_btn_list(i))
+            li.pack(anchor=N+W, pady=(0, 10), fill=X, padx=5)
+            self.historyItems.append(li)
+    
+    def configure_settings(self):
+        ProjectWindow.lblSettings[0]['prop'] = self.project.title 
+        ProjectWindow.lblSettings[1]['prop'] = self.project.creationDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.project.creationDate.strftime("%x") else 'Today at - '+self.project.creationDate.strftime("%X")
+        ProjectWindow.lblSettings[2]['prop'] = self.project.lastEdited.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.project.lastEdited.strftime("%x") else 'Today at - '+self.project.lastEdited.strftime("%X")
+
+    def export_project(self, title, date, fileBytes):
+        if fileBytes == None:
+            MessageModal(self, title= 'error', message= 'No changes has been made on this project !', messageType= 'error')
+        else:    
+            folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
+
+            if folderName != '':
+                bytestofile(f'{folderName}',f'{title}_{date.strftime("%d-%m-%Y_%H-%M-%S")}','xml',fileBytes)
+                MessageModal(self,title=f'success',message=f'File saved in {folderName} !',messageType='info')
+
+    def generate_share_link(self, dataObject, modal):
+        def set_link(link):
+            modal.form[0]['input'].entry.delete(0,END)
+            modal.form[0]['input'].entry.insert(0,link)
+
+
+        def check_privilege(msg, modal, slink):
+            def generate_link(msg2, modal, slink, privilege):
+                msg2.destroy()
+                if slink != None: Container.deleteObject(slink)
+                link= f'bpmntool//{dataObject.title}/{datetime.datetime.now()}/'
+                Container.save(ShareLink(link=link, expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, project=dataObject))
+                set_link(link)
+            
+            
+            if msg != None: msg.destroy()
+            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
+
+        def set_old_link(msg,modal):
+            set_link(slink.link)
+            msg.destroy()
+
+        
+        slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
+        if slink != None:
+            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{slink.link}\nDo you want to override it ?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
+        else:
+            check_privilege(None, modal, None)
