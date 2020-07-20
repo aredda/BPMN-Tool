@@ -63,4 +63,4 @@ because we are going to add other models concerning data..
 ### project window
 - [ ] project image doesn't show
 
-- [ ] DEBUG WEIRD SQL/THREAD ERRORS 
+- [x] DEBUG WEIRD SQL/THREAD ERRORS **needs more tests**

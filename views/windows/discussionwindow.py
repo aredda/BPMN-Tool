@@ -170,8 +170,8 @@ class DiscussionWindow(SessionWindow):
                 Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=self.currentItem.dataObject))
         
         except Exception:
-            Container.session.rollback()
-            # print('CONFIGURE SESSION ERROR')
+            # Container.session.rollback()
+            print('CONFIGURE SESSION ERROR')
 
     # Configure sessionlistitem click event
     def configure_session_click(self):

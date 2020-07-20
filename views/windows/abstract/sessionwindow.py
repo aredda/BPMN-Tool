@@ -67,6 +67,7 @@ class SessionWindow(Window):
     def runnable(self):
         try:
             while self.time_to_kill != True:
+                Container.session.begin()
                 Container.session.commit()
                 noNewNotifs = True
                 noNewMessages = True
@@ -88,8 +89,8 @@ class SessionWindow(Window):
                 if noNewMessages: self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
                 time.sleep(2)
         except Exception:
-            Container.session.rollback()
-            # print('RUNNABLE1 ERROR')
+            # Container.session.rollback()
+            print('RUNNABLE1 ERROR')
         
     def hide(self):
         # thread killer logic will be here
