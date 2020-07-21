@@ -2,7 +2,9 @@ import xml.etree.ElementTree as et
 import xml.dom.minidom as md
 
 # BOOKMARK: engine connection string
-connection_string = 'mysql+pymysql://root:@localhost/bpmntool'
+database_name = 'bpmntool'
+server_path = 'mysql+pymysql://root:@localhost/'
+connection_string = server_path + database_name
 
 
 def camel_case(word: str):
@@ -18,13 +20,22 @@ def getmodulename(classname: str):
 
 
 def getclassname(tag: str):
-    classname = (tag[0].upper()+tag[1:]) if not tag.startswith('BPMN') else tag
+    classname = (tag[0].upper()+tag[1:]
+                 ) if not tag.lower().startswith('bpmn') else (tag[:5]).upper()+(tag[5:])
 
-    if classname.startswith('Data') and classname.endswith('Association'):
-        classname = 'DataAssociation'
+    if classname.lower().startswith('data') and classname.lower().endswith('association'):
+        return 'DataAssociation'
 
     for name in ['Gateway', 'Event', 'Task', 'SubProcess', 'Activity']:
-        if classname.__contains__(name):
-            classname = name
+        if classname.lower().__contains__(name.lower()):
+            return name
+
+    for data in ['DataObjectReference', 'DataObject', 'DataStoreReference', 'TextAnnotation']:
+        if classname.lower() == data.lower():
+            return data
+
+    if classname.lower().endswith('flow'):
+        # return classname[:-4]+'Flow'
+        return 'SequenceFlow'
 
     return classname

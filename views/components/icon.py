@@ -13,6 +13,7 @@ class IconFrame(Canvas, Animatable):
 
         self.size = size
         self.image = image
+        self.imgPadding = imagePadding
         self.defaultBgColor = bgColor
         self.hoverBgColor = hoverBgColor
         # Correct padding
@@ -28,13 +29,8 @@ class IconFrame(Canvas, Animatable):
         # Draw rounded background
         self.img_bg = self.create_image(size/2, size/2)
         self.set_bgColor(self.bgColor)
-        # Configure image & draw image
-        if isinstance(image, str):
-            self._image = ImageTk.PhotoImage(Img.open(image).resize((size-imagePadding, size-imagePadding)))
-        else:
-            self._image = getdisplayableimage(image, (size-imagePadding, size-imagePadding))
-        # display image
-        self.img_image = self.create_image(size/2, size/2, image=self._image)
+        # configure the gfucking image that raged me
+        self.set_image(image)
         # Configure click
         if command != None:
             self.bind('<Button-1>', command)
@@ -52,6 +48,20 @@ class IconFrame(Canvas, Animatable):
 
     def get_bgColor(self):
         return self.bgColor
+
+    # ihate to do this, but my fault didn't see this coming
+    # hi rem, are you here ?
+    # embered that this is a canvas connection baka kateleeb alright
+    def set_image(self, image):
+        # Configure image & draw image
+        if isinstance(image, str):
+            self._image = ImageTk.PhotoImage(Img.open(image).resize((self.size-self.imgPadding, self.size-self.imgPadding)))
+        else:
+            self._image = getdisplayableimage(image, (self.size-self.imgPadding,self.size-self.imgPadding))
+        # display image
+        if hasattr(self, 'img_image'):
+            self.delete(self.img_image)
+        self.img_image = self.create_image(self.size/2, self.size/2, image=self._image)
 
     ###
     ### Animation Section

@@ -1,7 +1,7 @@
 from enum import Enum
 
 class NotificationType(Enum):
-    INVITED = 'receivedInv'
+    INVITED = 'recievedInv' 
     ACCEPTED = 'acceptedInv'
     DECLINED = 'declinedInv'
     JOINED = 'joinedViaLink'

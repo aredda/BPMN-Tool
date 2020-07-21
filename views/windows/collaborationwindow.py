@@ -6,6 +6,19 @@ from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 
+from models.entities.Container import Container
+from models.entities.Entities import Collaboration,User,History,Invitation,InvitationLink,Notification
+from models.entities.enums.notificationnature import NotificationNature
+from models.entities.enums.notificationtype import NotificationType
+from models.entities.enums.status import Status
+from sqlalchemy import or_,func
+import datetime
+from helpers.imageutility import getdisplayableimage
+from helpers.filehelper import bytestofile
+from views.windows.modals.messagemodal import MessageModal
+import tkinter.filedialog as filedialog
+
+
 class CollaborationWindow(TabbedWindow):
 
     tabSettings = [
@@ -41,7 +54,13 @@ class CollaborationWindow(TabbedWindow):
     ]
 
     def __init__(self, root, session=None, **args):
-        TabbedWindow.__init__(self, root, CollaborationWindow.tabSettings, 'Session\'s Title', **args)
+        TabbedWindow.__init__(self, root, CollaborationWindow.tabSettings, session.title, **args)
+
+        self.session = session
+        self.configure_settings()
+
+        self.collaboratorItems = []
+        self.historyItems = []
 
         # configure button settings
         self.btnSettings = [
@@ -55,7 +74,7 @@ class CollaborationWindow(TabbedWindow):
                 'text': 'End Session',
                 'type': DangerButton,
                 # BOOKARK: Ending Session Command
-                'cmnd': lambda e: self.show_prompt('Are you really sure to terminate the session?', lambda e: print ('termination logic'), 'Terminating the session')
+                'cmnd': lambda e: self.show_prompt('Are you sure you want to terminate the session ?', lambda e: self.delete_session(), 'Terminating the session')
             },
             {
                 'icon': 'invite.png',
@@ -63,10 +82,10 @@ class CollaborationWindow(TabbedWindow):
                 'type': SecondaryButton,
                 'cmnd': lambda e: (self.windowManager.get_module('InviteModal'))(
                     self,
-                    # BOOKMARK: Activate Link Command
-                    lambda modal: print(modal.get_form_data()),
-                    # BOOKMARK: Invite User Command
-                    lambda modal: print(modal.get_form_data())
+                    # BOOKMARK_DONE: Activate Link Command
+                    lambda modal: self.generate_inviationlink(modal),# modal.get_form_data()['txt_link']
+                    # BOOKMARK_DONE: Invite User Command
+                    lambda modal: self.invite_user(modal.get_form_data()['txt_username'])
                 )
             },
             {
@@ -77,13 +96,81 @@ class CollaborationWindow(TabbedWindow):
             {
                 'icon': 'save.png',
                 'text': 'Export as XML',
-                'dock': LEFT
+                'dock': LEFT,
+                'cmnd': lambda e: self.export_project(f'current_{self.session.project.title}',self.session.project.lastEdited,self.session.project.file)
             }
         ]
+
+        if CollaborationWindow.ACTIVE_USER != self.session.owner:
+            self.btnSettings.pop(1) 
+
         # Design elements
         self.design()
         # Fill session members
         self.fill_members()
+
+    def generate_inviationlink(self, modal):
+        # modal.form[0]['input'].entry.get()
+        def set_link(link):
+            modal.form[0]['input'].entry.delete(0,END)
+            modal.form[0]['input'].entry.insert(0,link)
+
+
+        def check_privilege(msg, modal, inv):
+            def generate_link(msg2, modal, inv, privilege):
+                msg2.destroy()
+                if inv != None: Container.deleteObject(inv)
+                link= f'bpmntool//{self.session.title}/{datetime.datetime.now()}/'
+                Container.save(InvitationLink(link=link, expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, sender=CollaborationWindow.ACTIVE_USER, session=self.session))
+                set_link(link)
+            
+            
+            if msg != None: msg.destroy()
+            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, inv, 'edit'), 'no' : lambda e: generate_link(msg2, modal, inv, 'read')})
+
+        def set_old_link(msg,modal):
+            set_link(inv.link)
+            msg.destroy()
+
+        inv = Container.filter(InvitationLink, InvitationLink.senderId == CollaborationWindow.ACTIVE_USER.id, InvitationLink.sessionId == self.session.id).first()
+        if inv != None:
+            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{inv.link}\nDo you want to override it ?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
+        else:
+            check_privilege(None, modal, None)
+
+    def invite_user(self, username):
+        def send_invite(msg, user, privilege):
+            inv = Invitation(privilege= privilege, invitationTime= datetime.datetime.now(), sender=CollaborationWindow.ACTIVE_USER, recipient= user, session= self.session)
+            Container.save(inv)
+            notif =  Notification(type= NotificationType.INVITED.value, notificationTime= datetime.datetime.now(), nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.sender, recipient= inv.recipient)
+            Container.save(notif)
+            msg.destroy()
+            MessageModal(self,title=f'success',message=f'Invitation sent to {user.userName} successfully !',messageType='info')
+
+
+        user = Container.filter(User, User.userName == username).first()
+        collabs = Container.filter(User, Collaboration.sessionId == self.session.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all()
+        
+        if user == None:
+            MessageModal(self,title='user error 404',message=f'{username} doesn\'t exist !' if username != '' and not str.isspace(username) else 'Please enter a userName !',messageType='error')
+        elif user in collabs:
+            MessageModal(self,title='user already in',message=f'{username} is already in the session !',messageType='error')
+        elif Container.filter(Invitation, Invitation.recipientId == user.id, Invitation.sessionId == self.session.id, Invitation.status == Status.PENDING.value).first() != None:
+            MessageModal(self,title='user already invited',message=f'An invite is already sent to {username} !',messageType='info')
+        else:
+            msg = MessageModal(self,title=f'confirmation',message=f'Do you want to give {username} the right to make changes ?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
+
+    def delete_session(self):
+        Container.deleteObject(self.session.project)
+        self.clean_notifications()
+        self.windowManager.run_tag('home')
+        self.destroy()
+    
+    def configure_settings(self):
+        CollaborationWindow.lblSettings[0]['prop'] = self.session.project.title
+        CollaborationWindow.lblSettings[1]['prop'] = self.session.creationDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.creationDate.strftime("%x") else 'Today at - '+self.session.creationDate.strftime("%X")
+        CollaborationWindow.lblSettings[2]['prop'] = self.session.project.lastEdited.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.project.lastEdited.strftime("%x") else 'Today at - '+self.session.project.lastEdited.strftime("%X")
+        CollaborationWindow.lblSettings[3]['prop'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
 
     def design(self):
         # Putting the control buttons
@@ -118,6 +205,15 @@ class CollaborationWindow(TabbedWindow):
         frm_preview = Frame(frm_group, bg=white, highlightthickness=1, highlightbackground=border)
         frm_preview.pack(side=LEFT, fill=BOTH, expand=1)
 
+        frm_preview.update()
+
+        if self.session.project.image != None:
+            photo = getdisplayableimage(self.session.project.image,(self.tb_info.winfo_width(),self.tb_info.winfo_height()))
+            lbl_image = Label(frm_preview, image = photo)
+            lbl_image.image=photo
+            lbl_image.pack(fill=BOTH,expand=1)
+
+
         self.lv_members = Scrollable(frm_group, bg=background)
         self.lv_members.pack(side=RIGHT, fill=BOTH, padx=(10, 0))
 
@@ -125,28 +221,93 @@ class CollaborationWindow(TabbedWindow):
         self.frm_list_view = Scrollable(self.tb_hist, bg=background)
         self.frm_list_view.pack(expand=1, fill=BOTH, pady=(0, 15))
 
-        # BOOKMARK: Fill Collaboration Session Change History
-        for i in range(10):
-            ListItem(self.frm_list_view.interior, None, None, [
-                {
+        # BOOKMARK_DONE: Fill Collaboration Session Change History
+        for i in Container.filter(History, History.projectId == self.session.projectId).order_by(History.editDate.desc()).all():#, or_(History.editorId == Collaboration.userId, History.editorId == self.session.ownerId) since the project is gonna be unique
+            if i.project.owner == CollaborationWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.sessionId == self.session.id, Collaboration.userId == CollaborationWindow.ACTIVE_USER.id).first() != None:
+                li = ListItem(self.frm_list_view.interior, i,
+                    {
+                        'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}'
+                    },
+                    self.get_btn_list(i))
+                li.pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
+                self.historyItems.append(li)
+
+    def export_project(self, title, date, fileBytes):
+        if fileBytes == None:
+            MessageModal(self, title= 'error', message= 'No changes has been made yet on this session\'s project yet !', messageType= 'error')
+        else: 
+            folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
+
+            if folderName != '':
+                bytestofile(f'{folderName}',f'{title}_{date.strftime("%d-%m-%Y_%H-%M-%S")}','xml',fileBytes)
+                MessageModal(self,title=f'success',message=f'File saved in {folderName} !',messageType='info')
+    
+    def get_btn_list(self,history):
+        
+        def ask_revert_changes(history):
+            def revert_changes(msg,history):
+                history.project.file = history.file
+                history.project.lastEdited = history.editDate
+                Container.save(history.project)
+                msg.destroy()
+
+                for li in self.historyItems:
+                    if li.dataObject.editDate > history.editDate and li.dataObject.id != history.id: 
+                        Container.deleteObject(li.dataObject)
+                        li.destroy()
+                
+                MessageModal(self,title=f'success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}',messageType='info')
+                getattr(self, 'lbl_'+ CollaborationWindow.lblSettings[2]['prop'])['text'] = history.editDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != history.editDate.strftime("%x") else 'Today at - '+history.editDate.strftime("%X")
+            
+            msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
+
+
+        btn_list = [{
                     'icon': 'save.png',
-                    'text': 'Export to XML'
+                    'text': 'Export to XML',
+                    'cmd': lambda e: self.export_project(history.project.title, history.editDate,history.file)
                 },
                 {
                     'icon': 'revert_history.png',
-                    'text': 'Revert'
-                }
-            ]).pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
+                    'text': 'Revert',
+                    'cmd': lambda e: ask_revert_changes(history)
+                }]
 
-    # BOOKMARK: Fill Collaboration Session Members
+        if CollaborationWindow.ACTIVE_USER != self.session.owner:
+            btn_list.pop(1)
+
+        return btn_list
+
+    # BOOKMARK_DONE: Fill Collaboration Session Members
     def fill_members(self):
         # Remove all items
         self.lv_members.empty()
         # Append items
-        for i in range(6):
-            ListItem(self.lv_members.interior, None, None, [
+        for i in Container.filter(User, Collaboration.sessionId == self.session.id,User.id != CollaborationWindow.ACTIVE_USER.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all():
+            li = ListItem(self.lv_members.interior, i, 
                 {
+                    'username' : i.userName
+                },
+                [{
                     'icon': 'cancel.png',
-                    'text': 'Kick'
-                }
-            ]).pack(anchor=N+W, pady=(0, 10), padx=(0, 10))
+                    'text': 'Kick',
+                    'cmd' : lambda e, user= i: self.kick_user(user), 
+
+                }] if CollaborationWindow.ACTIVE_USER == self.session.owner else None
+                )
+            li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10))
+            self.collaboratorItems.append(li)
+            
+
+    def kick_user(self, user):
+        def delete_collaboration(user):
+            Container.deleteObject(Container.filter(Collaboration,Collaboration.userId == user.id , Collaboration.sessionId == self.session.id).first())
+            msg.destroy()
+            for li in self.collaboratorItems:
+                if li.dataObject == user: 
+                    li.destroy()
+                    getattr(self, 'lbl_'+ CollaborationWindow.lblSettings[3]['prop'])['text'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
+                    
+            MessageModal(self,title=f'success',message=f'{user.userName} has been kicked out of the session !',messageType='info')
+
+        msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to kick {user.userName} ?',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})

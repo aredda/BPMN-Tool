@@ -5,12 +5,14 @@ from views.factories.iconbuttonfactory import SecondaryButton, MainButton
 from views.windows.modals.formmodal import FormModal
 from views.factories.factory import Factory
 
+import tkinter.filedialog as filedialog
+
 # BOOKMARK: how to create a command for form modal buttons
 # the concept behind those buttons is that we need to be in contact with the modal object itself
 # because it contains our form data and our connection to the database and everything else..
 # in order to solve this, I propose to construct a command in this form
 #
-#   def command(modal): # do something
+#   def command(modal): # do something the modal has all the data needed
 # or
 #   lambda modal: # do something
 #
@@ -150,12 +152,13 @@ class FormModalFactory(Factory):
             
             # pick button event
             def btn_pick_click(e):
-                # BOOKMARK: pick button click event
+                # BOOKMARK_DONE: pick button click event
                 # ask to open a certain xml file
-                filepath = 'ask for file'
+                filepath = filedialog.askopenfilename(initialdir="/", title="Select xml file", filetypes=(("xml files", "*.xml"), ("all files", "*.*")))
                 # verify if file exists
                 # change the value of label
-                modal.lbl_filename['text'] = filepath
+                if filepath != '':
+                    modal.lbl_filename['text'] = filepath
 
             # pick file button
             btn_pick = MainButton(frm_group, 'Pick a file', 'upload.png', btn_pick_click)
@@ -172,4 +175,7 @@ class FormModalFactory(Factory):
                 'getter': lambda input: input['text'] 
             })
 
-        return FormModal(root, 'Create a new Project', 410, inputs, buttons, onCreated)
+        formModal: FormModal = FormModal(root, 'Create a new Project', 410, inputs, buttons, onCreated)
+        formModal.grab_release()
+
+        return formModal

@@ -38,5 +38,35 @@ because we are going to add other models concerning data..
 ### SessionWindow
 - [X] Invite modal
 
+# Minor Issues and things that should be optimised
+### Session Window 
+- [x] Discussion image doesn't show
+- [x] notification image doesn't show
+### message listItem
+- [x] long messages errors
+### Saved Collaborators
+- [ ] collaborator's image doesn't show **changing it affects profile image**
+<!-- - [ ] listItem width issue when the number is impair **not a big deal** -->
+### discussion window 
+- [ ] scrollbar should be at the end when we enter a session 
+- [ ] issue with the scrollbar when switching between sessions
+<!-- - [ ] hide session's name section and textmessage part **not a big deal** -->
+### profile window
+- [x] password and confirmPwd must be hidden
+- [ ] MessageModal button disappears when message is big
+### form modal factory in home window
+- [x] modal interfers with openfiledialog 
+### collaboration window
+- [ ] members listItem issue (size and kick button)
+- [ ] image width resizing issue, the image won't extend its original width **same issue**
+### notification ListItem
+- [ ] when content is long we can't see the rest of it and the date
+### home window
+- [x] project and session image doesn't show
+- [ ] menu icon background transparency issue
+### project window
+- [ ] image width resizing issue the app won't extend its original width **same issue**
+- [x] DEBUG WEIRD SQL/THREAD ERRORS **needs more tests**
+
 # Editor
 - [ ] Implement event definitions
