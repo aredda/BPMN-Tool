@@ -1,6 +1,6 @@
+from resources.namespaces import bpmn
 from models.bpmn.activity import Activity
 from models.bpmn.enums.activityflag import ActivityFlag
-from resources.namespaces import bpmn
 
 class SubProcess(Activity):
 

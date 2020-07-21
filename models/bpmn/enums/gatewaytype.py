@@ -5,6 +5,6 @@ class GatewayType(enum.Enum):
     Inclusive = 2
     EventBased = 3
     Parallel = 4
-    EventBasedExclusive = 5
+    ExclusiveEventBased = 5
     Complex = 6
-    ParallelEvent = 7
+    ParallelEventBased = 7
