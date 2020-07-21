@@ -23,12 +23,14 @@ class SessionWindow(Window):
     CHAT_NORMAL = {
         'bg': white,
         'lbl_username': teal,
+        'lbl_user': black,
         'lbl_content': black,
         'lbl_time': gray 
     }
     CHAT_UNREAD = {
         'bg': background,
         'lbl_username': teal,
+        'lbl_user': black,
         'lbl_content': black,
         'lbl_time': gray 
     }
@@ -65,7 +67,7 @@ class SessionWindow(Window):
 
 
     def runnable(self):
-        try:
+        # try:
             while self.time_to_kill != True:
                 Container.session.begin()
                 Container.session.commit()
@@ -88,9 +90,9 @@ class SessionWindow(Window):
                 # change the icon if there is no new messages
                 if noNewMessages: self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
                 time.sleep(2)
-        except Exception:
-            # Container.session.rollback()
-            print('RUNNABLE1 ERROR')
+        # except Exception:
+        #     # Container.session.rollback()
+        #     print('RUNNABLE1 ERROR')
         
     def hide(self):
         # thread killer logic will be here
@@ -106,7 +108,7 @@ class SessionWindow(Window):
 
     def change_session_item_style(self, item, style=CHAT_UNREAD):
         # Change background
-        changeBgTo = [item, item.frm_content, item.lbl_username, item.lbl_content, item.lbl_time, item.img_photo]
+        changeBgTo = [item, item.frm_content, item.lbl_username, item.lbl_user, item.lbl_content, item.lbl_time, item.img_photo]
         for w in changeBgTo:
             w.config(bg=style['bg'])
         # Change foreground
@@ -118,7 +120,7 @@ class SessionWindow(Window):
     def configure_msg_listitem(self, root, item):
         li = ListItemFactory.DiscussionListItem(root, item)
         # set message listItem click
-        comps = [li, li.frm_content, li.lbl_username, li.lbl_content, li.lbl_time, li.img_photo]
+        comps = [li, li.frm_content, li.lbl_username, li.lbl_user, li.lbl_content, li.lbl_time, li.img_photo]
         for c in comps:
             c.bind('<Button-1>', lambda e: self.windowManager.run_tag('discussion',session= item.session))
         # change style for unread messages

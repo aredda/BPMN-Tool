@@ -29,7 +29,7 @@ class ListItemFactory(Factory):
         # creation method of notification list item
         def create(item: ListItem):
             # we have three horizontal sections
-            img_icon = IconFrame(item, 'resources/icons/ui/account.png', 2, teal, 48)
+            img_icon = IconFrame(item, item.bindings.get('image','resources/icons/ui/face.png'), 2, teal, 48)
             img_icon.pack(side=LEFT, anchor=N+W)
 
             frm_body = Frame(item, bg=white)
@@ -124,7 +124,7 @@ class ListItemFactory(Factory):
             item.config(bg=white, pady=10, padx=10)
             item.pack(side=TOP, fill=X)
 
-            item.img_photo = IconFrame(item, 'resources/icons/ui/face.png', 10, teal, 40)
+            item.img_photo = IconFrame(item, item.bindings.get('image','resources/icons/ui/face.png'), 2, teal, 40)
             item.img_photo.pack(side=LEFT)
 
             item.frm_content = Frame(item, bg=white, padx=5)
@@ -133,8 +133,11 @@ class ListItemFactory(Factory):
             item.lbl_username = Label(item.frm_content, fg=teal, bg=white, text=item.bindings.get('session', '{session}'), font='-size 12 -weight bold')
             item.lbl_username.pack(side=TOP, anchor=N+W)
             
-            item.lbl_content = Label(item.frm_content, fg=black, bg=white, text=item.bindings.get('content', '{content}'))
-            item.lbl_content.pack(side=TOP, anchor=N+W)
+            item.lbl_user = Label(item.frm_content, fg=black, font='-size 10 -weight bold', bg=white, text=item.bindings.get('username', '{username}')+':')
+            item.lbl_user.pack(side=LEFT, anchor=N+W)
+
+            item.lbl_content = Label(item.frm_content, fg=black, bg=white, anchor=W, text=item.bindings.get('content', '{content}'))
+            item.lbl_content.pack(side=LEFT, anchor=N+W)
 
             item.lbl_time = Label(item, bg=white, fg=gray, text=item.bindings.get('time', '{time}'), font='-size 8', pady=5)
             item.lbl_time.pack(side=RIGHT, anchor=N)
@@ -142,6 +145,7 @@ class ListItemFactory(Factory):
         # BOOKMARK_DONE: configure discussion list item
         return ListItem(root, dataItem, {
             'session': dataItem.session.title,
+            'username': dataItem.user.userName,
             'content': dataItem.content,
             'time': dataItem.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.sentDate.strftime("%x") else dataItem.sentDate.strftime("%X"),
             'image': dataItem.user.image

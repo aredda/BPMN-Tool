@@ -17,6 +17,7 @@ from views.windows.collaborationwindow import CollaborationWindow
 from views.windows.modals.messagemodal import MessageModal
 import re
 from helpers.filehelper import filetobytes
+from helpers.imageutility import getdisplayableimage
 
 class HomeWindow(TabbedWindow):
 
@@ -122,7 +123,7 @@ class HomeWindow(TabbedWindow):
         # refilling 
         for item in Container.filter(Session):
             if item.owner == HomeWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == item.id).first() != None:
-                self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1)}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+                self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1), 'image': item.project.image}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
 
     # BOOKMARK: Project List Item & Session List Item Creation Method
     def create_list_item(self, item: ListItem, liType: int = PROJECT_LI):
@@ -131,6 +132,14 @@ class HomeWindow(TabbedWindow):
         img_size = 205
         img_thumb = Frame(item, height=img_size, bg=white)
         img_thumb.pack_propagate(0)
+
+        if item.bindings.get('image', None) != None:
+            photo = getdisplayableimage(item.bindings.get('image', None),(self.winfo_width(),205))
+            lbl_image = Label(img_thumb, image = photo)
+            lbl_image.image=photo
+            lbl_image.pack(fill=BOTH,expand=1)
+
+        
 
         border_bottom = Frame(item, bg=border)
         frm_info = Frame(item, bg=silver, padx=10, pady=10)
@@ -239,7 +248,6 @@ class HomeWindow(TabbedWindow):
         MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} project ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
 
     def delete_session(self, dataObject):
-        print(dataObject.__class__.__name__)
         MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} session ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
 
     def join_project(self, modal):

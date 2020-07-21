@@ -34,6 +34,7 @@ class DiscussionWindow(SessionWindow):
     CHAT_ACTIVE = {
         'bg': teal,
         'lbl_username': background,
+        'lbl_user': white,
         'lbl_content': white,
         'lbl_time': white 
     }
@@ -132,6 +133,7 @@ class DiscussionWindow(SessionWindow):
                             self.currentItem = li
                             self.create_message(lastmsg)
         except Exception:
+            # Container.session.rollback()
             print('RUNNABLE2 ERROR')
         
     def hide(self):
@@ -244,7 +246,7 @@ class DiscussionWindow(SessionWindow):
         frm_group.pack(side=LEFT, padx=(0, 30))
 
         item.lbl_username = Label(frm_group, text=item.bindings.get('username', '{username}'), font='-size 14')
-        item.lbl_content = Label(frm_group, text=item.bindings.get('content', '{content}'))
+        item.lbl_content = Label(frm_group,wraplength=500, justify='left', text=item.bindings.get('content', '{content}'))
         item.lbl_time = Label(frm_message, text=item.bindings.get('time', '{time}'), font='-size 8')
 
         item.lbl_username.pack(side=TOP, anchor=N+W)

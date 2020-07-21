@@ -14,6 +14,7 @@ import datetime
 from views.windows.modals.messagemodal import MessageModal
 import tkinter.filedialog as filedialog
 from helpers.filehelper import bytestofile
+from helpers.imageutility import getdisplayableimage
 
 
 
@@ -149,6 +150,15 @@ class ProjectWindow(TabbedWindow):
 
         frm_preview = Frame(self.tb_info, bg=white, highlightthickness=1, highlightbackground=border)
         frm_preview.pack(expand=1, fill=BOTH, pady=15)
+
+        frm_preview.update()
+
+        if self.project.image != None:
+            photo = getdisplayableimage(self.project.image,(self.tb_info.winfo_width(),self.tb_info.winfo_height()))
+            lbl_image = Label(frm_preview, image = photo)
+            lbl_image.image=photo
+            lbl_image.pack(fill=BOTH,expand=1)
+
 
         # Filling the history tab
         self.frm_list_view = Scrollable(self.tb_hist, bg=background)

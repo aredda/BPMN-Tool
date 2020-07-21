@@ -120,6 +120,7 @@ class ProfileWindow(TabbedWindow):
                 # Label and textbox
                 Label(frm_group, bg=background, font='-size 10 -weight bold', fg=black, text=group.get('label'), anchor=N+W).pack(side=TOP, fill=X, pady=(0, 5))
                 txt = TextBox(frm_group, 'resources/icons/ui/' + group.get('icon'))
+                if group['tag'] in ['password','confirmPwd']: txt.entry.config(show='*')
                 txt.pack(side=TOP)
                 # Save the textbox in a list in order to get its value
                 self.textBoxes[group.get('tag')] = txt
