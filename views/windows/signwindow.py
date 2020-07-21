@@ -1,5 +1,6 @@
 from tkinter import *
 from resources.colors import *
+from views.effects.color_transition import ColorTransition
 from views.factories.iconbuttonfactory import MainButton, SecondaryButton, DangerButton
 from views.components.textbox import TextBox
 from views.windows.abstract.window import Window
@@ -65,11 +66,11 @@ class SignWindow(Window):
             ],
             'Step 3: Personal Information': [
                 { 'name': 'txt_gender', 'label': 'Gender:', 'icon': 'wc.png' },
-                { 'name': 'txt_company', 'label': 'Company:', 'icon': 'business.png' },
-                { 'name': 'txt_lastname', 'label': 'Last Name:', 'icon': 'account.png' }
+                { 'name': 'txt_company', 'label': 'Company:', 'icon': 'business.png' }
             ]
         }
         # preparations
+        self.current = 0
         self.steptitles = []
         self.checkpoints = []
         self.forms = []
@@ -83,7 +84,7 @@ class SignWindow(Window):
         self.frm_map = Frame(self.frm_up, bg=background)
         self.frm_map.pack(side=TOP, fill=X, pady=(5, 0))
         for s in up_congig.keys():
-            frm_cp = Frame(self.frm_map, highlightthickness=1, highlightbackground=border, height=15, bg=white)
+            frm_cp = Frame(self.frm_map, highlightthickness=1, highlightbackground=teal, height=15, bg=white)
             frm_cp.pack(side=LEFT, fill=X, expand=1, padx=(0, 4 if list(up_congig.keys()).index(s) != len(up_congig.keys()) else 0))
             self.checkpoints.append(frm_cp)
         # forms container
@@ -100,15 +101,45 @@ class SignWindow(Window):
             # save those entities
             self.steptitles.append(s)
             self.forms.append(frm_form)
+        # extra sign up options
+        frm_in_xtra = Frame(self.frm_up, bg=background)
+        frm_in_xtra.pack(side=BOTTOM, fill=X, pady=(5, 75))
+        self.lbl_signin = Label(frm_in_xtra, fg=teal, font='-size 9', text='Sign in', bg=background)
+        self.lbl_signin.pack(side=RIGHT)
+        self.lbl_signin.bind('<Button-1>', self.lbl_signin_click)
+        # divider
+        frm_in_divider = Frame(self.frm_up, bg=border)
+        frm_in_divider.pack(side=BOTTOM, fill=X)
+        # buttons
+        frm_up_btns = Frame(self.frm_up, bg=background)
+        frm_up_btns.pack(side=BOTTOM, fill=X, pady=(0, 60))
+        self.btn_prev = DangerButton(frm_up_btns, 'Go Back', 'revert_history.png', self.btn_prev_click)
+        self.btn_prev.pack(side=LEFT)
+        self.btn_next = SecondaryButton(frm_up_btns, 'Next Step', 'yes.png', self.btn_next_click)
+        self.btn_next.pack(side=RIGHT)
         # display the first step
-        self.move_to(0)
+        self.move_to(self.current)
 
     def move_to(self, index: int):
+        # event corrector
+        def correct(idx):
+            return [
+                lambda c: self.checkpoints[idx].config(bg=c),
+                lambda: self.checkpoints[idx]['bg']
+            ]
         # change the label's text
         self.lbl_step.config(text=self.steptitles[index])
         # show the corresponding form container
         for frm in self.forms: frm.pack_forget()
         self.forms[index].pack(side=TOP, fill=X)
+        # change checkpoint indicators
+        for cp in self.checkpoints: cp.config(bg=white, highlightthickness=1)
+        self.checkpoints[index].config(bg=white, highlightthickness=2)
+        for i in [x for x in range(index)]:
+            # reset the border width
+            self.checkpoints[i].config(highlightthickness=1)
+            # animate the color
+            ColorTransition(correct(i)[0], correct(i)[1], teal)
 
     # BOOKMARK: Sign In Logic
     def btn_signin_click(self, event):
@@ -129,3 +160,19 @@ class SignWindow(Window):
     # BOOKMARK: Forgotten password
     def lbl_forgotpwd_click(self, event):
         pass
+
+    # BOOKMARK: Go to Sign In Form
+    def lbl_signin_click(self, event):
+        pass
+
+    # BOOKMARK: Next step
+    def btn_next_click(self, event): 
+        if self.current + 1 < len(self.forms):
+            self.current += 1
+            self.move_to(self.current)
+
+    # BOOKMARK: Prev (Go back)
+    def btn_prev_click(self, event): 
+        if self.current - 1 >= 0:
+            self.current -= 1
+            self.move_to(self.current)
