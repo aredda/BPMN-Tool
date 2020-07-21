@@ -4,6 +4,8 @@ from views.windows.collaborationwindow import CollaborationWindow
 from views.windows.discussionwindow import DiscussionWindow
 from views.windows.editorwindow import EditorWindow
 from views.windows.profilewindow import ProfileWindow
+from views.windows.splashwindow import SplashWindow
+from views.windows.signwindow import SignWindow
 from views.windows.modals.messagemodal import MessageModal
 from views.factories.formmodalfactory import FormModalFactory
 
@@ -18,6 +20,8 @@ def get_cls(route):
     if route == 'discussion': return DiscussionWindow
     if route == 'editor': return EditorWindow
     if route == 'profile': return ProfileWindow
+    if route == 'splash': return SplashWindow
+    if route == 'sign': return SignWindow
     if route == 'messagemodal': return MessageModal
 
     return None

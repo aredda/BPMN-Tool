@@ -22,6 +22,9 @@ class TextBox(Frame, Animatable):
     def get_text(self):
         return self.entry.get()
 
+    def clear(self):
+        self.entry.delete(0, len(self.entry.get()))
+
     def bind_events(self):
         self.entry.bind('<FocusIn>', lambda e: self.onEnter())
         self.entry.bind('<FocusOut>', lambda e: self.onLeave())

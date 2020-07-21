@@ -8,3 +8,4 @@ class TaskType(enum.Enum):
     Service = 4
     Send = 5
     Receive = 6
+    Manual = 7

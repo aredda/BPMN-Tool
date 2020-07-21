@@ -49,7 +49,7 @@ because we are going to add other models concerning data..
 <!-- - [ ] listItem width issue when the number is impair **not a big deal** -->
 ### discussion window 
 - [ ] scrollbar should be at the end when we enter a session 
-- [ } issue with the scrollbar when switching between sessions
+- [ ] issue with the scrollbar when switching between sessions
 <!-- - [ ] hide session's name section and textmessage part **not a big deal** -->
 ### profile window
 - [x] password and confirmPwd must be hidden
@@ -66,5 +66,7 @@ because we are going to add other models concerning data..
 - [ ] menu icon background transparency issue
 ### project window
 - [ ] image width resizing issue the app won't extend its original width **same issue**
-
 - [x] DEBUG WEIRD SQL/THREAD ERRORS **needs more tests**
+
+# Editor
+- [ ] Implement event definitions

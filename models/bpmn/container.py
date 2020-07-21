@@ -21,7 +21,8 @@ class Container(BPMNElement):
 
     def remove(self, name, item):
         if name in self.elements:
-            self.elements[name].remove(item)
+            if item in self.elements[name]:
+                self.elements[name].remove(item)
 
     def serialize(self):
         element = BPMNElement.serialize(self)
