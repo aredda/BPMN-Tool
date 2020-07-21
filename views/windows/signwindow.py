@@ -1,6 +1,7 @@
 from tkinter import *
 from resources.colors import *
 from views.effects.color_transition import ColorTransition
+from views.effects.move_transition import MoveTransition
 from views.factories.iconbuttonfactory import MainButton, SecondaryButton, DangerButton
 from views.components.textbox import TextBox
 from views.windows.abstract.window import Window
@@ -119,6 +120,9 @@ class SignWindow(Window):
         self.btn_next.pack(side=RIGHT)
         # display the first step
         self.move_to(self.current)
+        # creating the veil
+        self.frm_veil = Frame(self, bg=teal)
+        self.frm_veil.place(x=0, y=0, relwidth=0.5, relheight=1)
 
     def move_to(self, index: int):
         # event corrector
@@ -155,7 +159,7 @@ class SignWindow(Window):
 
     # BOOKMARK: Go to Sign Up Form
     def lbl_signup_click(self, event):
-        print ('Sign up form is requested..')
+        MoveTransition(self.frm_veil_set_x, self.frm_veil_get_x, self.winfo_width()/2, 2.5)
 
     # BOOKMARK: Forgotten password
     def lbl_forgotpwd_click(self, event):
@@ -163,7 +167,7 @@ class SignWindow(Window):
 
     # BOOKMARK: Go to Sign In Form
     def lbl_signin_click(self, event):
-        pass
+        MoveTransition(self.frm_veil_set_x, self.frm_veil_get_x, 0, 2.5)
 
     # BOOKMARK: Next step
     def btn_next_click(self, event): 
@@ -176,3 +180,10 @@ class SignWindow(Window):
         if self.current - 1 >= 0:
             self.current -= 1
             self.move_to(self.current)
+    
+    # Veil Properties
+    def frm_veil_set_x(self, x):
+        self.frm_veil.place_configure(x=x)
+
+    def frm_veil_get_x(self):
+        return self.frm_veil.winfo_x()
