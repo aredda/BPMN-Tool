@@ -171,16 +171,26 @@ class SignWindow(Window):
 
     # BOOKMARK: Next step
     def btn_next_click(self, event): 
+        # display corresponding form
         if self.current + 1 < len(self.forms):
             self.current += 1
             self.move_to(self.current)
+        # change label's text
+        self.btn_next_step_config()
 
     # BOOKMARK: Prev (Go back)
     def btn_prev_click(self, event): 
+        # display corresponding form
         if self.current - 1 >= 0:
             self.current -= 1
             self.move_to(self.current)
+        # change label's text
+        self.btn_next_step_config()
     
+    # 
+    def btn_next_step_config(self):
+        self.btn_next.label.config(text=('Sign Up' if self.current == len(self.forms) - 1 else 'Next Step'))
+
     # Veil Properties
     def frm_veil_set_x(self, x):
         self.frm_veil.place_configure(x=x)

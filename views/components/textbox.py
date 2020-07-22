@@ -31,7 +31,6 @@ class TextBox(Frame, Animatable):
 
     def changeFocusColor(self, color):
         self.stop_transitions()
-        self.clear() 
 
         def _set (v): self['bg'] = v
         _get = lambda: self['bg']
