@@ -1,3 +1,8 @@
+# Priority Index
+- **A** Urgent
+- **B** Important
+- **C** Secondary
+
 # Editor To-Do List
 - [X] Linking elements
 - [X] Changing element's name
@@ -37,8 +42,8 @@
 - [X] Implementing the [Message | Data Association] GUI flows
 - [X] Serialize when finishing
 
-### 15th of july
-- [ ] Associate GUI items with their data
-- [ ] Generation of ID
-- [ ] Re-Doing & Un-Doing Actions
-- [ ] Selection Action
+### 22th of july
+- [ ] **(A)** Re-Doing & Un-Doing Actions
+- [ ] **(B)** Associate GUI items with their data
+- [ ] **(C)** Selection Action
+- [ ] **(C)** Generation of ID
