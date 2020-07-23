@@ -49,9 +49,6 @@ class IconFrame(Canvas, Animatable):
     def get_bgColor(self):
         return self.bgColor
 
-    # ihate to do this, but my fault didn't see this coming
-    # hi rem, are you here ?
-    # embered that this is a canvas connection baka kateleeb alright
     def set_image(self, image):
         # Configure image & draw image
         if isinstance(image, str):
