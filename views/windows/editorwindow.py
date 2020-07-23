@@ -22,6 +22,7 @@ from views.prefabs.guidataobject import GUIDataObject
 from views.prefabs.guiflow import GUIFlow
 from views.prefabs.guilane import GUILane
 from threading import Thread
+from copy import deepcopy
 
 class EditorWindow(SessionWindow):
     
@@ -56,8 +57,8 @@ class EditorWindow(SessionWindow):
             'align': LEFT,
             'hoverBg': teal,
             'tools': [
-                { 'icon': 'redo.png' },
-                { 'icon': 'undo.png' },
+                { 'icon': 'redo.png', 'cmnd': 'redo' },
+                { 'icon': 'undo.png', 'cmnd': 'undo' },
                 { 'icon': 'move.png' },
                 { 'icon': 'select.png' },
                 { 'icon': 'zoom_in.png', 'cmnd': 'zoom_in' },
@@ -72,6 +73,8 @@ class EditorWindow(SessionWindow):
         if tag == 'create':
             # prepare create command
             def cmnd_create(e):
+                # save checkpoint
+                self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
                 # instantiate
                 guie = value(canvas=self.cnv_canvas)
                 # draw
@@ -105,6 +108,10 @@ class EditorWindow(SessionWindow):
         self.subject = subject
         self.guielements = []
         self.definitions: Definitions = Definitions()
+
+        # undo/redo actions
+        self.undo_dict = { 'gui': [], 'def': [] }
+        self.redo_dict = { 'gui': [], 'def': [] }
 
         # editor's gears
         self.SELECTED_MODE = self.DRAG_MODE
@@ -162,7 +169,6 @@ class EditorWindow(SessionWindow):
 
     def set_mode(self, mode):
         self.SELECTED_MODE = mode
-
         # change cursor
         if mode in [self.CREATE_MODE]:
             self.cnv_canvas.config(cursor='hand2')
@@ -170,14 +176,25 @@ class EditorWindow(SessionWindow):
             self.cnv_canvas.config(cursor='size_ne_sw')
         else:
             self.cnv_canvas.config(cursor='')
-            
+
+    # responsible for refreshing all gui elements
+    def reset(self):
+        self.clear()
+        for e in self.guielements:
+            e.erase()
+            e.draw()
+
+    # takes care of clearing
+    def clear(self):
+        self.cnv_canvas.delete('all')    
+        
     # pretty much the most important member of this module
     def setup_actions(self):
         
         # single click
         def action_mouse_click(e):
-            justCreated = False
             # finish creation
+            justCreated = False
             if self.SELECTED_MODE == self.CREATE_MODE:
                 # reset mode
                 self.set_mode(self.DRAG_MODE)
@@ -200,6 +217,8 @@ class EditorWindow(SessionWindow):
                     if self.SELECTED_ELEMENT != previous_selected:
                         # check if we can link
                         if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
+                            # save undo action
+                            self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
                             # generating a flow model
                             flowmodel = self.get_link_model(previous_selected, self.SELECTED_ELEMENT)
                             # creating a flow
@@ -303,6 +322,7 @@ class EditorWindow(SessionWindow):
             # reset mode
             self.set_mode(self.DRAG_MODE)
 
+        # bind events
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
         self.cnv_canvas.bind('<Button-3>', action_mouse_rclick)
         self.cnv_canvas.bind('<Motion>', action_mouse_move)
@@ -402,6 +422,7 @@ class EditorWindow(SessionWindow):
 
         return True
 
+    # responsible for figuring out which data model to use
     def get_link_model(self, source, target):
         """
         Figure out which model to use in this case
@@ -423,3 +444,28 @@ class EditorWindow(SessionWindow):
             return MessageFlow(source=source.element, target=target.element)
         # sequence flow case
         return source.element.add_link(target.element)
+
+    # REDO/UNDO Actions
+    def save_checkpoint(self, trackdict, guicp, defcp):
+        trackdict['gui'].append (deepcopy(guicp))
+        trackdict['def'].append (deepcopy(defcp))
+
+    def undo(self):
+        action1 = self.undo_dict['gui'].pop()
+        action2 = self.undo_dict['def'].pop()
+        # save preferences in order to be able to redo them
+        self.save_checkpoint(self.redo_dict, self.guielements, self.definitions)
+        # undo
+        self.guielements, self.definitions = action1, action2
+        # reset canvas
+        self.reset()
+    
+    def redo(self):
+        action1 = self.redo_dict['gui'].pop()
+        action2 = self.redo_dict['def'].pop()
+        # save preferences in order to be able to undo them
+        self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
+        # undo
+        self.guielements, self.definitions = action1, action2
+        # reset canvas
+        self.reset()
