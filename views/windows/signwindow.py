@@ -157,7 +157,7 @@ class SignWindow(Window):
             self.checkpoints[i].config(highlightthickness=1)
             # animate the color
             ColorTransition(correct(i)[0], correct(i)[1], teal)
-
+ 
     # BOOKMARK: Sign In Logic
     def btn_signin_click(self, event):
         if getattr(self, 'txt_in_username').entry.get() == '' or getattr(self, 'txt_in_password').entry.get() == '': MessageModal(self,title='error',message=f'Please enter your username and password to login !',messageType='info')
