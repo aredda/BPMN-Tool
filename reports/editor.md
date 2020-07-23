@@ -45,5 +45,5 @@
 ### 22th of july
 - [ ] **(A)** Re-Doing & Un-Doing Actions
 - [ ] **(B)** Associate GUI items with their data
-- [ ] **(C)** Selection Action
+- [X] **(C)** Selection Action
 - [ ] **(C)** Generation of ID
