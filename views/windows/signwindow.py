@@ -166,7 +166,7 @@ class SignWindow(Window):
             if user == None: MessageModal(self,title='error',message=f'This username doesn\'t exist !',messageType='error')
             else:
                 if user.password != getattr(self, 'txt_in_password').entry.get():
-                    sparepwd = Container.filter(SparePwd, SparePwd.userId == user.id).first()
+                    sparepwd = Container.filter(SparePwd, SparePwd.userId == user.id).order_by(SparePwd.expirationDate.desc()).first()
                     if sparepwd != None and sparepwd.verificationCode == getattr(self, 'txt_in_password').entry.get():
                         if sparepwd.expirationDate < datetime.now():
                             MessageModal(self,title='expired code',message=f'This verification code has expired !',messageType='error')
