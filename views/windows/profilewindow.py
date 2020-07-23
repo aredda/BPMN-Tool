@@ -187,7 +187,7 @@ class ProfileWindow(TabbedWindow):
     def validate_form_data(self,data):
         try:
             for key, value in data.items():
-                if value == None and key not in ['confirmPwd', 'company', 'gender', 'image']:
+                if value == None and key not in ['confirmPwd', 'image']:
                     raise Exception(key,f'{key} Cannot be null !')
 
                 elif key in ['firstName','lastName'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):

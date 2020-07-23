@@ -39,3 +39,7 @@ def getclassname(tag: str):
         return 'SequenceFlow'
 
     return classname
+
+def generate_code():
+    import string, secrets
+    return ''.join(secrets.choice(string.ascii_letters + string.digits) for i in range(8))
