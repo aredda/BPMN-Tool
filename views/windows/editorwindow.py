@@ -80,6 +80,8 @@ class EditorWindow(SessionWindow):
                 guie = value(canvas=self.cnv_canvas)
                 # draw
                 guie.draw_at(0, 0)
+                # show help information
+                self.show_help_panel('Hover over the position you want to instantiate on, then left-click to drop')
                 # change mode
                 self.set_mode(self.CREATE_MODE)
                 # set as the drag element
@@ -127,17 +129,16 @@ class EditorWindow(SessionWindow):
     def setup_tools(self):
         # Lay out tool panels
         for i in EditorWindow.toolSettings.keys():
-
+            # get the settings of this set of tools
             settings = EditorWindow.toolSettings[i]
-
+            # prepare a container
             frm_container = Frame(self.cnv_canvas, bg=white, highlightthickness=1, highlightbackground=border, padx=10, pady=10)
             frm_container.pack(side=i, padx=20, pady=20)
-
+            # for each action
             for j in settings['tools']:
-
+                # adjust some configs
                 align = settings.get('align', TOP)
                 spacing = { 'padx': 0 if align == TOP else (0, 5), 'pady': 0 if align != TOP else (0, 5) }
-
                 # command getter
                 def get_cmnd(tag, value):
                     return self.select_event(tag, value)
@@ -152,10 +153,17 @@ class EditorWindow(SessionWindow):
                 # if this button has a name, save it
                 if 'name' in j:
                     setattr(self, j['name'], ic_tool)
-
+                # add spacing to items
                 if settings['tools'].index(j) != len(settings['tools']) - 1:
                     ic_tool.pack(side=align, **spacing)
-        # deactivate
+        # create a help panel
+        self.frm_help = Frame(self.cnv_canvas, bg=white, highlightthickness=1, highlightbackground=border, padx=10, pady=10)
+        self.frm_help.pack(side=TOP, padx=20, pady=20)
+        self.lbl_help = Label(self.frm_help, text='Help Label', bg=white, fg=black, font='-weight bold -size 9')
+        self.lbl_help.pack()
+        # hide help panel
+        self.hide_help_panel()
+        # deactivate delete selected button
         self.btn_delete_selected.pack_forget()
     
     def design(self):
@@ -181,6 +189,7 @@ class EditorWindow(SessionWindow):
             self.cnv_canvas.config(cursor='hand2')
         if mode in [self.RESIZE_MODE]:
             self.cnv_canvas.config(cursor='size_ne_sw')
+            self.show_help_panel('Left-click in order to cancel resize mode')
         else:
             self.cnv_canvas.config(cursor='')
         # if there are selected elements, deselect them
@@ -196,6 +205,9 @@ class EditorWindow(SessionWindow):
             # disable effect
             self.btn_select_mode.defaultBgColor = black
             self.btn_select_mode.set_bgColor(black)
+        # show link mode help info
+        if mode == self.LINK_MODE:
+            self.show_help_panel('Select an element in order to make a connection')            
 
     # activating select mode
     def enable_select_mode(self):
@@ -205,6 +217,8 @@ class EditorWindow(SessionWindow):
         self.btn_delete_selected.pack(side=TOP)
         # activate effect
         self.btn_select_mode.defaultBgColor = teal
+        # show information
+        self.show_help_panel('Selection mode is enabled')
 
     # responsible for refreshing all gui elements
     def reset(self):
@@ -229,9 +243,12 @@ class EditorWindow(SessionWindow):
                 self.set_mode(self.DRAG_MODE)
                 # mark as 'just created'
                 justCreated = True
+                # hide the help panel
+                self.hide_help_panel()
             # finish resizing
             if self.SELECTED_MODE == self.RESIZE_MODE:
                 self.set_mode(self.DRAG_MODE)
+                self.hide_help_panel()
             # hide components
             self.hide_component('frm_menu')
             self.hide_component('txt_input')
@@ -264,6 +281,15 @@ class EditorWindow(SessionWindow):
                             # if this model is a message flow
                             if isinstance(flowmodel, MessageFlow) == True:
                                 self.definitions.add('message', flowmodel)
+                            # hide help panel
+                            self.hide_help_panel()
+                        else:
+                            # name getter
+                            getname = lambda guielement: guielement.element.__class__.__name__
+                            # retrieve names
+                            e1name, e2name = getname(self.SELECTED_ELEMENT), getname(previous_selected)
+                            # show message error
+                            self.show_help_panel(f'Sorry, a connection cannot be made between <{e1name}> and <{e2name}>', danger)
                         # finish linking
                         self.set_mode(self.DRAG_MODE)
 
@@ -522,3 +548,13 @@ class EditorWindow(SessionWindow):
         self.guielements, self.definitions = action1, action2
         # reset canvas
         self.reset()
+
+    # Help Panel actions
+    def show_help_panel(self, text, fgColor=black):
+        # show help panel
+        self.frm_help.pack_configure(side=TOP, padx=20, pady=20)
+        # change label settings
+        self.lbl_help.config(text=text, fg=fgColor)
+
+    def hide_help_panel(self):
+        self.frm_help.pack_forget()
