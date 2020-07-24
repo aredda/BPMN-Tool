@@ -36,7 +36,7 @@ class SessionWindow(Window):
     }
 
     # BOOKMARK_UNDONE: Signed in user
-    ACTIVE_USER = Container.filter(User).get(2)
+    ACTIVE_USER = None #Container.filter(User).get(2)
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
@@ -169,6 +169,8 @@ class SessionWindow(Window):
         def quit():
             self.time_to_kill = True
             self.windowManager.run_tag('sign')
+            SessionWindow.ACTIVE_USER = None
+
             # self.windowManager.quit()
 
         self.vBarButtons['btn_quit'].bind_click(lambda e: quit() )
