@@ -24,6 +24,12 @@ from views.prefabs.guilane import GUILane
 from threading import Thread
 from copy import copy, deepcopy
 
+from helpers.xmlutility import elementtobytes, bytestoelement
+from models.entities.Entities import Project, Session, Collaboration, ShareLink, History
+from models.entities.Container import Container
+from datetime import datetime
+from views.windows.modals.messagemodal import MessageModal
+
 class EditorWindow(SessionWindow):
     
     toolSettings = {
@@ -107,8 +113,18 @@ class EditorWindow(SessionWindow):
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
 
+        def get_project():
+            return subject if subject.__class__ == Project else subject.project
+
+        def get_privilege():
+            if subject.owner == EditorWindow.ACTIVE_USER: return 'edit'
+            else:
+                obj = Container.filter(ShareLink, ShareLink.projectId == subject.id).first() if subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()
+                return obj.privilege
+
         # data related attributes
-        self.subject = subject
+        self.project = get_project()
+        self.privilege = get_privilege()
         self.guielements = []
         self.definitions: Definitions = Definitions()
 
@@ -125,6 +141,7 @@ class EditorWindow(SessionWindow):
 
         self.design()
         self.setup_actions()
+        
 
     def setup_tools(self):
         # Lay out tool panels
@@ -477,7 +494,19 @@ class EditorWindow(SessionWindow):
         clean = lambda e: system('cls')
 
         clean(None)
-        print (to_pretty_xml(self.definitions.serialize()))
+        # print (to_pretty_xml(self.definitions.serialize()))
+        if self.privilege == 'read':
+            MessageModal(self, 'can\'t save changes', message='you don\'t have the right to edit this project !', messageType='error')
+        else:
+            newFile = elementtobytes(self.definitions.serialize())
+            date = datetime.now()
+            self.project.file = newFile
+            self.project.lastEdited = date
+            Container.save(self.project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=self.project))
+            MessageModal(self, 'success', message='changes saved succesfully !', messageType='info')
+
+        # get etree from file  
+        # print(to_pretty_xml(bytestoelement(self.project.file)))
 
     # linking funcs
     def can_link(self, source, target):
