@@ -50,3 +50,6 @@
 
 ### 23th of July
 - [X] Adding the help panel
+
+### 24th of July
+- [ ] Associating DI Elements

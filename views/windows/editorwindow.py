@@ -469,7 +469,7 @@ class EditorWindow(SessionWindow):
         for guie in self.guielements:
             guie.scale(self.ZOOM_SCALE)
 
-    # saving functionality
+    # BOOKMARK for kalai: saving functionality
     def save_work(self):
         from helpers.stringhelper import to_pretty_xml
         from os import system
