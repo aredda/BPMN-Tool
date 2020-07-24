@@ -9,18 +9,18 @@
   - [X] Displaying a floating Entry to type something
 - [X] Displaying a pop-up of an element's actions
 - [X] Resizing container elements
-- [ ] Linking the front with the back
-- [ ] Optimizing the returned list of options for each element
-- [ ] Draw diagram from deserialized definitions
 - [X] Serialize when finishing
 - [X] Adding lanes to a process
 - [X] Zoom-in & Zoom-out Actions
-- [ ] Selection Action
+- [X] Selection Action
+- [X] Implementing the [Message | Data Association] GUI flows
+- [X] Adding the help panel
+- [ ] Linking the front with the back
+- [ ] Optimizing the returned list of options for each element
+- [ ] Draw diagram from deserialized definitions
 - [ ] Re-Doing & Un-Doing Action 
 - [ ] Keyboard Shortcuts
 - [ ] Implementing the GUI of text annotations
-- [X] Implementing the [Message | Data Association] GUI flows
-- [ ] Adding the help panel
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events
@@ -45,5 +45,11 @@
 ### 22th of july
 - [ ] **(A)** Re-Doing & Un-Doing Actions
 - [ ] **(B)** Associate GUI items with their data
-- [ ] **(C)** Selection Action
+- [X] **(C)** Selection Action
 - [ ] **(C)** Generation of ID
+
+### 23th of July
+- [X] Adding the help panel
+
+### 24th of July
+- [ ] Associating DI Elements

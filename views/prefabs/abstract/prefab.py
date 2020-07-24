@@ -1,3 +1,5 @@
+from resources.colors import *
+
 class Prefab:
 
     WIDTH = 0
@@ -16,6 +18,7 @@ class Prefab:
 
         self.parent = None
         self.flows = []
+        self.unselected = []
 
     # necessary for finding the gui element
     def match(self, id):
@@ -42,6 +45,20 @@ class Prefab:
     def unlink(self):
         for flow in self.flows:
             self.remove_flow(flow)
+
+    # select action
+    def select(self):
+        for item in self.id:
+            if item not in self.unselected:
+                try: self.canvas.itemconfig(item, fill=selected)
+                except: pass
+
+    # deselect
+    def deselect(self):
+        for item in self.id:
+            if item not in self.unselected:
+                try: self.canvas.itemconfig(item, fill=background)
+                except: pass
 
     # move to another position
     def move(self, x, y):
@@ -86,7 +103,12 @@ class Prefab:
         self.x, self.y = x, y
 
     def draw_text(self, text, x, y, width=0):
-        self.id.append(self.canvas.create_text(x, y, text=text, width=width))
+        # text id
+        text_id = self.canvas.create_text(x, y, text=text, width=width)
+        # mark as unselected item
+        self.unselected.append(text_id)
+        # append it to the general item list
+        self.id.append(text_id)
         # redraw flows
         self.draw_flows()
 
@@ -122,6 +144,8 @@ class Prefab:
         for id in self.id:
             self.canvas.delete(id)
         self.id.clear()
+        # clear unselected list
+        self.unselected.clear()
 
     # useful for getting commands that concerns the gui element itself
     def get_options(self):

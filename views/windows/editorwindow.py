@@ -22,7 +22,7 @@ from views.prefabs.guidataobject import GUIDataObject
 from views.prefabs.guiflow import GUIFlow
 from views.prefabs.guilane import GUILane
 from threading import Thread
-from copy import deepcopy
+from copy import copy, deepcopy
 
 class EditorWindow(SessionWindow):
     
@@ -32,7 +32,8 @@ class EditorWindow(SessionWindow):
             'path': 'resources/icons/ui/',
             'tools': [
                 { 'icon': 'save.png', 'cmnd': 'save_work' },
-                { 'icon': 'open.png', 'bg': danger }
+                { 'icon': 'open.png', 'bg': danger },
+                { 'name': 'btn_delete_selected', 'icon': 'delete.png', 'bg': danger, 'cmnd': 'btn_delete_selected_click' }
             ]
         },
         RIGHT: {
@@ -60,7 +61,7 @@ class EditorWindow(SessionWindow):
                 { 'icon': 'redo.png', 'cmnd': 'redo' },
                 { 'icon': 'undo.png', 'cmnd': 'undo' },
                 { 'icon': 'move.png' },
-                { 'icon': 'select.png' },
+                { 'name': 'btn_select_mode', 'icon': 'select.png', 'cmnd': 'enable_select_mode' },
                 { 'icon': 'zoom_in.png', 'cmnd': 'zoom_in' },
                 { 'icon': 'zoom_out.png', 'cmnd': 'zoom_out' }
             ]
@@ -74,11 +75,13 @@ class EditorWindow(SessionWindow):
             # prepare create command
             def cmnd_create(e):
                 # save checkpoint
-                self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
+                # self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
                 # instantiate
                 guie = value(canvas=self.cnv_canvas)
                 # draw
                 guie.draw_at(0, 0)
+                # show help information
+                self.show_help_panel('Hover over the position you want to instantiate on, then left-click to drop')
                 # change mode
                 self.set_mode(self.CREATE_MODE)
                 # set as the drag element
@@ -116,6 +119,7 @@ class EditorWindow(SessionWindow):
         # editor's gears
         self.SELECTED_MODE = self.DRAG_MODE
         self.SELECTED_ELEMENT = None
+        self.SELECTED_ELEMENTS = []
         self.DRAG_ELEMENT = None
         self.ZOOM_SCALE = 6
 
@@ -125,17 +129,16 @@ class EditorWindow(SessionWindow):
     def setup_tools(self):
         # Lay out tool panels
         for i in EditorWindow.toolSettings.keys():
-
+            # get the settings of this set of tools
             settings = EditorWindow.toolSettings[i]
-
+            # prepare a container
             frm_container = Frame(self.cnv_canvas, bg=white, highlightthickness=1, highlightbackground=border, padx=10, pady=10)
             frm_container.pack(side=i, padx=20, pady=20)
-
+            # for each action
             for j in settings['tools']:
-
+                # adjust some configs
                 align = settings.get('align', TOP)
                 spacing = { 'padx': 0 if align == TOP else (0, 5), 'pady': 0 if align != TOP else (0, 5) }
-
                 # command getter
                 def get_cmnd(tag, value):
                     return self.select_event(tag, value)
@@ -144,12 +147,24 @@ class EditorWindow(SessionWindow):
                 for t in ['create', 'do', 'cmnd']:
                     if t in j: 
                         cmnd = get_cmnd(t, j.get(t))
-
+                # instantiate button
                 ic_tool = IconFrame(frm_container, settings['path'] + j.get('icon'), 15, j.get('bg', settings.get('bg', black)), settings['size'], cmnd, settings.get('hoverBg', None), bg=white)
                 ic_tool.pack(side=align) 
-
+                # if this button has a name, save it
+                if 'name' in j:
+                    setattr(self, j['name'], ic_tool)
+                # add spacing to items
                 if settings['tools'].index(j) != len(settings['tools']) - 1:
                     ic_tool.pack(side=align, **spacing)
+        # create a help panel
+        self.frm_help = Frame(self.cnv_canvas, bg=white, highlightthickness=1, highlightbackground=border, padx=10, pady=10)
+        self.frm_help.pack(side=TOP, padx=20, pady=20)
+        self.lbl_help = Label(self.frm_help, text='Help Label', bg=white, fg=black, font='-weight bold -size 9')
+        self.lbl_help.pack()
+        # hide help panel
+        self.hide_help_panel()
+        # deactivate delete selected button
+        self.btn_delete_selected.pack_forget()
     
     def design(self):
         # prepare canvas
@@ -174,8 +189,36 @@ class EditorWindow(SessionWindow):
             self.cnv_canvas.config(cursor='hand2')
         if mode in [self.RESIZE_MODE]:
             self.cnv_canvas.config(cursor='size_ne_sw')
+            self.show_help_panel('Left-click in order to cancel resize mode')
         else:
             self.cnv_canvas.config(cursor='')
+        # if there are selected elements, deselect them
+        if len (self.SELECTED_ELEMENTS) > 0:
+            # deselect all
+            for s in self.SELECTED_ELEMENTS: s.deselect()
+            # clear
+            self.SELECTED_ELEMENTS.clear()
+        # deactivate delete button
+        if mode != self.SELECT_MODE:
+            # hide button
+            self.btn_delete_selected.pack_forget()
+            # disable effect
+            self.btn_select_mode.defaultBgColor = black
+            self.btn_select_mode.set_bgColor(black)
+        # show link mode help info
+        if mode == self.LINK_MODE:
+            self.show_help_panel('Select an element in order to make a connection')            
+
+    # activating select mode
+    def enable_select_mode(self):
+        # change mode
+        self.set_mode(self.SELECT_MODE)
+        # activate delete button
+        self.btn_delete_selected.pack(side=TOP)
+        # activate effect
+        self.btn_select_mode.defaultBgColor = teal
+        # show information
+        self.show_help_panel('Selection mode is enabled')
 
     # responsible for refreshing all gui elements
     def reset(self):
@@ -200,9 +243,12 @@ class EditorWindow(SessionWindow):
                 self.set_mode(self.DRAG_MODE)
                 # mark as 'just created'
                 justCreated = True
+                # hide the help panel
+                self.hide_help_panel()
             # finish resizing
             if self.SELECTED_MODE == self.RESIZE_MODE:
                 self.set_mode(self.DRAG_MODE)
+                self.hide_help_panel()
             # hide components
             self.hide_component('frm_menu')
             self.hide_component('txt_input')
@@ -212,13 +258,21 @@ class EditorWindow(SessionWindow):
             self.SELECTED_ELEMENT = self.DRAG_ELEMENT = self.find_element(self.select_element(e.x, e.y))
             # BOOKMARK: LINK Functionality
             if self.SELECTED_ELEMENT != None and justCreated == False:
+                # if select mode is enabled
+                if self.SELECTED_MODE == self.SELECT_MODE:
+                    if self.SELECTED_ELEMENT in self.SELECTED_ELEMENTS:
+                        self.SELECTED_ELEMENT.deselect()
+                        self.SELECTED_ELEMENTS.remove(self.SELECTED_ELEMENT)
+                    else:
+                        self.SELECTED_ELEMENT.select()
+                        self.SELECTED_ELEMENTS.append(self.SELECTED_ELEMENT)
                 # if an element is selected
                 if self.SELECTED_MODE == self.LINK_MODE:
                     if self.SELECTED_ELEMENT != previous_selected:
                         # check if we can link
                         if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
                             # save undo action
-                            self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
+                            # self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
                             # generating a flow model
                             flowmodel = self.get_link_model(previous_selected, self.SELECTED_ELEMENT)
                             # creating a flow
@@ -227,6 +281,15 @@ class EditorWindow(SessionWindow):
                             # if this model is a message flow
                             if isinstance(flowmodel, MessageFlow) == True:
                                 self.definitions.add('message', flowmodel)
+                            # hide help panel
+                            self.hide_help_panel()
+                        else:
+                            # name getter
+                            getname = lambda guielement: guielement.element.__class__.__name__
+                            # retrieve names
+                            e1name, e2name = getname(self.SELECTED_ELEMENT), getname(previous_selected)
+                            # show message error
+                            self.show_help_panel(f'Sorry, a connection cannot be made between <{e1name}> and <{e2name}>', danger)
                         # finish linking
                         self.set_mode(self.DRAG_MODE)
 
@@ -319,8 +382,9 @@ class EditorWindow(SessionWindow):
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None
-            # reset mode
-            self.set_mode(self.DRAG_MODE)
+            # reset mode if the selected mode is not a long term mode
+            if self.SELECTED_MODE not in [self.SELECT_MODE]:
+                self.set_mode(self.DRAG_MODE)
 
         # bind events
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
@@ -338,6 +402,8 @@ class EditorWindow(SessionWindow):
 
     # delete an element
     def remove_element(self, element):
+        # save undo checkpoint
+        # self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
         # remove the drawn element
         element.destroy()
         # unlink all flows
@@ -350,6 +416,13 @@ class EditorWindow(SessionWindow):
             self.definitions.remove('process', element.element)
         # hide menu
         self.hide_component('frm_menu')
+
+    
+    # delete selected elements button
+    def btn_delete_selected_click(self):
+        # delete each selected element
+        for element in self.SELECTED_ELEMENTS:
+            self.remove_element(element)
 
     # auto close menu
     def close_menu_after(self, callable):
@@ -396,7 +469,7 @@ class EditorWindow(SessionWindow):
         for guie in self.guielements:
             guie.scale(self.ZOOM_SCALE)
 
-    # saving functionality
+    # BOOKMARK for kalai: saving functionality
     def save_work(self):
         from helpers.stringhelper import to_pretty_xml
         from os import system
@@ -447,8 +520,14 @@ class EditorWindow(SessionWindow):
 
     # REDO/UNDO Actions
     def save_checkpoint(self, trackdict, guicp, defcp):
-        trackdict['gui'].append (deepcopy(guicp))
-        trackdict['def'].append (deepcopy(defcp))
+        # clone elements
+        clone = []
+        for e in guicp:
+            clone.append (copy(e))
+        defclone = copy(defcp)
+        # append
+        trackdict['gui'].append (clone)
+        trackdict['def'].append (defclone)
 
     def undo(self):
         action1 = self.undo_dict['gui'].pop()
@@ -469,3 +548,13 @@ class EditorWindow(SessionWindow):
         self.guielements, self.definitions = action1, action2
         # reset canvas
         self.reset()
+
+    # Help Panel actions
+    def show_help_panel(self, text, fgColor=black):
+        # show help panel
+        self.frm_help.pack_configure(side=TOP, padx=20, pady=20)
+        # change label settings
+        self.lbl_help.config(text=text, fg=fgColor)
+
+    def hide_help_panel(self):
+        self.frm_help.pack_forget()

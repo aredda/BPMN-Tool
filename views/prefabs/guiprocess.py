@@ -35,8 +35,11 @@ class GUIProcess(GUIContainer):
         cnv: Canvas = self.canvas
         # draw process borders
         self.id.append (cnv.create_rectangle(x, y, x + self.WIDTH, y + self.HEIGHT, fill=cnv['bg'], outline=black, width=2))
-        # horizontal border
-        self.id.append (cnv.create_line(x + self.POST_OFFSET, y, x + self.POST_OFFSET, y + self.HEIGHT, fill=black, width=2))
+        # vertical border
+        vBorder = cnv.create_line(x + self.POST_OFFSET, y, x + self.POST_OFFSET, y + self.HEIGHT, fill=black, width=2)
+        self.id.append (vBorder)
+        # mark the vertical border as unselected element
+        self.unselected.append (vBorder)
 
     def draw_lanes(self):
         # re-devide height
