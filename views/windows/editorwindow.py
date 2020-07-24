@@ -38,7 +38,7 @@ class EditorWindow(SessionWindow):
             'path': 'resources/icons/ui/',
             'tools': [
                 { 'icon': 'save.png', 'cmnd': 'save_work' },
-                { 'icon': 'open.png', 'bg': danger },
+                { 'icon': 'open.png', 'bg': danger, 'cmnd': 'back_to_subject' },
                 { 'name': 'btn_delete_selected', 'icon': 'delete.png', 'bg': danger, 'cmnd': 'btn_delete_selected_click' }
             ]
         },
@@ -113,18 +113,8 @@ class EditorWindow(SessionWindow):
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
 
-        def get_project():
-            return subject if subject.__class__ == Project else subject.project
-
-        def get_privilege():
-            if subject.owner == EditorWindow.ACTIVE_USER: return 'edit'
-            else:
-                obj = Container.filter(ShareLink, ShareLink.projectId == subject.id).first() if subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()
-                return obj.privilege
-
         # data related attributes
-        self.project = get_project()
-        self.privilege = get_privilege()
+        self.subject = subject
         self.guielements = []
         self.definitions: Definitions = Definitions()
 
@@ -494,19 +484,40 @@ class EditorWindow(SessionWindow):
         clean = lambda e: system('cls')
 
         clean(None)
-        # print (to_pretty_xml(self.definitions.serialize()))
-        if self.privilege == 'read':
-            MessageModal(self, 'can\'t save changes', message='you don\'t have the right to edit this project !', messageType='error')
-        else:
-            newFile = elementtobytes(self.definitions.serialize())
-            date = datetime.now()
-            self.project.file = newFile
-            self.project.lastEdited = date
-            Container.save(self.project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=self.project))
-            MessageModal(self, 'success', message='changes saved succesfully !', messageType='info')
+        print (to_pretty_xml(self.definitions.serialize()))
+        
+        # get privilege
+        def get_privilege():
+            if self.subject.owner == EditorWindow.ACTIVE_USER: return 'edit'
+            else:
+                obj = Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()
+                return obj.privilege
 
-        # get etree from file  
-        # print(to_pretty_xml(bytestoelement(self.project.file)))
+        # BOOKMARK_TOCHANGE: uncomment those
+        # if get_privilege() == 'read':
+        #     MessageModal(self, 'can\'t save changes', message='you don\'t have the right to edit this project !', messageType='error')
+        # else:
+        #     newFile = elementtobytes(self.definitions.serialize())
+        #     date = datetime.now()
+        #     # get project of subject
+        #     project = self.subject if self.subject.__class__ == Project else self.subject.project
+        #     # update project
+        #     project.file = newFile
+        #     project.lastEdited = date
+            
+        #     Container.save(project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=project))
+        #     MessageModal(self, 'success', message='changes saved succesfully !', messageType='info')
+
+        # # get etree from file  
+        # print(to_pretty_xml(bytestoelement(project.file)))
+
+    def back_to_subject(self):
+        def back(msg):
+            msg.destroy()
+            if self.subject.__class__ == Session: self.windowManager.run_tag('collaboration', session=self.subject)
+            else: self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
+
+        msg = MessageModal(self, title='confirmation', message='are you sure you want to leave this window ?', messageType='prompt', actions={'yes': lambda e: back(msg)})
 
     # linking funcs
     def can_link(self, source, target):

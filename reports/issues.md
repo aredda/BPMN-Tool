@@ -50,6 +50,7 @@ because we are going to add other models concerning data..
 ### discussion window 
 - [ ] scrollbar should be at the end when we enter a session 
 - [ ] issue with the scrollbar when switching between sessions
+- [ ] hint can be sent when it shouldn't 
 <!-- - [ ] hide session's name section and textmessage part **not a big deal** -->
 ### profile window
 - [x] password and confirmPwd must be hidden
