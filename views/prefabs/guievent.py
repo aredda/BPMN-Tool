@@ -4,6 +4,7 @@ from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
 from models.bpmn.event import Event, EventType, EventDefinition
 from models.bpmndi.shape import BPMNShape
+from models.bpmndi.bounds import Bounds
 
 class GUIEvent(GUILinkable):
     
@@ -16,6 +17,9 @@ class GUIEvent(GUILinkable):
 
         self.element = args.get('element', Event())
         self.dielement = args.get('dielement', BPMNShape())
+
+        if self.dielement.bounds == None:
+            self.dielement.bounds = Bounds()
 
         self.WIDTH = self.HEIGHT = self.PERIMETER
 
@@ -103,3 +107,13 @@ class GUIEvent(GUILinkable):
         self.ICON_SIZE += factor
         # redraw
         super().scale(factor)
+    
+    def resize(self, w, h):
+        super().resize(w, h)
+        # update di props
+        self.update_diprops()
+
+    def move(self, x, y):
+        super().move(x, y)
+        # update di props
+        self.update_diprops()

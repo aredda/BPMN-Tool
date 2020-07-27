@@ -4,6 +4,7 @@ from resources.colors import *
 from views.prefabs.guiactivity import GUIActivity
 from models.bpmn.task import Task, TaskType
 from models.bpmndi.shape import BPMNShape
+from models.bpmndi.bounds import Bounds
 
 class GUITask(GUIActivity):
 
@@ -11,7 +12,6 @@ class GUITask(GUIActivity):
         GUIActivity.__init__(self, **args)
 
         self.element = args.get('element', Task())
-        self.dielement = args.get('dielement', BPMNShape())
 
     def draw_at(self, x, y):
         # draw the border

@@ -3,6 +3,8 @@ from PIL import Image as img, ImageTk as imgTk
 from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
 from models.bpmn.enums.activityflag import ActivityFlag
+from models.bpmndi.shape import BPMNShape
+from models.bpmndi.bounds import Bounds
 
 class GUIActivity(GUILinkable):
     
@@ -16,6 +18,11 @@ class GUIActivity(GUILinkable):
 
         self.WIDTH = 150
         self.HEIGHT = 100
+
+        self.dielement = args.get('dielement', BPMNShape())
+
+        if self.dielement.bounds == None:
+            self.dielement.bounds = Bounds()
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)

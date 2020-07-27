@@ -1,9 +1,14 @@
 from tkinter import *
 from resources.colors import *
+from helpers.xmlutility import elementtobytes, bytestoelement
 from models.bpmn.definitions import Definitions
 from models.bpmn.sequenceflow import SequenceFlow
 from models.bpmn.messageflow import MessageFlow
 from models.bpmn.dataassociation import DataAssociation, DataAssocDirection
+from models.entities.Entities import Project, Session, Collaboration, ShareLink, History
+from models.entities.Container import Container
+from models.bpmndi.diagram import BPMNDiagram
+from models.bpmndi.plane import BPMNPlane
 from views.windows.abstract.sessionwindow import SessionWindow
 from views.components.scrollable import Scrollable
 from views.components.listitem import ListItem
@@ -21,14 +26,10 @@ from views.prefabs.guidatastore import GUIDataStore
 from views.prefabs.guidataobject import GUIDataObject
 from views.prefabs.guiflow import GUIFlow
 from views.prefabs.guilane import GUILane
-from threading import Thread
-from copy import copy, deepcopy
-
-from helpers.xmlutility import elementtobytes, bytestoelement
-from models.entities.Entities import Project, Session, Collaboration, ShareLink, History
-from models.entities.Container import Container
-from datetime import datetime
 from views.windows.modals.messagemodal import MessageModal
+from copy import copy, deepcopy
+from datetime import datetime
+from threading import Thread
 
 class EditorWindow(SessionWindow):
     
@@ -96,6 +97,7 @@ class EditorWindow(SessionWindow):
                 self.guielements.append(guie)
                 if isinstance(guie, GUIProcess) == True:
                     self.definitions.add(guie.element.get_tag(), guie.element)
+                self.diplane.add('dielement', guie.dielement)
             # return it
             return cmnd_create
         # command event
@@ -117,6 +119,8 @@ class EditorWindow(SessionWindow):
         self.subject = subject
         self.guielements = []
         self.definitions: Definitions = Definitions()
+        self.didiagram: BPMNDiagram = BPMNDiagram()
+        self.diplane: BPMNPlane = BPMNPlane()
 
         # undo/redo actions
         self.undo_dict = { 'gui': [], 'def': [] }
@@ -129,9 +133,12 @@ class EditorWindow(SessionWindow):
         self.DRAG_ELEMENT = None
         self.ZOOM_SCALE = 6
 
+        # slight preparations
         self.design()
         self.setup_actions()
-        
+
+        self.definitions.add('diagram', self.didiagram)
+        self.didiagram.add('plane', self.diplane)
 
     def setup_tools(self):
         # Lay out tool panels
@@ -517,7 +524,7 @@ class EditorWindow(SessionWindow):
             if self.subject.__class__ == Session: self.windowManager.run_tag('collaboration', session=self.subject)
             else: self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
 
-        msg = MessageModal(self, title='confirmation', message='are you sure you want to leave this window ?', messageType='prompt', actions={'yes': lambda e: back(msg)})
+        msg = MessageModal(self, title='confirmation', message='are you sure you want to leave this window?', messageType='prompt', actions={'yes': lambda e: back(msg)})
 
     # linking funcs
     def can_link(self, source, target):

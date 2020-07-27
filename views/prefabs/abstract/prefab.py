@@ -78,6 +78,8 @@ class Prefab:
         self.x, self.y = x, y
         # re draw flows
         self.draw_flows()
+        # update props
+        self.update_diprops()
 
     # necessary for zooming functionalities
     def scale(self, factor):
@@ -91,6 +93,7 @@ class Prefab:
         self.WIDTH, self.HEIGHT = width, height
         self.erase()
         self.draw()
+        self.update_diprops()
 
     # drawing methods
     def draw(self):
@@ -184,4 +187,13 @@ class Prefab:
             target = target.parent
         # return result
         return target
+
+    # responsible for updating di element props
+    def update_diprops(self):
+        # update reference
+        self.dielement.element = self.element
+        # update position
+        self.dielement.bounds.x, self.dielement.bounds.y = self.x, self.y
+        # update size
+        self.dielement.bounds.width, self.dielement.bounds.height = self.WIDTH, self.HEIGHT
         
