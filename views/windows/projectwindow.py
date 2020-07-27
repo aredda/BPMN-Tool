@@ -15,6 +15,7 @@ from views.windows.modals.messagemodal import MessageModal
 import tkinter.filedialog as filedialog
 from helpers.filehelper import bytestofile
 from helpers.imageutility import getdisplayableimage
+from views.windows.editorwindow import EditorWindow
 
 
 
@@ -61,7 +62,8 @@ class ProjectWindow(TabbedWindow):
             {
                 'icon': 'open.png',
                 'text': 'Open Editor',
-                'dock': LEFT
+                'dock': LEFT,
+                'cmnd': lambda e: self.windowManager.run(EditorWindow(self.master, self.project))
             },
             {
                 'icon': 'share.png',
@@ -97,7 +99,7 @@ class ProjectWindow(TabbedWindow):
                 msg.destroy()
 
                 for li in self.historyItems:
-                    if li.dataObject.editDate > history.editDate and li.dataObject.id != history.id: 
+                    if li.dataObject.editDate >= history.editDate: 
                         Container.deleteObject(li.dataObject)
                         li.destroy()
 
@@ -197,6 +199,7 @@ class ProjectWindow(TabbedWindow):
                 if slink != None: Container.deleteObject(slink)
                 link= f'bpmntool//{dataObject.title}/{datetime.datetime.now()}/'
                 Container.save(ShareLink(link=link, expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, project=dataObject))
+                self.clean_notifications()
                 set_link(link)
             
             

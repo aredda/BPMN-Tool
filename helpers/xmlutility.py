@@ -6,3 +6,6 @@ def savexml(filename: str, xmlstring: str):
 
 def bytestoelement(bytesdata):
     return ET.fromstring(bytesdata)
+
+def elementtobytes(element):
+    return ET.tostring(element)

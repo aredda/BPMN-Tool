@@ -17,6 +17,7 @@ from helpers.imageutility import getdisplayableimage
 from helpers.filehelper import bytestofile
 from views.windows.modals.messagemodal import MessageModal
 import tkinter.filedialog as filedialog
+from views.windows.editorwindow import EditorWindow
 
 
 class CollaborationWindow(TabbedWindow):
@@ -67,7 +68,8 @@ class CollaborationWindow(TabbedWindow):
             {
                 'icon': 'open.png',
                 'text': 'Open Editor',
-                'dock': LEFT
+                'dock': LEFT,
+                'cmnd': lambda e: self.windowManager.run(EditorWindow(self.master, self.session))
             },
             {
                 'icon': 'delete.png',
@@ -122,6 +124,7 @@ class CollaborationWindow(TabbedWindow):
                 if inv != None: Container.deleteObject(inv)
                 link= f'bpmntool//{self.session.title}/{datetime.datetime.now()}/'
                 Container.save(InvitationLink(link=link, expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, sender=CollaborationWindow.ACTIVE_USER, session=self.session))
+                self.clean_notifications()
                 set_link(link)
             
             
@@ -252,7 +255,7 @@ class CollaborationWindow(TabbedWindow):
                 msg.destroy()
 
                 for li in self.historyItems:
-                    if li.dataObject.editDate > history.editDate and li.dataObject.id != history.id: 
+                    if li.dataObject.editDate >= history.editDate: 
                         Container.deleteObject(li.dataObject)
                         li.destroy()
                 

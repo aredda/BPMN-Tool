@@ -13,6 +13,7 @@ from models.entities.Entities import Project, Session, User
 from models.entities.enums.notificationtype import NotificationType
 from models.entities.enums.notificationnature import NotificationNature
 from views.windows.projectwindow import ProjectWindow
+from views.windows.editorwindow import EditorWindow
 from views.windows.collaborationwindow import CollaborationWindow
 from views.windows.modals.messagemodal import MessageModal
 import re
@@ -250,6 +251,7 @@ class HomeWindow(TabbedWindow):
     def delete_session(self, dataObject):
         MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} session ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
 
+    # BOOKMARK: this should redirect to the editor window
     def join_project(self, modal):
         link = modal.get_form_data()['txt_link']
         slink = Container.filter(ShareLink, ShareLink.link == link).first()
@@ -258,7 +260,7 @@ class HomeWindow(TabbedWindow):
         else:
             if slink.project.owner != HomeWindow.ACTIVE_USER :noti = Notification(notificationTime= datetime.now(), type= NotificationType.JOINED.value, nature= NotificationNature.SHARELINK.value, invitationId= slink.id, actor= HomeWindow.ACTIVE_USER, recipient= slink.project.owner)
             modal.destroy()
-            self.windowManager.run(ProjectWindow(self.master, slink.project))
+            self.windowManager.run(EditorWindow(self.master, slink.project))
             
     def join_session(self, modal):
         link = modal.get_form_data()['txt_link']
@@ -292,6 +294,7 @@ class HomeWindow(TabbedWindow):
                 if slink != None: Container.deleteObject(slink)
                 link= f'bpmntool//{dataObject.title}/{datetime.now()}/'
                 Container.save(ShareLink(link=link, expirationDate=datetime.now()+timedelta(days=1), privilege= privilege, project=dataObject))
+                self.clean_notifications()
                 set_link(link)
             
             
