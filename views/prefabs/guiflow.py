@@ -4,6 +4,7 @@ from views.prefabs.abstract.guilinkable import Prefab, GUILinkable
 from models.bpmn.sequenceflow import SequenceFlow, Flow
 from models.bpmn.messageflow import MessageFlow
 from models.bpmn.dataassociation import DataAssociation, Association
+from models.bpmndi.edge import BPMNEdge
 
 class GUIFlow(Prefab):
 
@@ -12,6 +13,8 @@ class GUIFlow(Prefab):
 
         self.guisource: Prefab = args.get('guisource', None)
         self.guitarget: Prefab = args.get('guitarget', None)
+        
+        self.dielement = args.get('dielement', BPMNEdge())
 
         # finish set up
         if self.guisource != None:
@@ -55,6 +58,8 @@ class GUIFlow(Prefab):
         self.id.append(cnv.create_line(sourceport[1], vTargetPort, **lineOpts))
         # draw arrow
         self.id.append(cnv.create_polygon(points, fill=black))
+        # update di props
+        self.update_diprops()
 
     def destroy(self):
         # unlinking
@@ -69,3 +74,8 @@ class GUIFlow(Prefab):
             self.element.separate()
         # destroy anyway
         super().destroy()
+
+    def update_diprops(self):
+        self.dielement.element = self.element
+        self.dielement.start = self.guisource.get_port_to(self.guitarget) [1]
+        self.dielement.end = self.guitarget.get_port_to(self.guisource) [1]

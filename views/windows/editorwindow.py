@@ -295,6 +295,8 @@ class EditorWindow(SessionWindow):
                             # if this model is a message flow
                             if isinstance(flowmodel, MessageFlow) == True:
                                 self.definitions.add('message', flowmodel)
+                            # add dielement
+                            self.diplane.add('dielement', flow.dielement)
                             # hide help panel
                             self.hide_help_panel()
                         else:
@@ -418,6 +420,9 @@ class EditorWindow(SessionWindow):
     def remove_element(self, element):
         # save undo checkpoint
         # self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
+        # remove flow links
+        for flow in element.flows:
+            self.diplane.remove('dielement', flow.dielement)
         # remove the drawn element
         element.destroy()
         # unlink all flows
@@ -425,6 +430,9 @@ class EditorWindow(SessionWindow):
         # remove from list
         if element in self.guielements:
             self.guielements.remove(element)
+        # remove from
+        if element.dielement in self.diplane.elements['dielement']:
+            self.diplane.remove('dielement', element.dielement)
         # if it's a process
         if isinstance (element, GUIProcess) == True:
             self.definitions.remove('process', element.element)

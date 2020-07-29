@@ -3,6 +3,7 @@ from PIL import Image as Img, ImageTk as ImgTk
 from views.prefabs.abstract.prefab import Prefab
 from models.bpmn.datastorereference import DataStoreReference
 from models.bpmndi.shape import BPMNShape
+from models.bpmndi.bounds import Bounds
 
 class GUIDataStore(Prefab):
 
@@ -14,6 +15,9 @@ class GUIDataStore(Prefab):
 
         self.element = args.get('element', DataStoreReference())
         self.dielement = args.get('dielement', BPMNShape())
+
+        if self.dielement.bounds == None:
+            self.dielement.bounds = Bounds()
 
         self.WIDTH = self.HEIGHT = self.ICON_SIZE
 
