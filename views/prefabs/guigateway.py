@@ -4,6 +4,7 @@ from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
 from models.bpmn.gateway import Gateway, GatewayType
 from models.bpmndi.shape import BPMNShape
+from models.bpmndi.bounds import Bounds
 
 class GUIGateway(GUILinkable):
 
@@ -15,6 +16,7 @@ class GUIGateway(GUILinkable):
 
         self.element = args.get('element', Gateway())
         self.dielement = args.get('dielement', BPMNShape())
+        self.dielement.bounds = Bounds()
 
         self.WIDTH = self.HEIGHT = 60
 

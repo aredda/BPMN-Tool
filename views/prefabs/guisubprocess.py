@@ -11,11 +11,10 @@ class GUISubProcess(GUIActivity, GUIContainer):
     TEXT_OFFSET_Y = 16
 
     def __init__(self, **args):
-        GUIActivity.__init__(self, **args)
         GUIContainer.__init__(self, **args)
+        GUIActivity.__init__(self, **args)
 
         self.element = args.get('element', SubProcess())
-        self.dielement = args.get('dielement', BPMNShape())
 
         # default size
         self.WIDTH = 250

@@ -4,7 +4,8 @@ from views.prefabs.abstract.guicontainer import GUIContainer
 from views.prefabs.guilane import GUILane
 from models.bpmn.lane import Lane
 from models.bpmn.process import Process
-from models.bpmndi.plane import BPMNPlane
+from models.bpmndi.shape import BPMNShape
+from models.bpmndi.bounds import Bounds
 
 class GUIProcess(GUIContainer):
 
@@ -17,7 +18,11 @@ class GUIProcess(GUIContainer):
         GUIContainer.__init__(self, **args)
 
         self.element = args.get('element', Process())
-        self.dielement = args.get('dielement', BPMNPlane())
+        self.dielement = args.get('dielement', BPMNShape())
+        self.dielement.isHorizontal = True
+
+        if self.dielement.bounds == None:
+            self.dielement.bounds = Bounds()
 
         self.lanes = []
 
