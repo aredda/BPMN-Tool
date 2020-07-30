@@ -12,7 +12,7 @@ class BPMNDIElement(XMLSerializable):
     def serialize(self):
         e = et.Element(bpmndi + self.__class__.__name__)
 
-        if self.id != None: e.attrib['id'] = str (self.id)
+        if self.element != None: e.attrib['id'] = str (self.element.id) + '_di'
         if self.element != None: 
             e.attrib['bpmnElement'] = self.element if isinstance(self.element, str) == True else str (self.element.id)
 

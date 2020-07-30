@@ -1,5 +1,5 @@
+from helpers.stringhelper import camel_case, generate_code
 from models.xmlserializable import XMLSerializable
-from helpers.stringhelper import camel_case
 from resources.namespaces import bpmn
 
 import xml.etree.ElementTree as et
@@ -7,7 +7,7 @@ import xml.etree.ElementTree as et
 class BPMNElement(XMLSerializable):
 
     def __init__(self, **args):
-        self.id = self.expects(args, 'id')
+        self.id = args.get('id', self.get_tag() + '_' + generate_code())
         self.name = self.expects(args, 'name')
         self.ignore = ['ignore']
 

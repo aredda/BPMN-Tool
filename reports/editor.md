@@ -44,12 +44,12 @@
 
 ### 22th of july
 - [ ] **(A)** Re-Doing & Un-Doing Actions
-- [ ] **(B)** Associate GUI items with their data
+- [X] **(B)** Associate GUI items with their data
 - [X] **(C)** Selection Action
-- [ ] **(C)** Generation of ID
+- [X] **(C)** Generation of ID
 
 ### 23th of July
 - [X] Adding the help panel
 
 ### 24th of July
-- [ ] Associating DI Elements
+- [X] Associating DI Elements
