@@ -15,3 +15,6 @@ class SequenceFlow(Flow):
             self.source.defaultFlow = self
 
         self.ignore_attrs('type')
+
+    def get_tag(self):
+        return 'sequenceflow'

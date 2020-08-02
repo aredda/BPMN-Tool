@@ -19,10 +19,12 @@ class GUIProcess(GUIContainer):
 
         self.element = args.get('element', Process())
         self.dielement = args.get('dielement', BPMNShape())
-        self.dielement.isHorizontal = True
 
-        if self.dielement.bounds == None:
-            self.dielement.bounds = Bounds()
+        if self.dielement != None:
+            self.dielement.isHorizontal = True
+
+            if self.dielement.bounds == None:
+                self.dielement.bounds = Bounds()
 
         self.lanes = []
 

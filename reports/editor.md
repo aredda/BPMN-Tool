@@ -15,12 +15,12 @@
 - [X] Selection Action
 - [X] Implementing the [Message | Data Association] GUI flows
 - [X] Adding the help panel
-- [ ] Linking the front with the back
+- [X] Linking the front with the back
 - [ ] Optimizing the returned list of options for each element
 - [ ] Draw diagram from deserialized definitions
 - [ ] Re-Doing & Un-Doing Action 
 - [ ] Keyboard Shortcuts
-- [ ] Implementing the GUI of text annotations
+- [ ] ~~Implementing the GUI of text annotations~~
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events

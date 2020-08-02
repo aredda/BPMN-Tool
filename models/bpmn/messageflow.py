@@ -7,3 +7,6 @@ class MessageFlow(Flow):
 
     def __init__(self, **args):
         Flow.__init__(self, **args)
+
+    def get_tag(self):
+        return 'messageflow'

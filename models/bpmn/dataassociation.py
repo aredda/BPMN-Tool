@@ -13,6 +13,9 @@ class DataAssociation(Association):
 
     def separate(self): pass
 
+    def get_tag(self):
+        return 'dataassociation'
+
     def serialize(self):
         dataAssociationElement = et.Element(
             bpmn + 'data' + ('Input' if self.direction == DataAssocDirection.IN else 'Output') + 'Association')

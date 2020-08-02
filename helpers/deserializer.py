@@ -50,13 +50,15 @@ class Deserializer:
 
     di_breeds = ['BPMNEdge', 'BPMNShape']
 
-    def __init__(self, root_tree):
+    def __init__(self, root_element):
         # the root element which is actually a 'definitions' element
-        self.root_element = root_tree.getroot()
+        self.root_element = root_element
         # a container of xml elements
         self.xelements = {}
         # a container of serialized elements
         self.selements = {}
+        # a container of di elements
+        self.delements = {}
         # a list container of all serialized elements
         self.all_elements = []
         # relation references
@@ -338,6 +340,8 @@ class Deserializer:
         # instantiate a plane object
         plane = BPMNPlane(**xplane.attrib)
         plane.element = self.find_element(xplane.attrib['id'])
+        # save plane
+        self.delements[xplane.attrib['bpmnElement']] = plane
         if plane.element == None:
             plane.element = str (xplane.attrib['bpmnElement'])
         # fetch for di elements
@@ -369,6 +373,8 @@ class Deserializer:
                     obj.end = (xpoints[-1].attrib['x'], xpoints[-1].attrib['y'])
                 # add it to the plane container
                 plane.add(xchild.tag.split('}')[1].lower() , obj)
+                # save this di element by its element's id to facilitate retrieval later
+                self.delements[xchild.attrib['bpmnElement']] = obj
         # add the plane to diagram
         diagram.add('plane', plane)
         # add the di diagram to the definitions

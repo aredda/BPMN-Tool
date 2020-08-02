@@ -5,6 +5,7 @@ from resources.namespaces import *
 class Bounds(XMLSerializable):
 
     def __init__(self, **args):
+        self.x = self.y = self.width = self.height = 0
         for key in args.keys():
             setattr(self, key, args[key])
 

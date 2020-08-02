@@ -190,6 +190,8 @@ class Prefab:
 
     # responsible for updating di element props
     def update_diprops(self):
+        if self.dielement == None:
+            return
         # update reference
         self.dielement.element = self.element
         # update position

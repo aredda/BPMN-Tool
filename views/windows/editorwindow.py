@@ -1,6 +1,8 @@
 from tkinter import *
 from resources.colors import *
+from helpers.deserializer import Deserializer
 from helpers.xmlutility import elementtobytes, bytestoelement
+from helpers.filehelper import filetobytes
 from models.bpmn.definitions import Definitions
 from models.bpmn.sequenceflow import SequenceFlow
 from models.bpmn.messageflow import MessageFlow
@@ -139,6 +141,9 @@ class EditorWindow(SessionWindow):
 
         self.definitions.add('diagram', self.didiagram)
         self.didiagram.add('plane', self.diplane)
+
+        # draw func test
+        self.draw_diagram(filetobytes('resources/xml/x1.xml'))
 
     def setup_tools(self):
         # Lay out tool panels
@@ -613,3 +618,45 @@ class EditorWindow(SessionWindow):
 
     def hide_help_panel(self):
         self.frm_help.pack_forget()
+
+    # draw from deserialization
+    def get_gui_prefab(self, element):
+        # retrieve tag
+        tag = element.get_tag ()
+        # switch
+        if tag == 'task':
+            return GUITask
+        elif tag == 'event':
+            return GUIEvent
+        elif tag == 'gateway':
+            return GUIGateway
+        elif tag == 'process':
+            return GUIProcess
+        elif tag == 'subprocess':
+            return GUISubProcess
+        # elif tag == 'sequenceflow' or tag == 'messageflow' or tag == 'dataassociation' or tag == 'association':
+        #     return GUIFlow
+        return None
+
+    def draw_diagram(self, byte_data):
+        # instantiate a deserializer
+        deserializer = Deserializer(bytestoelement(byte_data))
+        # retrieve a definitions instance
+        self.definitions = deserializer.definitions
+        # draw all elements
+        for e in deserializer.all_elements:
+            # retrieve gui prefab class
+            _class = self.get_gui_prefab(e)
+            # check 
+            if _class == None:
+                continue
+            # get di element
+            de = deserializer.delements.get(e.id, None)
+            xPos, yPos = 0, 0
+            if de != None:
+                xPos, yPos = int(float(de.bounds.x)), int(float(de.bounds.y))
+            # instantiate
+            prefab = _class (canvas=self.cnv_canvas, element=e, dielement=de)
+            prefab.draw_at (xPos, yPos)
+            # save instance
+            self.guielements.append(prefab)
