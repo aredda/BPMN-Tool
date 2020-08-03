@@ -45,4 +45,6 @@ class GUILane(GUIContainer):
     # disable resize func
     def resize(self, w, h): pass
     
+    # disable di props update
+    def update_diprops(self): pass
         

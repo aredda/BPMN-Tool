@@ -143,7 +143,7 @@ class EditorWindow(SessionWindow):
         self.didiagram.add('plane', self.diplane)
 
         # draw func test
-        self.draw_diagram(filetobytes('resources/xml/x1.xml'))
+        self.draw_diagram(filetobytes('resources/xml/dptest1.xml'))
 
     def setup_tools(self):
         # Lay out tool panels
@@ -420,6 +420,13 @@ class EditorWindow(SessionWindow):
             if guie.match(id) != None:
                 return guie.match(id)
         return None
+    
+    # a searching method; it uses the model element as criteria
+    def find_guielement_by_element(self, element):
+        for guie in self.guielements:
+            if guie.element.id == element.id:
+                return guie
+        return None
 
     # delete an element
     def remove_element(self, element):
@@ -634,10 +641,11 @@ class EditorWindow(SessionWindow):
             return GUIProcess
         elif tag == 'subprocess':
             return GUISubProcess
-        # elif tag == 'sequenceflow' or tag == 'messageflow' or tag == 'dataassociation' or tag == 'association':
-        #     return GUIFlow
+        elif tag in ['sequenceflow', 'messageflow', 'dataassociation', 'association']:
+            return GUIFlow
         return None
 
+    # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         # instantiate a deserializer
         deserializer = Deserializer(bytestoelement(byte_data))
@@ -647,16 +655,56 @@ class EditorWindow(SessionWindow):
         for e in deserializer.all_elements:
             # retrieve gui prefab class
             _class = self.get_gui_prefab(e)
-            # check 
-            if _class == None:
+            # skip flows
+            if _class in [None, GUIFlow]:
                 continue
             # get di element
-            de = deserializer.delements.get(e.id, None)
+            de = deserializer.delements.get(e.id if _class != GUIProcess else e.participant, None)
             xPos, yPos = 0, 0
+            # prepare position
             if de != None:
                 xPos, yPos = int(float(de.bounds.x)), int(float(de.bounds.y))
             # instantiate
             prefab = _class (canvas=self.cnv_canvas, element=e, dielement=de)
+            # change the size in case of containers
+            if _class in [GUIProcess, GUISubProcess]:
+                if de != None:
+                    prefab.WIDTH, prefab.HEIGHT = int(float(de.bounds.width)), int(float(de.bounds.height))
             prefab.draw_at (xPos, yPos)
             # save instance
             self.guielements.append(prefab)
+            self.diplane.add('dielement', de)
+        # draw their flows
+        for f in deserializer.all_elements:
+            # retrieve gui prefab class
+            _class = self.get_gui_prefab(f)
+            # if it's not a flow, skip it
+            if _class != GUIFlow:
+                continue
+            # retrieve di element
+            de = deserializer.delements.get(f.id, None)
+            # find gui source & target
+            guisrc = self.find_guielement_by_element(f.source)
+            guitrg = self.find_guielement_by_element(f.target)
+            # instantiate prefab
+            prefab = _class(guisource=guisrc, guitarget=guitrg, element=f, dielement=de, canvas=self.cnv_canvas)
+            prefab.draw_at(0, 0)
+        # set up processes & subprocesses
+        for guicontainer in self.guielements:
+            # skip other gui elements
+            if isinstance(guicontainer, GUIContainer) == False:
+                continue
+            # loop through its element's children
+            for key in guicontainer.element.elements.keys():
+                # skip flows
+                if key == 'flow':
+                    continue
+                # loop through this collection
+                for child_element in guicontainer.element.elements[key]:
+                    # find gui element of this element
+                    guie = self.find_guielement_by_element(child_element)
+                    # add it to the container
+                    guicontainer.append_child(guie)
+            # redraw
+            guicontainer.erase()
+            guicontainer.draw()

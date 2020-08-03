@@ -339,9 +339,8 @@ class Deserializer:
         xplane = xdiagram.find(bpmndi + 'BPMNPlane')
         # instantiate a plane object
         plane = BPMNPlane(**xplane.attrib)
-        plane.element = self.find_element(xplane.attrib['id'])
+        plane.element = self.find_element(xplane.attrib['bpmnElement'])
         # save plane
-        self.delements[xplane.attrib['bpmnElement']] = plane
         if plane.element == None:
             plane.element = str (xplane.attrib['bpmnElement'])
         # fetch for di elements
