@@ -65,6 +65,8 @@ class Deserializer:
         self.relations = {}
         # an empty definitions object
         self.definitions = Definitions()
+        # failed flow configurations
+        self.failed_links = []
         # commencing deserialization operation
         self.prepare()
         self.instantiate()
@@ -73,6 +75,7 @@ class Deserializer:
         self.setup_message_flows()
         self.setup_bpmndi()
         self.clear_clutter()
+        self.repair_failed()
 
     # type router
     def get_class(self, tag):
@@ -150,6 +153,8 @@ class Deserializer:
             children = {}
             # instantiate a process element
             process = process_class(**xprocess.attrib)
+            # add it to the major list
+            self.all_elements.append(process)
             # loop through children of process
             for breed in self.xelements['process'][p_id]['children'].keys():
                 # for each element in this breed
@@ -192,6 +197,12 @@ class Deserializer:
                     if breed == 'flow':
                         instance.source = self.find_element(xe.attrib['sourceRef'])
                         instance.target = self.find_element(xe.attrib['targetRef'])
+                        # if linking is failed.. save it for later
+                        if instance.source == None or instance.target == None:
+                            # save the id of the targeted elements
+                            instance.source, instance.target = xe.attrib['sourceRef'],xe.attrib['targetRef']
+                            # mark as failed link/flow instance
+                            self.failed_links.append(instance)
                         # check if it's a conditional flow
                         for child in xe:
                             if 'conditionExpression' in child.tag.split('}')[1].lower(): instance.type = SequenceType.CONDITIONAL  
@@ -256,8 +267,6 @@ class Deserializer:
                 # configure subprocess before appending it
                 self.setup_activity(xprocess, process)
                 self.find_element(self.relations[process.id]).add('subprocess', process)
-            # add it to the major list
-            self.all_elements.append(process)
             # add it to the selements
             if 'process' not in self.selements: self.selements['process'] = {}
             # save it
@@ -420,6 +429,10 @@ class Deserializer:
             # clear it from processes
             for process in self.selements['process'].keys():
                 self.selements['process'][process]['instance'].remove('dataobject', e)
-
-                
-
+    
+    def repair_failed(self):
+        for instance in self.failed_links:
+            # retrieve references
+            sourceRef, targetRef = instance.source, instance.target
+            # find references
+            instance.source, instance.target = self.find_element(sourceRef), self.find_element(targetRef)

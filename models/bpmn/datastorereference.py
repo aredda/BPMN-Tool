@@ -4,3 +4,6 @@ class DataStoreReference(Artifact):
 
     def __init__(self, **args):
         Artifact.__init__(self, **args)
+    
+    def get_tag(self):
+        return 'datastore'

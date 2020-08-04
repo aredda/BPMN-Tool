@@ -31,5 +31,9 @@ class GUISubProcess(GUIActivity, GUIContainer):
         # draw text
         self.draw_text(self.element.name, x + self.WIDTH/2, y - self.TEXT_OFFSET_Y)
 
-    def move(self, x, y):
-        GUIContainer.move(self, x, y)
+    def append_child(self, child):
+        # prevention condition
+        if child.__class__.__name__ == 'GUIProcess':
+            return
+        # continue, there are no problems
+        super().append_child(child)

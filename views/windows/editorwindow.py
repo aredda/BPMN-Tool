@@ -143,7 +143,7 @@ class EditorWindow(SessionWindow):
         self.didiagram.add('plane', self.diplane)
 
         # draw func test
-        self.draw_diagram(filetobytes('resources/xml/dptest1.xml'))
+        self.draw_diagram(filetobytes('resources/xml/dptest2.xml'))
 
     def setup_tools(self):
         # Lay out tool panels
@@ -641,6 +641,10 @@ class EditorWindow(SessionWindow):
             return GUIProcess
         elif tag == 'subprocess':
             return GUISubProcess
+        elif tag == 'datastore':
+            return GUIDataStore
+        elif tag == 'dataobject':
+            return GUIDataObject
         elif tag in ['sequenceflow', 'messageflow', 'dataassociation', 'association']:
             return GUIFlow
         return None

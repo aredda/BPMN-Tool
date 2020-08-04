@@ -14,3 +14,6 @@ class DataObject(Artifact):
         original = Artifact.serialize(self)
         original.attrib.pop('reference')
         return original
+
+    def get_tag(self):
+        return 'dataobject'

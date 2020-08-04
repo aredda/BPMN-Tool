@@ -15,3 +15,6 @@ class SubProcess(Activity):
             e.tag = bpmn + 'adHocSubProcss'
 
         return e
+
+    def get_tag(self):
+        return 'subprocess'
