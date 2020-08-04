@@ -32,6 +32,7 @@ from views.windows.modals.messagemodal import MessageModal
 from copy import copy, deepcopy
 from datetime import datetime
 from threading import Thread
+from math import sqrt, pow
 
 class EditorWindow(SessionWindow):
     
@@ -69,7 +70,7 @@ class EditorWindow(SessionWindow):
             'tools': [
                 { 'icon': 'redo.png', 'cmnd': 'redo' },
                 { 'icon': 'undo.png', 'cmnd': 'undo' },
-                { 'icon': 'move.png' },
+                { 'name': 'btn_move_mode', 'icon': 'move.png', 'cmnd': 'enable_move_mode' },
                 { 'name': 'btn_select_mode', 'icon': 'select.png', 'cmnd': 'enable_select_mode' },
                 { 'icon': 'zoom_in.png', 'cmnd': 'zoom_in' },
                 { 'icon': 'zoom_out.png', 'cmnd': 'zoom_out' }
@@ -134,6 +135,8 @@ class EditorWindow(SessionWindow):
         self.SELECTED_ELEMENTS = []
         self.DRAG_ELEMENT = None
         self.ZOOM_SCALE = 6
+        self.MOVE_SCALE = 0
+        self.MOVE_ANCHOR_POINT = None
 
         # slight preparations
         self.design()
@@ -143,7 +146,9 @@ class EditorWindow(SessionWindow):
         self.didiagram.add('plane', self.diplane)
 
         # draw func test
-        self.draw_diagram(filetobytes('resources/xml/dptest2.xml'))
+        self.draw_diagram(filetobytes('resources/xml/dptst3.xml'))
+
+        self.cnv_canvas.xview_moveto(0.1)
 
     def setup_tools(self):
         # Lay out tool panels
@@ -188,7 +193,7 @@ class EditorWindow(SessionWindow):
     def design(self):
         # prepare canvas
         self.frm_body.config(padx=0, pady=0)
-        self.cnv_canvas = Canvas(self.frm_body, bg=background, highlightthickness=0)
+        self.cnv_canvas = Canvas(self.frm_body, bg=background, highlightthickness=0, scrollregion=(0, 0, 2000, 2000))
         self.cnv_canvas.pack(fill=BOTH, expand=1)
         # prepare control frames
         self.setup_tools()
@@ -204,7 +209,7 @@ class EditorWindow(SessionWindow):
     def set_mode(self, mode):
         self.SELECTED_MODE = mode
         # change cursor
-        if mode in [self.CREATE_MODE]:
+        if mode in [self.CREATE_MODE, self.MOVE_MODE]:
             self.cnv_canvas.config(cursor='hand2')
         if mode in [self.RESIZE_MODE]:
             self.cnv_canvas.config(cursor='size_ne_sw')
@@ -227,6 +232,12 @@ class EditorWindow(SessionWindow):
         # show link mode help info
         if mode == self.LINK_MODE:
             self.show_help_panel('Select an element in order to make a connection')            
+        # move mode
+        if mode != self.MOVE_MODE:
+            # disable effect
+            self.btn_move_mode.defaultBgColor = black
+            self.btn_move_mode.set_bgColor(black)
+            self.hide_component('frm_help')
 
     # activating select mode
     def enable_select_mode(self):
@@ -238,6 +249,15 @@ class EditorWindow(SessionWindow):
         self.btn_select_mode.defaultBgColor = teal
         # show information
         self.show_help_panel('Selection mode is enabled')
+
+    # activating move mode
+    def enable_move_mode(self):
+        # change mode
+        self.set_mode(self.MOVE_MODE)
+        # activate effect
+        self.btn_move_mode.defaultBgColor = teal
+        # show information
+        self.show_help_panel('Move mode is enabled')
 
     # responsible for refreshing all gui elements
     def reset(self):
@@ -313,6 +333,9 @@ class EditorWindow(SessionWindow):
                             self.show_help_panel(f'Sorry, a connection cannot be made between <{e1name}> and <{e2name}>', danger)
                         # finish linking
                         self.set_mode(self.DRAG_MODE)
+            # move functionality
+            if self.SELECTED_MODE == self.MOVE_MODE:
+                self.MOVE_ANCHOR_POINT = (e.x, e.y)
 
         # single right click
         def action_mouse_rclick(e):
@@ -361,6 +384,7 @@ class EditorWindow(SessionWindow):
         def action_mouse_move(e):
             if self.SELECTED_MODE in [self.DRAG_MODE, self.CREATE_MODE]:
                 if self.DRAG_ELEMENT != None:
+                    print ('icanmove')
                     # if the drag element is a lane, switch to its process instead
                     if isinstance(self.DRAG_ELEMENT, GUILane) == True:
                         self.DRAG_ELEMENT = self.DRAG_ELEMENT.guiprocess
@@ -376,6 +400,11 @@ class EditorWindow(SessionWindow):
                 w, h = abs(e.x - self.SELECTED_ELEMENT.x), abs(e.y - self.SELECTED_ELEMENT.y)
                 # update element's size
                 self.SELECTED_ELEMENT.resize(w, h)
+            if self.SELECTED_MODE == self.MOVE_MODE:
+                if self.MOVE_ANCHOR_POINT != None:
+                    # calculate distance
+                    diff = (e.x - self.MOVE_ANCHOR_POINT[0], e.y - self.MOVE_ANCHOR_POINT[1])
+                    mgn = sqrt(pow(diff[0], 2) + pow(diff[1], 2))
 
         # mouse release
         def action_mouse_release(e):
@@ -404,8 +433,10 @@ class EditorWindow(SessionWindow):
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None
             # reset mode if the selected mode is not a long term mode
-            if self.SELECTED_MODE not in [self.SELECT_MODE]:
+            if self.SELECTED_MODE not in [self.SELECT_MODE, self.MOVE_MODE]:
                 self.set_mode(self.DRAG_MODE)
+            # reset move anchor point
+            self.MOVE_ANCHOR_POINT = None
 
         # bind events
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
