@@ -73,6 +73,9 @@ class GUIActivity(GUILinkable):
             return lambda e: self.set_flag(flag)
 
         for f in list(ActivityFlag):
+            # skip current flag
+            if f == self.element.flag: continue
+            # proceed
             fstr = str(f).split('.')[1]
             optlist.append({
                 'folder': 'resources/icons/notation/',

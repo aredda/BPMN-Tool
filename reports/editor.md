@@ -16,10 +16,11 @@
 - [X] Implementing the [Message | Data Association] GUI flows
 - [X] Adding the help panel
 - [X] Linking the front with the back
-- [ ] Optimizing the returned list of options for each element
-- [ ] Draw diagram from deserialized definitions
+- [X] Optimizing the returned list of options for each element
+- [X] Draw diagram from deserialized definitions
 - [ ] Re-Doing & Un-Doing Action 
 - [ ] Keyboard Shortcuts
+- [X] Image Loading Optimizing
 - [ ] ~~Implementing the GUI of text annotations~~
 
 ### 26th of June

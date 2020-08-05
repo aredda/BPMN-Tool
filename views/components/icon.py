@@ -1,6 +1,7 @@
 from tkinter import *
 from helpers.colorhelper import *
 from helpers.imageutility import getdisplayableimage
+from helpers.cachemanager import CacheManager
 from views.effects.animatable import Animatable
 from resources.colors import *
 from PIL import Image as Img, ImageTk
@@ -52,7 +53,15 @@ class IconFrame(Canvas, Animatable):
     def set_image(self, image):
         # Configure image & draw image
         if isinstance(image, str):
-            self._image = ImageTk.PhotoImage(Img.open(image).resize((self.size-self.imgPadding, self.size-self.imgPadding)))
+            # attempt to retrieve image from cache
+            self._image = CacheManager.get_cached_image(image) 
+            # repair image
+            if self._image == None:
+                img = ImageTk.PhotoImage(Img.open(image).resize((self.size-self.imgPadding, self.size-self.imgPadding)))
+                # cache this image
+                CacheManager.add_cache_record(image, img)
+                # assign image
+                self._image = img
         else:
             self._image = getdisplayableimage(image, (self.size-self.imgPadding,self.size-self.imgPadding))
         # display image

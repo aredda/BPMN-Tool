@@ -65,6 +65,9 @@ class GUIEvent(GUILinkable):
 
         # change type options
         for t in list(EventType):
+            # skip activated options
+            if t == self.element.type: continue
+            # proceed
             tstr = str(t).split('.')[1]
             option_list.append({
                 'folder': 'resources/icons/notation/',
@@ -77,6 +80,9 @@ class GUIEvent(GUILinkable):
 
         # change definition options
         for d in list(EventDefinition):
+            # skip current option
+            if d == self.element.definition: continue
+            # proceed
             dstr = str(d).split('.')[1]
             # adjust path
             path = dstr.lower()

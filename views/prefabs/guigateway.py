@@ -50,6 +50,9 @@ class GUIGateway(GUILinkable):
             return lambda e: self.configure(t)
 
         for t in list(GatewayType):
+            # skip current type
+            if self.element.type == t: continue
+            # proceed
             tstr = str(t).split('.')[1]
             olist.append({
                 'folder': 'resources/icons/notation/',

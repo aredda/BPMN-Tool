@@ -33,6 +33,9 @@ class GUITask(GUIActivity):
         def corrector(t): return lambda e: self.configure(t)
 
         for t in list(TaskType):
+            # skip current option
+            if t == self.element.type: continue
+            # proceed
             tstr = str(t).split('.')[1]
             optlist.append({
                 'folder': 'resources/icons/notation/',
