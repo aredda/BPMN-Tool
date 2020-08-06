@@ -12,6 +12,7 @@ class Prefab:
 
     def __init__(self, **args):
         self.id = args.get('id', [])
+        self.text_id = -1
         self.canvas = args.get('canvas', None)
         self.element = args.get('element', None)
         self.dielement = args.get('dielement', None)
@@ -106,18 +107,21 @@ class Prefab:
         self.x, self.y = x, y
 
     def draw_text(self, text, x, y, width=0):
+        # remove text
+        if self.text_id != -1:
+            self.canvas.delete(self.text_id)
         # text id
-        text_id = self.canvas.create_text(x, y, text=text, width=width)
+        self.text_id = self.canvas.create_text(x, y, text=text, width=width)
         # mark as unselected item
-        self.unselected.append(text_id)
+        self.unselected.append(self.text_id)
         # append it to the general item list
-        self.id.append(text_id)
+        self.id.append(self.text_id)
         # redraw flows
         self.draw_flows()
 
     def set_text(self, text):
         self.element.name = text
-        self.destroy()
+        self.erase()
         self.draw()
 
     # to control the z index

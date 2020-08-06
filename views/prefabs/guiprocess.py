@@ -13,6 +13,7 @@ class GUIProcess(GUIContainer):
     HEIGHT = 400
 
     POST_OFFSET = 40
+    TEXT_OFFSET = 16
 
     def __init__(self, **args):
         GUIContainer.__init__(self, **args)
@@ -47,6 +48,11 @@ class GUIProcess(GUIContainer):
         self.id.append (vBorder)
         # mark the vertical border as unselected element
         self.unselected.append (vBorder)
+
+    def set_text(self, text):
+        self.element.name = text
+        # draw name of element
+        self.draw_text(self.element.name, self.x + self.POST_OFFSET + self.WIDTH / 2, self.y - self.TEXT_OFFSET, self.WIDTH)
 
     def draw_lanes(self):
         # re-devide height

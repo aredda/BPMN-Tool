@@ -83,22 +83,23 @@ class EditorWindow(SessionWindow):
         if tag == 'create':
             # prepare create command
             def cmnd_create(e):
-                # save checkpoint
-                # self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
                 # instantiate
                 guie = value(canvas=self.cnv_canvas)
                 # draw
                 guie.draw_at(0, 0)
                 # show help information
-                self.show_help_panel('Hover over the position you want to instantiate on, then left-click to drop')
+                self.show_help_panel('Hover over the position you want to instantiate on, then left-click to drop; Press <Escape> if you want to cancel.')
                 # change mode
                 self.set_mode(self.CREATE_MODE)
                 # set as the drag element
                 self.DRAG_ELEMENT = guie
                 # append
+                # major collection
                 self.guielements.append(guie)
+                # definitions container
                 if isinstance(guie, GUIProcess) == True:
                     self.definitions.add(guie.element.get_tag(), guie.element)
+                # di diagram container
                 self.diplane.add('dielement', guie.dielement)
             # return it
             return cmnd_create
@@ -211,7 +212,7 @@ class EditorWindow(SessionWindow):
         # change cursor
         if mode in [self.CREATE_MODE, self.MOVE_MODE]:
             self.cnv_canvas.config(cursor='hand2')
-        if mode in [self.RESIZE_MODE]:
+        elif mode in [self.RESIZE_MODE]:
             self.cnv_canvas.config(cursor='size_ne_sw')
             self.show_help_panel('Left-click in order to cancel resize mode')
         else:
@@ -231,12 +232,15 @@ class EditorWindow(SessionWindow):
             self.btn_select_mode.set_bgColor(black)
         # show link mode help info
         if mode == self.LINK_MODE:
-            self.show_help_panel('Select an element in order to make a connection')            
+            self.show_help_panel('Select an element in order to make a connection; Press <Escape> to cancel')            
         # move mode
         if mode != self.MOVE_MODE:
             # disable effect
             self.btn_move_mode.defaultBgColor = black
             self.btn_move_mode.set_bgColor(black)
+        # default mode
+        if mode == self.DRAG_MODE:
+            self.hide_help_panel()
 
     # activating select mode
     def enable_select_mode(self):
@@ -434,24 +438,31 @@ class EditorWindow(SessionWindow):
         # key press 
         def action_key_press(e):
             # passing condition
-            if self.SELECTED_MODE != self.MOVE_MODE:
-                return
-            # motion control
-            f = 0.0175
-            if e.keysym == 'Right':
-                if self.MOVE_SCALE[0] + f <= 1:
-                    self.MOVE_SCALE[0] += f
-            elif e.keysym == 'Left':
-                if self.MOVE_SCALE[0] - f >= 0:
-                    self.MOVE_SCALE[0] -= f
-            elif e.keysym == 'Up':
-                if self.MOVE_SCALE[1] - f >= 0:
-                    self.MOVE_SCALE[1] -= f
-            elif e.keysym == 'Down':
-                if self.MOVE_SCALE[1] + f <= 1:
-                    self.MOVE_SCALE[1] += f
-            # update view
-            self.update_view()
+            if self.SELECTED_MODE == self.MOVE_MODE:
+                f = 0.0175
+                if e.keysym == 'Right':
+                    if self.MOVE_SCALE[0] + f <= 1:
+                        self.MOVE_SCALE[0] += f
+                elif e.keysym == 'Left':
+                    if self.MOVE_SCALE[0] - f >= 0:
+                        self.MOVE_SCALE[0] -= f
+                elif e.keysym == 'Up':
+                    if self.MOVE_SCALE[1] - f >= 0:
+                        self.MOVE_SCALE[1] -= f
+                elif e.keysym == 'Down':
+                    if self.MOVE_SCALE[1] + f <= 1:
+                        self.MOVE_SCALE[1] += f
+                # update view
+                self.update_view()
+            # escape key
+            if e.keysym == 'Escape':
+                if self.SELECTED_MODE == self.CREATE_MODE:
+                    # cancel creation
+                    self.remove_element(self.DRAG_ELEMENT)
+                    self.DRAG_ELEMENT = None
+                # reset mode
+                self.set_mode(self.DRAG_MODE)
+
 
         # bind events
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
@@ -591,7 +602,7 @@ class EditorWindow(SessionWindow):
             if self.subject.__class__ == Session: self.windowManager.run_tag('collaboration', session=self.subject)
             else: self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
 
-        msg = MessageModal(self, title='confirmation', message='are you sure you want to leave this window?', messageType='prompt', actions={'yes': lambda e: back(msg)})
+        msg = MessageModal(self, title='confirmation', message='Are you sure you want to leave this window?', messageType='prompt', actions={'yes': lambda e: back(msg)})
 
     # linking funcs
     def can_link(self, source, target):
