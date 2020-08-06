@@ -1,5 +1,6 @@
 from tkinter import Canvas
 from PIL import Image as Img, ImageTk as ImgTk
+from helpers.cachemanager import CacheManager
 from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
 from models.bpmn.event import Event, EventType, EventDefinition
@@ -46,13 +47,19 @@ class GUIEvent(GUILinkable):
             if eventdefinition == EventDefinition.Message:
                 pure_name = 'receive' if eventtype not in [EventType.Start, EventType.IntermediateThrow] else 'send'
             # display icon
-            image = Img.open(folder + pure_name + '.png').resize((self.ICON_SIZE, self.ICON_SIZE))
-            self.def_icon = ImgTk.PhotoImage(image)
-            # add a black overlay if it's end/throw event
-            if eventtype in [EventType.End, EventType.IntermediateThrow] and eventdefinition != EventDefinition.Message:
-                overlaid_img = Img.new('RGBA', image.size, color=black)
-                overlaid_img.putalpha(image.getchannel('A'))
-                self.def_icon = ImgTk.PhotoImage(overlaid_img)
+            cachekey = 'img_' + str(self.element.definition) + '_' + str(self.element.type)
+            self.def_icon = CacheManager.get_cached_image(cachekey)
+            if self.def_icon == None:
+                image = Img.open(folder + pure_name + '.png').resize((self.ICON_SIZE, self.ICON_SIZE))
+                # cache for better performance
+                self.def_icon = CacheManager.get_or_add_if_absent(cachekey, ImgTk.PhotoImage(image))
+                # add a black overlay if it's end/throw event
+                if eventtype in [EventType.End, EventType.IntermediateThrow] and eventdefinition != EventDefinition.Message:
+                    overlaid_img = Img.new('RGBA', image.size, color=black)
+                    overlaid_img.putalpha(image.getchannel('A'))
+                    self.def_icon = ImgTk.PhotoImage(overlaid_img)
+                    # update cache
+                    CacheManager.add_cache_record(cachekey, self.def_icon)
             self.id.append (cnv.create_image(x + self.PERIMETER/2, y + self.PERIMETER/2, image=self.def_icon))
         # draw event's name
         self.draw_text(text, x + self.PERIMETER/2, y - self.LABEL_OFFSET)

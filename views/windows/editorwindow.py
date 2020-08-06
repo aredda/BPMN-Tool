@@ -145,7 +145,7 @@ class EditorWindow(SessionWindow):
         self.didiagram.add('plane', self.diplane)
 
         # draw func test
-        self.draw_diagram(filetobytes('resources/xml/dptst3.xml'))
+        # self.draw_diagram(filetobytes('resources/xml/dptst3.xml'))
 
     def setup_tools(self):
         # Lay out tool panels
@@ -638,7 +638,9 @@ class EditorWindow(SessionWindow):
             # return 
             return linkable.element.link_data(artifact.element, (DataAssocDirection.IN if type(source) in artifacts else DataAssocDirection.OUT))
         # message flow case
-        if (source.get_process() != target.get_process()) or (source.get_process() == None and target.get_process() == None):
+        c1 = source.get_process() != target.get_process()
+        c2 = len (self.definitions.elements['process']) > 0
+        if c1 == True and c2 == True:
             return MessageFlow(source=source.element, target=target.element)
         # sequence flow case
         return source.element.add_link(target.element)

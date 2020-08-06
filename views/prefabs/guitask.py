@@ -1,5 +1,6 @@
 from tkinter import Canvas
 from PIL import Image as img, ImageTk as imgTk
+from helpers.cachemanager import CacheManager
 from resources.colors import *
 from views.prefabs.guiactivity import GUIActivity
 from models.bpmn.task import Task, TaskType
@@ -20,8 +21,13 @@ class GUITask(GUIActivity):
         tasktype = self.element.type
         # draw type icon
         if tasktype != TaskType.Default:    
+            # attempt to retrieve from cache
+            cachekey = 'img_' + str (self.element.type)
             iconpath = 'resources/icons/notation/' + str(tasktype).lower().split('.')[1] + '.png'
-            self.type_icon = imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE)))
+            self.type_icon = CacheManager.get_cached_image(cachekey)
+            # cache image if not there
+            if self.type_icon == None:
+                self.type_icon = CacheManager.get_or_add_if_absent(cachekey, imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE))))
             cnv: Canvas = self.canvas
             self.id.append(cnv.create_image(x + self.ICON_MARGIN, y + self.ICON_MARGIN, image=self.type_icon))
         # draw text

@@ -1,5 +1,6 @@
 from tkinter import Canvas
 from PIL import Image as Img, ImageTk as ImgTk
+from helpers.cachemanager import CacheManager
 from resources.colors import *
 from views.prefabs.abstract.guilinkable import GUILinkable
 from models.bpmn.gateway import Gateway, GatewayType
@@ -36,9 +37,14 @@ class GUIGateway(GUILinkable):
         ))
         # draw icon
         if _type != GatewayType.Exclusive:
-            folder = 'resources/icons/notation/'
-            filename = str(_type).split('.')[1].lower()
-            self.type_icon = ImgTk.PhotoImage(Img.open(folder + filename + '.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
+            cachekey = 'gt_img_' + str(self.element.type)
+            # attempt to retrieve a cached image
+            self.type_icon = CacheManager.get_cached_image(cachekey) 
+            if self.type_icon == None:
+                # cache image if not cached
+                folder = 'resources/icons/notation/'
+                filename = str(_type).split('.')[1].lower()
+                self.type_icon = CacheManager.get_or_add_if_absent (cachekey, ImgTk.PhotoImage(Img.open(folder + filename + '.png').resize((self.ICON_SIZE, self.ICON_SIZE))))
             self.id.append (cnv.create_image(x + self.WIDTH/2, y + self.WIDTH/2, image=self.type_icon))
         # Draw text
         self.draw_text(self.element.name, x + self.WIDTH/2, y - self.LABEL_OFFSET)
