@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.1//EN'
+  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+<svg xmlns="http://www.w3.org/2000/svg">
+	<polygon points="267.0,253.0 297.0,283.0 267.0,313.0 237.0,283.0" stroke="#333" fill="#ebfaf8" stroke-width="2.0" fill-rule="evenodd" stroke-linejoin="round"/>
+	<text x="267.0" y="242" fill="#000" stroke-width="0.0" text-anchor="middle" font-family="Segoe UI" font-size="9.0pt"></text>
+	<line x1="266.0" y1="140.0" x2="267.0" y2="243.0" stroke="#333" fill="none" stroke-width="2.0"/>
+	<polygon points="260.0,243.0 267.0,253.0 274.0,243.0" fill="#333" fill-rule="evenodd" stroke-linejoin="round"/>
+	<line x1="297.0" y1="283.0" x2="533.0" y2="282.0" stroke="#333" fill="none" stroke-width="2.0"/>
+	<polygon points="533.0,275.0 543.0,282.0 533.0,289.0" fill="#333" fill-rule="evenodd" stroke-linejoin="round"/>
+	<circle cx="266.0" cy="110.0" r="30.0" stroke="#333" fill="#ebfaf8" stroke-width="2.0"/>
+	<text x="266.0" y="69" fill="#000" stroke-width="0.0" text-anchor="middle" font-family="Segoe UI" font-size="9.0pt"></text>
+	<circle cx="573.0" cy="282.0" r="30.0" stroke="#333" fill="#ebfaf8" stroke-width="2.0"/>
+	<circle cx="573.0" cy="282.0" r="26.0" stroke="#333" fill="#ebfaf8" stroke-width="2.0"/>
+	<text x="573.0" y="241" fill="#000" stroke-width="0.0" text-anchor="middle" font-family="Segoe UI" font-size="9.0pt"></text>
+</svg>

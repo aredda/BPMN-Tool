@@ -54,3 +54,7 @@
 
 ### 24th of July
 - [X] Associating DI Elements
+
+### 7th of August
+- [ ] Canvasvg can't convert images
+- [ ] Canvasvg can't convert rounded rects

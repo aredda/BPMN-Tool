@@ -2,3 +2,4 @@
 pillow
 sqlalchemy
 pymysql
+canvasvg

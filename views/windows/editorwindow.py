@@ -1,4 +1,11 @@
 from tkinter import *
+from PIL import Image as Img, ImageTk as ImgTk, ImageGrab as ImgGrb
+from datetime import datetime
+from threading import Thread
+from time import sleep
+from math import sqrt, pow
+from io import BytesIO
+import canvasvg as cnvsvg
 from resources.colors import *
 from helpers.deserializer import Deserializer
 from helpers.xmlutility import elementtobytes, bytestoelement
@@ -29,10 +36,6 @@ from views.prefabs.guidataobject import GUIDataObject
 from views.prefabs.guiflow import GUIFlow
 from views.prefabs.guilane import GUILane
 from views.windows.modals.messagemodal import MessageModal
-from copy import copy, deepcopy
-from datetime import datetime
-from threading import Thread
-from math import sqrt, pow
 
 class EditorWindow(SessionWindow):
     
@@ -148,13 +151,18 @@ class EditorWindow(SessionWindow):
         # self.draw_diagram(filetobytes('resources/xml/dptst3.xml'))
 
     def setup_tools(self):
+        # prepare an empty collection
+        self.frm_tool_containers = []
         # Lay out tool panels
         for i in EditorWindow.toolSettings.keys():
             # get the settings of this set of tools
             settings = EditorWindow.toolSettings[i]
             # prepare a container
+            pack_settings = { 'side': i, 'padx':20, 'pady':20 }
             frm_container = Frame(self.cnv_canvas, bg=white, highlightthickness=1, highlightbackground=border, padx=10, pady=10)
-            frm_container.pack(side=i, padx=20, pady=20)
+            frm_container.pack(**pack_settings)
+            # save the container
+            self.frm_tool_containers.append([frm_container, pack_settings])
             # for each action
             for j in settings['tools']:
                 # adjust some configs
@@ -207,8 +215,7 @@ class EditorWindow(SessionWindow):
         self.SELECTED_MODE = mode
         # reset view
         if mode == self.CREATE_MODE:
-            self.MOVE_SCALE = [0, 0]
-            self.update_view()
+            self.reset_view()
         # change cursor
         if mode in [self.CREATE_MODE, self.MOVE_MODE]:
             self.cnv_canvas.config(cursor='hand2')
@@ -277,6 +284,21 @@ class EditorWindow(SessionWindow):
     def update_view(self):
         self.cnv_canvas.xview_moveto(self.MOVE_SCALE[0])
         self.cnv_canvas.yview_moveto(self.MOVE_SCALE[1])
+    
+    # reset view
+    def reset_view(self):
+        self.MOVE_SCALE = [0, 0]
+        self.update_view()
+
+    # hide setup tools
+    def hide_tools(self):
+        for container in self.frm_tool_containers:
+            container[0].pack_forget()
+
+    # show tools
+    def show_tools(self):
+        for container in self.frm_tool_containers:
+            container[0].pack(**container[1])   
         
     # pretty much the most important member of this module
     def setup_actions(self):
@@ -462,7 +484,13 @@ class EditorWindow(SessionWindow):
                     self.DRAG_ELEMENT = None
                 # reset mode
                 self.set_mode(self.DRAG_MODE)
-
+            # test key: R; 
+            if e.keysym == '0':
+                # take a screen shot
+                self.take_screenshot()
+            # test key: export to svg
+            if e.keysym == '1':
+                self.save_as_svg()
 
         # bind events
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
@@ -772,3 +800,51 @@ class EditorWindow(SessionWindow):
             # redraw
             guicontainer.erase()
             guicontainer.draw()
+
+    # saving a jpg/png image
+    def take_screenshot(self):
+        # this activity should be ran in another thread
+        def runnable():
+            # reset canvas position
+            self.reset_view()
+            # hide tools
+            self.hide_tools()
+            # pause thread
+            sleep(1)
+            # take a screen shot
+            x0, y0 = self.cnv_canvas.winfo_rootx(), self.cnv_canvas.winfo_rooty()
+            x1, y1 = x0 + self.cnv_canvas.winfo_width(), y0 + self.cnv_canvas.winfo_height()
+            # save it
+            ImgGrb.grab().crop((x0, y0, x1, y1)).save('resources/temp/shot.png')
+            # show tools again
+            self.show_tools()
+        # start screenshot thread
+        Thread(target=runnable).start()
+    
+    # saving as svg file
+    def save_as_svg(self):
+        # retrieve items to be drawn
+        items = []
+        priority = [GUIProcess, GUISubProcess]
+        # elements that need to be drawn first
+        for p in priority:
+            for e in self.guielements:
+                if e.__class__ == p:
+                    items += e.id
+        # elements that need to be drawn on top
+        for e in self.guielements:
+            # skip those who are already drawn
+            if e.__class__ in priority: continue
+            items += e.id
+            # draw their flows too
+            for f in e.flows:
+                for f_id in f.id:
+                    if f_id not in items: items.append(f_id)
+        # an empty svg document
+        doc = cnvsvg.SVGdocument()
+        # convert
+        for n in cnvsvg.convert(doc, self.cnv_canvas, items):
+            doc.documentElement.appendChild(n)
+        # save svg document
+        file = open('resources/temp/test.svg', 'w')
+        file.write(doc.toprettyxml())
