@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as et
 
+from helpers.stringhelper import generate_code
 from resources.namespaces import *
 from models.bpmn.container import Container
 
@@ -28,13 +29,15 @@ class Definitions(Container):
 
         # Append participants elements to collaboration element
         for process in self.elements['process']:
+            # get the participant id
+            participant_id = 'participant_' + generate_code() if process.participant == None else str (process.participant)
+            # prepare an xml node
             participant = et.Element(bpmn + 'participant')
-
-            participant.attrib['id'] = str (process.participant)
+            participant.attrib['id'] = participant_id
             participant.attrib['processRef'] = str (process.id)
-            
-            if process.name != None: 
-                participant.attrib['name'] = str (process.name)
+            if process.name != None: participant.attrib['name'] = str (process.name)
+            # configure process
+            process.participant = participant_id
 
             collaboration.append(participant)
 

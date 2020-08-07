@@ -442,6 +442,17 @@ class EditorWindow(SessionWindow):
                     break
             # if a container is found, append the element to that container
             if self.DRAG_ELEMENT != None:
+                # if this container is not the parent, then erase all flows
+                if self.DRAG_ELEMENT.parent != container:
+                    # before disposing of flows, make sure that message flows get erased
+                    for flow in self.DRAG_ELEMENT.flows:
+                        if flow.element.get_tag() == 'messageflow':
+                            self.definitions.remove('message', flow.element)
+                            self.diplane.remove('dielement', flow.dielement)
+                    # proceed to unlink element
+                    self.DRAG_ELEMENT.unlink()
+                    self.DRAG_ELEMENT.erase()
+                    self.DRAG_ELEMENT.draw()
                 # if the element already had a parent, 
                 if self.DRAG_ELEMENT.parent != None:
                     self.DRAG_ELEMENT.parent.remove_child(self.DRAG_ELEMENT)
@@ -516,11 +527,12 @@ class EditorWindow(SessionWindow):
 
     # delete an element
     def remove_element(self, element):
-        # save undo checkpoint
-        # self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
         # remove flow links
         for flow in element.flows:
             self.diplane.remove('dielement', flow.dielement)
+            # if this is a message flow then remove it from collaboration
+            if flow.element.get_tag() == 'messageflow':
+                self.definitions.remove('message', flow.element)
         # remove the drawn element
         element.destroy()
         # unlink all flows
@@ -595,8 +607,8 @@ class EditorWindow(SessionWindow):
         from os import system
 
         clean = lambda e: system('cls')
-
         clean(None)
+
         print (to_pretty_xml(self.definitions.serialize()))
         
         # get privilege
@@ -617,6 +629,7 @@ class EditorWindow(SessionWindow):
         #     # update project
         #     project.file = newFile
         #     project.lastEdited = date
+        #     self.take_screenshot(project)
             
         #     Container.save(project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=project))
         #     MessageModal(self, 'success', message='changes saved succesfully !', messageType='info')
@@ -802,7 +815,7 @@ class EditorWindow(SessionWindow):
             guicontainer.draw()
 
     # saving a jpg/png image
-    def take_screenshot(self):
+    def take_screenshot(self, subject=None):
         # this activity should be ran in another thread
         def runnable():
             # reset canvas position
@@ -810,12 +823,15 @@ class EditorWindow(SessionWindow):
             # hide tools
             self.hide_tools()
             # pause thread
-            sleep(1)
+            sleep(0.5)
             # take a screen shot
             x0, y0 = self.cnv_canvas.winfo_rootx(), self.cnv_canvas.winfo_rooty()
             x1, y1 = x0 + self.cnv_canvas.winfo_width(), y0 + self.cnv_canvas.winfo_height()
             # save it
             ImgGrb.grab().crop((x0, y0, x1, y1)).save('resources/temp/shot.png')
+            # BOOKMARK  affect it to its corresponding db record
+            if subject != None:
+                subject.image = filetobytes('resources/temp/shot.png')
             # show tools again
             self.show_tools()
         # start screenshot thread

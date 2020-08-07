@@ -58,3 +58,4 @@
 ### 7th of August
 - [ ] Canvasvg can't convert images
 - [ ] Canvasvg can't convert rounded rects
+- [ ] Message Flows linger on the Definitions even when you remove links
