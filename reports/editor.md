@@ -19,7 +19,7 @@
 - [X] Optimizing the returned list of options for each element
 - [X] Draw diagram from deserialized definitions
 - [ ] Re-Doing & Un-Doing Action 
-- [ ] Keyboard Shortcuts
+- [X] Keyboard Shortcuts
 - [X] Image Loading Optimizing
 - [ ] ~~Implementing the GUI of text annotations~~
 
@@ -58,4 +58,4 @@
 ### 7th of August
 - [ ] Canvasvg can't convert images
 - [ ] Canvasvg can't convert rounded rects
-- [ ] Message Flows linger on the Definitions even when you remove links
+- [X] Message Flows linger on the Definitions even when you remove links

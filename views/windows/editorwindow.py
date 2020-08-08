@@ -6,6 +6,7 @@ from time import sleep
 from math import sqrt, pow
 from io import BytesIO
 import canvasvg as cnvsvg
+import pickle as pk
 from resources.colors import *
 from helpers.deserializer import Deserializer
 from helpers.xmlutility import elementtobytes, bytestoelement
@@ -36,6 +37,13 @@ from views.prefabs.guidataobject import GUIDataObject
 from views.prefabs.guiflow import GUIFlow
 from views.prefabs.guilane import GUILane
 from views.windows.modals.messagemodal import MessageModal
+
+# this class represents the checkpoint made each time an action is done
+# in order for the user to be able to cancel or redo actions
+class Memento:
+    def __init__(self, **args):
+        for key in args.keys():
+            setattr(self, key, args.get(key))
 
 class EditorWindow(SessionWindow):
     
@@ -80,12 +88,19 @@ class EditorWindow(SessionWindow):
         }
     }
 
+    ACTION_HIST = {
+        'undo': [],
+        'redo': []
+    }
+
     # command & event config method
     def select_event(self, tag, value):
         # create event
         if tag == 'create':
             # prepare create command
             def cmnd_create(e):
+                # save undo checkpoint
+                self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
                 # instantiate
                 guie = value(canvas=self.cnv_canvas)
                 # draw
@@ -127,10 +142,6 @@ class EditorWindow(SessionWindow):
         self.definitions: Definitions = Definitions()
         self.didiagram: BPMNDiagram = BPMNDiagram()
         self.diplane: BPMNPlane = BPMNPlane()
-
-        # undo/redo actions
-        self.undo_dict = { 'gui': [], 'def': [] }
-        self.redo_dict = { 'gui': [], 'def': [] }
 
         # editor's gears
         self.SELECTED_MODE = self.DRAG_MODE
@@ -271,8 +282,13 @@ class EditorWindow(SessionWindow):
 
     # responsible for refreshing all gui elements
     def reset(self):
+        # clear all
         self.clear()
+        # redraw elements
         for e in self.guielements:
+            # assign canvas
+            self.assign_canvas(e)
+            # proceed to refresh
             e.erase()
             e.draw()
 
@@ -327,6 +343,9 @@ class EditorWindow(SessionWindow):
             self.SELECTED_ELEMENT = self.DRAG_ELEMENT = self.find_element(self.select_element(e.x, e.y))
             # BOOKMARK: LINK Functionality
             if self.SELECTED_ELEMENT != None and justCreated == False:
+                # assign this element a canvas
+                if self.SELECTED_ELEMENT.canvas == None:
+                    self.assign_canvas(self.SELECTED_ELEMENT)
                 # if select mode is enabled
                 if self.SELECTED_MODE == self.SELECT_MODE:
                     if self.SELECTED_ELEMENT in self.SELECTED_ELEMENTS:
@@ -340,8 +359,8 @@ class EditorWindow(SessionWindow):
                     if self.SELECTED_ELEMENT != previous_selected:
                         # check if we can link
                         if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
-                            # save undo action
-                            # self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
+                            # save undo checkpoint
+                            self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
                             # generating a flow model
                             flowmodel = self.get_link_model(previous_selected, self.SELECTED_ELEMENT)
                             # creating a flow
@@ -495,13 +514,6 @@ class EditorWindow(SessionWindow):
                     self.DRAG_ELEMENT = None
                 # reset mode
                 self.set_mode(self.DRAG_MODE)
-            # test key: R; 
-            if e.keysym == '0':
-                # take a screen shot
-                self.take_screenshot()
-            # test key: export to svg
-            if e.keysym == '1':
-                self.save_as_svg()
 
         # bind events
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
@@ -510,6 +522,8 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind('<B1-Motion>', action_mouse_move)
         self.cnv_canvas.bind('<ButtonRelease-1>', action_mouse_release)
         self.cnv_canvas.bind_all('<Key>', action_key_press)
+        self.cnv_canvas.bind_all('<Control-z>', lambda e: self.undo())
+        self.cnv_canvas.bind_all('<Control-y>', lambda e: self.redo())
 
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
@@ -527,6 +541,10 @@ class EditorWindow(SessionWindow):
 
     # delete an element
     def remove_element(self, element):
+        # save undo checkpoint
+        self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+        # emphasize that this element has a canvas
+        element.canvas = self.cnv_canvas
         # remove flow links
         for flow in element.flows:
             self.diplane.remove('dielement', flow.dielement)
@@ -548,13 +566,16 @@ class EditorWindow(SessionWindow):
             self.definitions.remove('process', element.element)
         # hide menu
         self.hide_component('frm_menu')
-
     
     # delete selected elements button
     def btn_delete_selected_click(self):
+        # save undo checkpoint
+        self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
         # delete each selected element
         for element in self.SELECTED_ELEMENTS:
             self.remove_element(element)
+            # delete unintentional checkpoint
+            EditorWindow.ACTION_HIST['undo'].pop()
 
     # auto close menu
     def close_menu_after(self, callable):
@@ -687,35 +708,65 @@ class EditorWindow(SessionWindow):
         return source.element.add_link(target.element)
 
     # REDO/UNDO Actions
-    def save_checkpoint(self, trackdict, guicp, defcp):
-        # clone elements
-        clone = []
-        for e in guicp:
-            clone.append (copy(e))
-        defclone = copy(defcp)
-        # append
-        trackdict['gui'].append (clone)
-        trackdict['def'].append (defclone)
+    def get_memento(self):
+        return Memento(
+            guielements=self.guielements,
+            definitions=self.definitions,
+            didiagram=self.didiagram,
+            diplane=self.diplane
+        )
 
-    def undo(self):
-        action1 = self.undo_dict['gui'].pop()
-        action2 = self.undo_dict['def'].pop()
-        # save preferences in order to be able to redo them
-        self.save_checkpoint(self.redo_dict, self.guielements, self.definitions)
-        # undo
-        self.guielements, self.definitions = action1, action2
-        # reset canvas
+    def save_checkpoint(self, collection: list):
+        # revoke canvas from all elements
+        self.revoke_canvas()
+        # serializing the whole editor object
+        serialized_data = pk.dumps(self.get_memento())
+        # append
+        collection.append(serialized_data)
+
+    def load_checkpoint(self, memento):
+        # update properties
+        self.guielements = memento.guielements
+        self.definitions = memento.definitions
+        self.didiagram = memento.didiagram
+        self.diplane = memento.diplane
+        # reset editor settings
+        self.set_mode(self.DRAG_MODE)
+        self.reset_view()
+        self.ZOOM_SCALE = 6
+        # reset
         self.reset()
+
+    def do(self, _from: list, _to: list):
+        # revoke canvas from elements
+        self.revoke_canvas()
+        # skip if there's no checkpoint to retrieve
+        if len(_from) == 0: return
+        # save this current checkpoint
+        self.save_checkpoint(_to)
+        # deserialize checkpoint & load retrieved checkpoint
+        self.load_checkpoint(pk.loads(_from.pop()))
+        
+    def undo(self):
+        self.do(EditorWindow.ACTION_HIST['undo'], EditorWindow.ACTION_HIST['redo'])
     
     def redo(self):
-        action1 = self.redo_dict['gui'].pop()
-        action2 = self.redo_dict['def'].pop()
-        # save preferences in order to be able to undo them
-        self.save_checkpoint(self.undo_dict, self.guielements, self.definitions)
-        # undo
-        self.guielements, self.definitions = action1, action2
-        # reset canvas
-        self.reset()
+        self.do(EditorWindow.ACTION_HIST['redo'], EditorWindow.ACTION_HIST['undo'])
+
+    def assign_canvas(self, element):
+        # emphasize that all elements have canvas
+        element.canvas = self.cnv_canvas
+        # their flows too
+        for f in element.flows:
+            f.canvas = self.cnv_canvas
+    
+    def revoke_canvas(self):
+        # cannot let the canvas ruin the serialization process
+        for g in self.guielements:
+            g.canvas = None
+            # strip all flows
+            for f in g.flows: 
+                f.canvas = None
 
     # Help Panel actions
     def show_help_panel(self, text, fgColor=black):
