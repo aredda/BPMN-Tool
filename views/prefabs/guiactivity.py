@@ -1,6 +1,7 @@
 from tkinter import Canvas
 from PIL import Image as img, ImageTk as imgTk
 from resources.colors import *
+from helpers.cachemanager import CacheManager 
 from views.prefabs.abstract.guilinkable import GUILinkable
 from models.bpmn.enums.activityflag import ActivityFlag
 from models.bpmndi.shape import BPMNShape
@@ -23,6 +24,8 @@ class GUIActivity(GUILinkable):
 
         if self.dielement.bounds == None:
             self.dielement.bounds = Bounds()
+
+        self.memento_banlist = ['flag_icon', 'type_icon']
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)
@@ -59,7 +62,10 @@ class GUIActivity(GUILinkable):
         if flag != ActivityFlag.Default:
             iconpath = str(flag).lower().split('.')[1]
             if 'multiple' in iconpath: iconpath = 'parallelinstance'
-            self.flag_icon = imgTk.PhotoImage(img.open('resources/icons/notation/' + iconpath + '.png').resize((self.ICON_SIZE, self.ICON_SIZE)))
+            cachekey = 'act_flag_' + str(flag)
+            self.flag_icon = CacheManager.get_cached_image(cachekey)
+            if self.flag_icon == None:
+                self.flag_icon = CacheManager.get_or_add_if_absent(cachekey, imgTk.PhotoImage(img.open('resources/icons/notation/' + iconpath + '.png').resize((self.ICON_SIZE, self.ICON_SIZE))))
             # adjusting coords of the icon depending on the element
             flag_x = x + self.WIDTH / 2
             if self.__class__.__name__ == 'GUISubProcess':

@@ -22,7 +22,10 @@ class GUIEvent(GUILinkable):
         if self.dielement.bounds == None:
             self.dielement.bounds = Bounds()
 
+        # adjust dimensions
         self.WIDTH = self.HEIGHT = self.PERIMETER
+        # ban these props when serializing memento
+        self.memento_banlist.append('def_icon')
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)

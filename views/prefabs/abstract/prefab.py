@@ -20,6 +20,7 @@ class Prefab:
         self.parent = None
         self.flows = []
         self.unselected = []
+        self.memento_banlist = []
 
     # necessary for finding the gui element
     def match(self, id):
@@ -202,4 +203,15 @@ class Prefab:
         self.dielement.bounds.x, self.dielement.bounds.y = self.x, self.y
         # update size
         self.dielement.bounds.width, self.dielement.bounds.height = self.WIDTH, self.HEIGHT
+
+    # measures to be followed before serializing a memento that contains this element
+    def memento_setup(self):
+        # nullify every variable in the banlist
+        for prop in self.memento_banlist:
+            setattr(self, prop, None)
+        # strip this object from its canvas
+        self.canvas = None
+        # strip flows from their canvas to avoid serialization problems
+        for f in self.flows: 
+            f.canvas = None
         

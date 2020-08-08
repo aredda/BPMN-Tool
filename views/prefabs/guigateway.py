@@ -19,7 +19,10 @@ class GUIGateway(GUILinkable):
         self.dielement = args.get('dielement', BPMNShape())
         self.dielement.bounds = Bounds()
 
+        # set up dimensions
         self.WIDTH = self.HEIGHT = 60
+        # pre memento serialization
+        self.memento_banlist = ['type_icon']
 
     def draw_at(self, x, y):
         GUILinkable.draw_at(self, x, y)

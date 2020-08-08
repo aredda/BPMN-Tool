@@ -738,8 +738,6 @@ class EditorWindow(SessionWindow):
         self.reset()
 
     def do(self, _from: list, _to: list):
-        # revoke canvas from elements
-        self.revoke_canvas()
         # skip if there's no checkpoint to retrieve
         if len(_from) == 0: return
         # save this current checkpoint
@@ -763,10 +761,8 @@ class EditorWindow(SessionWindow):
     def revoke_canvas(self):
         # cannot let the canvas ruin the serialization process
         for g in self.guielements:
-            g.canvas = None
-            # strip all flows
-            for f in g.flows: 
-                f.canvas = None
+            # special memento setup 
+            g.memento_setup()
 
     # Help Panel actions
     def show_help_panel(self, text, fgColor=black):

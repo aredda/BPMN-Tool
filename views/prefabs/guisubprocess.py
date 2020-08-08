@@ -26,11 +26,12 @@ class GUISubProcess(GUIActivity, GUIContainer):
         GUIActivity.draw_at(self, x, y)
         # draw collapsed subprocess icon
         iconpath = 'resources/icons/notation/collapsedsubprocess.png'
+        # cache setup
         cachekey = 'img_' + str (self.element.flag)
         self.type_icon = CacheManager.get_cached_image(cachekey)
         if self.type_icon == None:
             # cache it for better performance
-            self.type_icon =  CacheManager.get_or_add_if_absent(cachekey, imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE))))
+            self.type_icon = CacheManager.get_or_add_if_absent(cachekey, imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE))))
         cnv: Canvas = self.canvas
         self.id.append (cnv.create_image(x + (self.WIDTH / 2) + (self.ICON_MARGIN / 4) + (self.ICON_SIZE / 2), y + self.HEIGHT - self.ICON_MARGIN, image=self.type_icon))
         # draw text
