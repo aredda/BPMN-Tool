@@ -148,6 +148,7 @@ class EditorWindow(SessionWindow):
         self.SELECTED_ELEMENT = None
         self.SELECTED_ELEMENTS = []
         self.DRAG_ELEMENT = None
+        self.IS_DRAGGING = False
         self.ZOOM_SCALE = 6
         self.MOVE_SCALE = [0, 0]
 
@@ -231,7 +232,13 @@ class EditorWindow(SessionWindow):
         if mode in [self.CREATE_MODE, self.MOVE_MODE]:
             self.cnv_canvas.config(cursor='hand2')
         elif mode in [self.RESIZE_MODE]:
+            # save check point
+            self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+            # reassign canvas
+            self.assign_canvas_all()
+            # change cursor
             self.cnv_canvas.config(cursor='size_ne_sw')
+            # help panel
             self.show_help_panel('Left-click in order to cancel resize mode')
         else:
             self.cnv_canvas.config(cursor='')
@@ -419,7 +426,25 @@ class EditorWindow(SessionWindow):
                     })
                 # if the element has options
                 if self.SELECTED_ELEMENT.get_options() != None:
-                    opts += self.SELECTED_ELEMENT.get_options()
+                    # retrieve element options
+                    for e_opt in self.SELECTED_ELEMENT.get_options():
+                        # save before
+                        def save_before(command):
+                            # save undo checkpoint
+                            self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+                            # reassign canvas
+                            self.assign_canvas_all()
+                            # call command
+                            command(None)
+                        # adjust
+                        def adjust_option_command(option):
+                            # retrieve command of option
+                            command = option['cmnd']
+                            option['cmnd'] = lambda e: save_before(command)
+                        # fix option command
+                        adjust_option_command(e_opt)
+                        # append
+                        opts.append(e_opt)
                 # show menu
                 self.show_menu(x=menu_coords[0], y=menu_coords[1], options=opts)
             # starting a thread
@@ -430,6 +455,14 @@ class EditorWindow(SessionWindow):
         def action_mouse_move(e):
             if self.SELECTED_MODE in [self.DRAG_MODE, self.CREATE_MODE]:
                 if self.DRAG_ELEMENT != None:
+                    # if the mode is specifically drag mode
+                    if self.SELECTED_MODE == self.DRAG_MODE:
+                        if not self.IS_DRAGGING:
+                            self.IS_DRAGGING = True
+                            # save check point
+                            self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+                            # re assign canvas
+                            self.assign_canvas_all()
                     # if the drag element is a lane, switch to its process instead
                     if isinstance(self.DRAG_ELEMENT, GUILane) == True:
                         self.DRAG_ELEMENT = self.DRAG_ELEMENT.guiprocess
@@ -483,6 +516,7 @@ class EditorWindow(SessionWindow):
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None
+                self.IS_DRAGGING = False
             # reset mode if the selected mode is not a long term mode
             if self.SELECTED_MODE not in [self.SELECT_MODE, self.MOVE_MODE]:
                 self.set_mode(self.DRAG_MODE)
@@ -599,7 +633,13 @@ class EditorWindow(SessionWindow):
         self.txt_input.entry.focus()
         # prepare a command
         def inputReturn(e):
+            # save undo checkpoint
+            self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+            # re assign canvas
+            self.assign_canvas_all()
+            # change gui element's text
             onReturn(self.txt_input.get_text())
+            # hide input
             self.hide_component('txt_input')
         # bind 
         self.txt_input.entry.unbind('<Return>')
@@ -757,7 +797,15 @@ class EditorWindow(SessionWindow):
         # their flows too
         for f in element.flows:
             f.canvas = self.cnv_canvas
+        # if this e is a process
+        if isinstance(element, GUIProcess):
+            for lane in element.lanes:
+                lane.canvas = self.cnv_canvas
     
+    def assign_canvas_all(self):
+        for e in self.guielements:
+            self.assign_canvas(e)
+
     def revoke_canvas(self):
         # cannot let the canvas ruin the serialization process
         for g in self.guielements:

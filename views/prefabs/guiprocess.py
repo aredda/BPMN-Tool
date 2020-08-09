@@ -120,3 +120,8 @@ class GUIProcess(GUIContainer):
             'icon': 'add.png',
             'cmnd': lambda e: self.add_lane()
         }]
+    
+    def memento_setup(self):
+        super().memento_setup()
+        # lanes
+        for lane in self.lanes: lane.canvas = None
