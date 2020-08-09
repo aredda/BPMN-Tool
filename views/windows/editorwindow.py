@@ -558,6 +558,9 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Key>', action_key_press)
         self.cnv_canvas.bind_all('<Control-z>', lambda e: self.undo())
         self.cnv_canvas.bind_all('<Control-y>', lambda e: self.redo())
+        self.cnv_canvas.bind_all('<Control-0>', lambda e: self.reset_zoom())
+        self.cnv_canvas.bind_all('<Control-v>', lambda e: self.reset_view())
+
 
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
@@ -661,6 +664,10 @@ class EditorWindow(SessionWindow):
     def zoom(self):
         for guie in self.guielements:
             guie.scale(self.ZOOM_SCALE)
+
+    def reset_zoom(self):
+        self.ZOOM_SCALE = 6
+        self.zoom()
 
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
