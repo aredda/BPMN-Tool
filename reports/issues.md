@@ -42,6 +42,7 @@ because we are going to add other models concerning data..
 ### Session Window 
 - [x] Discussion image doesn't show
 - [x] notification image doesn't show
+- [ ] Hide pop-ups when the mouse leaves them
 ### message listItem
 - [x] long messages errors
 ### Saved Collaborators
