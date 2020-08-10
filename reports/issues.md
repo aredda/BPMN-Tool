@@ -49,8 +49,8 @@ because we are going to add other models concerning data..
 - [ ] (mohamed) collaborator's image doesn't show **changing it affects profile image**
 <!-- - [ ] listItem width issue when the number is impair **not a big deal** -->
 ### discussion window 
-- [ ] (ibrahim) scrollbar should be at the end when we enter a session 
-- [ ] (ibrahim) issue with the scrollbar when switching between sessions
+- [x] (ibrahim) scrollbar should be at the end when we enter a session 
+- [x] (ibrahim) issue with the scrollbar when switching between sessions
 - [ ] (ibrahim) hint can be sent when it shouldn't 
 - [ ] Click on the whole item to open conversation
 <!-- - [ ] hide session's name section and textmessage part **not a big deal** -->

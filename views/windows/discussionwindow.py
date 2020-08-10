@@ -107,10 +107,16 @@ class DiscussionWindow(SessionWindow):
         frm_footer = Frame(frm_discussion, bg=white, pady=20, padx=20)
         frm_footer.pack(side=BOTTOM, fill=X)
 
+        self.is_hint_deleted = False
         self.txt_message = Entry(frm_footer, highlightthickness=0, relief=FLAT, font='-size 12', fg=black)
         self.txt_message.insert(0, 'Type your message here...')
-        self.txt_message.bind('<FocusIn>', lambda e: self.txt_message.delete(0, len(self.txt_message.get())))
         self.txt_message.pack(side=LEFT, fill=BOTH, expand=1)
+
+        def txt_message_focus(e):
+            self.is_hint_deleted = True
+            self.txt_message.delete(0, len(self.txt_message.get()))
+
+        self.txt_message.bind('<FocusIn>', txt_message_focus)
 
         IconFrame(frm_footer, 'resources/icons/ui/send.png', 25, teal,command=lambda event: self.send_message(event,self.currentItem)).pack(side=RIGHT)
 
@@ -182,12 +188,12 @@ class DiscussionWindow(SessionWindow):
 
             
     def send_message(self, event, listItem):
-        if self.txt_message.get() != '' and not str.isspace(self.txt_message.get()) and listItem != None:
+        if self.txt_message.get() != '' and not str.isspace(self.txt_message.get()) and listItem != None and self.is_hint_deleted == True:
             msg = Message(content=self.txt_message.get(), sentDate=datetime.datetime.now(), user=DiscussionWindow.ACTIVE_USER, session=listItem.dataObject.session)
             Container.save(msg)
             listItem.dataObject=msg
-            listItem.lbl_content['text']=self.txt_message.get()
-            self.txt_message.delete(0,END)
+            listItem.lbl_content['text'] = self.txt_message.get()
+            self.txt_message.delete(0, END)
             self.fill_discussion(listItem.dataObject.session)
 
     # BOOKMARK_DONE: Fill chat sessions
@@ -206,15 +212,28 @@ class DiscussionWindow(SessionWindow):
 
     # BOOKMARK_DONE: Fill Messages
     def fill_discussion(self, session):
+        # dispose of old items
         self.lv_messages.empty()
-
+        # fill with new items
         for i in Container.filter(Message,Message.sessionId == session.id).order_by(Message.sentDate.asc()).all():
             self.create_message(i)
+        # scroll up
+        self.lv_messages.canvas.yview_moveto(0)
+        # scrolling down thread
+        def scroll_down_thread():
+            # import sleep method
+            from time import sleep
+            # sleep for a while
+            sleep (0.25)
+            # scroll down
+            self.lv_messages.canvas.yview_moveto(1)
+        # start thread
+        threading.Thread(target=scroll_down_thread).start()
 
 
     def create_message(self,i):
         createMethod = lambda item: DiscussionWindow.create_message_item(item, DiscussionWindow.MSG_INCOMING if i.user != DiscussionWindow.ACTIVE_USER else DiscussionWindow.MSG_OUTGOING)
-        ListItem(self.lv_messages.interior, None, 
+        return ListItem(self.lv_messages.interior, None, 
         {
             'username':i.user.userName,
             'content':i.content,
@@ -254,8 +273,7 @@ class DiscussionWindow(SessionWindow):
         item.lbl_time.pack(side=RIGHT, anchor=N, pady=5)
 
         # Change background
-        changeBg = [frm_message, frm_group, item.lbl_username, item.lbl_content, item.lbl_time]
-        for i in changeBg:
+        for i in [frm_message, frm_group, item.lbl_username, item.lbl_content, item.lbl_time]:
             i.config(bg=style['bg'])
         # Change foreground
         for i in style.keys():
