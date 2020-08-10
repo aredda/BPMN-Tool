@@ -64,7 +64,7 @@ class DiscussionWindow(SessionWindow):
         # Session items section
         self.frm_body.config(padx=0, pady=0)
 
-        frm_sessions = Frame(self.frm_body, bg=background, width=250)
+        frm_sessions = Frame(self.frm_body, bg=background, width=300)
         frm_border = Frame(self.frm_body, highlightthickness=1, highlightbackground=border) 
         frm_discussion = Frame(self.frm_body, bg=background)
 
@@ -184,8 +184,8 @@ class DiscussionWindow(SessionWindow):
     # Configure sessionlistitem click event
     def configure_session_click(self):
         for li in self.msgItems:
-            li.lbl_username.bind('<Button-1>', lambda event,listItem=li: self.Configure_session(event,listItem))
-
+            for control in [li, li.lbl_username, li.img_photo, li.frm_content, li.lbl_user, li.lbl_content, li.lbl_time]:
+                control.bind('<Button-1>', lambda event,listItem=li: self.Configure_session(event,listItem))
             
     def send_message(self, event, listItem):
         if self.txt_message.get() != '' and not str.isspace(self.txt_message.get()) and listItem != None and self.is_hint_deleted == True:

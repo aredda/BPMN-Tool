@@ -51,8 +51,8 @@ because we are going to add other models concerning data..
 ### discussion window 
 - [x] (ibrahim) scrollbar should be at the end when we enter a session 
 - [x] (ibrahim) issue with the scrollbar when switching between sessions
-- [ ] (ibrahim) hint can be sent when it shouldn't 
-- [ ] Click on the whole item to open conversation
+- [x] (ibrahim) hint can be sent when it shouldn't 
+- [x] (ibrahim) Click on the whole item to open conversation
 <!-- - [ ] hide session's name section and textmessage part **not a big deal** -->
 ### profile window
 - [x] password and confirmPwd must be hidden
@@ -60,10 +60,10 @@ because we are going to add other models concerning data..
 ### form modal factory in home window
 - [x] modal interfers with openfiledialog 
 ### collaboration window
-- [ ] (ibrahim) members listItem issue (size and kick button)
+- [x] (ibrahim) members listItem issue (size and kick button)
 - [ ] image width resizing issue, the image won't extend its original width **same issue**
 ### notification ListItem
-- [ ] (ibrahim) when content is long we can't see the rest of it and the date
+- [x] (ibrahim) when content is long we can't see the rest of it and the date
 ### home window
 - [x] project and session image doesn't show
 - ~~[ ] menu icon background transparency issue~~
