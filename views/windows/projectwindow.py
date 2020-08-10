@@ -179,7 +179,7 @@ class ProjectWindow(TabbedWindow):
 
     def export_project(self, title, date, fileBytes):
         if fileBytes == None:
-            MessageModal(self, title= 'error', message= 'No changes has been made on this project !', messageType= 'error')
+            MessageModal(self, title= 'error', message= 'No changes has been made on this project!', messageType= 'error')
         else:    
             folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
 
@@ -204,7 +204,7 @@ class ProjectWindow(TabbedWindow):
             
             
             if msg != None: msg.destroy()
-            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
+            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
 
         def set_old_link(msg,modal):
             set_link(slink.link)
@@ -213,6 +213,6 @@ class ProjectWindow(TabbedWindow):
         
         slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
         if slink != None:
-            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{slink.link}\nDo you want to override it ?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists, Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)

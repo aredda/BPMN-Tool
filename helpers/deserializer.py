@@ -348,10 +348,10 @@ class Deserializer:
         xplane = xdiagram.find(bpmndi + 'BPMNPlane')
         # instantiate a plane object
         plane = BPMNPlane(**xplane.attrib)
-        plane.element = self.find_element(xplane.attrib['bpmnElement'])
+        plane.element = self.find_element(xplane.attrib.get('bpmnElement', None))
         # save plane
         if plane.element == None:
-            plane.element = str (xplane.attrib['bpmnElement'])
+            plane.element = str (xplane.attrib.get('bpmnElement', None))
         # fetch for di elements
         for breed in Deserializer.di_breeds:
             for xchild in xplane:

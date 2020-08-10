@@ -20,7 +20,10 @@ class GUIActivity(GUILinkable):
         self.WIDTH = 150
         self.HEIGHT = 100
 
-        self.dielement = args.get('dielement', BPMNShape())
+        self.dielement = args.get('dielement', None)
+
+        if self.dielement == None:
+            self.dielement = BPMNShape()
 
         if self.dielement.bounds == None:
             self.dielement.bounds = Bounds()

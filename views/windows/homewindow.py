@@ -308,7 +308,7 @@ class HomeWindow(TabbedWindow):
         
         slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
         if slink != None:
-            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{slink.link}\nDo you want to override it ?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.now() else MessageModal(self,title='link found',message=f'An active link already exists: Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)
 

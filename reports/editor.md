@@ -18,10 +18,14 @@
 - [X] Linking the front with the back
 - [X] Optimizing the returned list of options for each element
 - [X] Draw diagram from deserialized definitions
-- [ ] Re-Doing & Un-Doing Action 
+- [X] Re-Doing & Un-Doing Action 
 - [X] Keyboard Shortcuts
 - [X] Image Loading Optimizing
-- [ ] ~~Implementing the GUI of text annotations~~
+- [ ] Prevent the visitor from editing if he doesn't have the privilige to
+- [ ] Caching issue: wrong image sizes
+- [ ] Screenshotting a modal
+- [ ] Drawing Diagram: children aren't associated with their parents correctly
+- [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events
@@ -44,7 +48,7 @@
 - [X] Serialize when finishing
 
 ### 22th of july
-- [ ] **(A)** Re-Doing & Un-Doing Actions
+- [X] **(A)** Re-Doing & Un-Doing Actions
 - [X] **(B)** Associate GUI items with their data
 - [X] **(C)** Selection Action
 - [X] **(C)** Generation of ID

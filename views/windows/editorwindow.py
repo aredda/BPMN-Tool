@@ -8,6 +8,7 @@ from io import BytesIO
 import canvasvg as cnvsvg
 import pickle as pk
 from resources.colors import *
+from helpers.stringhelper import to_pretty_xml
 from helpers.deserializer import Deserializer
 from helpers.xmlutility import elementtobytes, bytestoelement
 from helpers.filehelper import filetobytes
@@ -160,7 +161,8 @@ class EditorWindow(SessionWindow):
         self.didiagram.add('plane', self.diplane)
 
         # draw func test
-        # self.draw_diagram(filetobytes('resources/xml/dptst3.xml'))
+        if subject != None:
+            self.draw_diagram(subject.file if isinstance(subject, Project) else subject.project.file)
 
     def setup_tools(self):
         # prepare an empty collection
@@ -671,38 +673,32 @@ class EditorWindow(SessionWindow):
 
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
-        from helpers.stringhelper import to_pretty_xml
-        from os import system
-
-        clean = lambda e: system('cls')
-        clean(None)
-
-        print (to_pretty_xml(self.definitions.serialize()))
-        
         # get privilege
         def get_privilege():
-            if self.subject.owner == EditorWindow.ACTIVE_USER: return 'edit'
+            if self.subject.owner == EditorWindow.ACTIVE_USER: 
+                return 'edit'
             else:
-                obj = Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()
-                return obj.privilege
+                return (Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()).privilege
 
         # BOOKMARK_TOCHANGE: uncomment those
-        # if get_privilege() == 'read':
-        #     MessageModal(self, 'can\'t save changes', message='you don\'t have the right to edit this project !', messageType='error')
-        # else:
-        #     newFile = elementtobytes(self.definitions.serialize())
-        #     date = datetime.now()
-        #     # get project of subject
-        #     project = self.subject if self.subject.__class__ == Project else self.subject.project
-        #     # update project
-        #     project.file = newFile
-        #     project.lastEdited = date
-        #     self.take_screenshot(project)
-            
-        #     Container.save(project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=project))
-        #     MessageModal(self, 'success', message='changes saved succesfully !', messageType='info')
+        if get_privilege() == 'read':
+            MessageModal(self, 'Can\'t save changes', message='you don\'t have the right to edit this project!', messageType='error')
+        else:
+            newFile = elementtobytes(self.definitions.serialize())
+            date = datetime.now()
+            # get project of subject
+            project = self.subject if self.subject.__class__ == Project else self.subject.project
+            # update project
+            project.file = newFile
+            project.lastEdited = date
+            # get image and affect it
+            self.take_screenshot(project)
+            # save entity
+            Container.save(project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=project))
+            # inform user
+            self.show_info('Changes saved succesfully!', 'Success')
 
-        # # get etree from file  
+        # get etree from file  
         # print(to_pretty_xml(bytestoelement(project.file)))
 
     def back_to_subject(self):
@@ -854,8 +850,9 @@ class EditorWindow(SessionWindow):
 
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
+        root_element = bytestoelement(byte_data)
         # instantiate a deserializer
-        deserializer = Deserializer(bytestoelement(byte_data))
+        deserializer = Deserializer(root_element)
         # retrieve a definitions instance
         self.definitions = deserializer.definitions
         # draw all elements

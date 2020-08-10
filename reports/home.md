@@ -1,0 +1,1 @@
+- [ ] (mohamed) a click on the item should redirect to the project/session window
