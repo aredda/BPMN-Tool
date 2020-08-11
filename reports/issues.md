@@ -46,7 +46,7 @@ because we are going to add other models concerning data..
 ### message listItem
 - [x] long messages errors
 ### Saved Collaborators
-- [ ] (mohamed) collaborator's image doesn't show **changing it affects profile image**
+- [x] (mohamed) collaborator's image doesn't show **changing it affects profile image**
 <!-- - [ ] listItem width issue when the number is impair **not a big deal** -->
 ### discussion window 
 - [x] (ibrahim) scrollbar should be at the end when we enter a session 
@@ -56,7 +56,7 @@ because we are going to add other models concerning data..
 <!-- - [ ] hide session's name section and textmessage part **not a big deal** -->
 ### profile window
 - [x] password and confirmPwd must be hidden
-- [ ] (mohamed) MessageModal button disappears when message is big
+- [x] (mohamed) MessageModal button disappears when message is big
 ### form modal factory in home window
 - [x] modal interfers with openfiledialog 
 ### collaboration window

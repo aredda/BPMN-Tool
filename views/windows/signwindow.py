@@ -13,8 +13,10 @@ from views.windows.profilewindow import ProfileWindow
 from views.windows.homewindow import HomeWindow
 import re
 from datetime import datetime, timedelta
-from helpers.stringhelper import generate_code
+from helpers.stringhelper import generate_code, camel_case
 from helpers.sendemail import send_email
+
+
 
 
 class SignWindow(Window):
@@ -160,22 +162,22 @@ class SignWindow(Window):
  
     # BOOKMARK: Sign In Logic
     def btn_signin_click(self, event):
-        if getattr(self, 'txt_in_username').entry.get() == '' or getattr(self, 'txt_in_password').entry.get() == '': MessageModal(self,title='error',message=f'Please enter your username and password to login !',messageType='info')
+        if getattr(self, 'txt_in_username').entry.get() == '' or getattr(self, 'txt_in_password').entry.get() == '': MessageModal(self,title='Error',message=f'Please enter your username and password to login!',messageType='info')
         else:
             user = Container.filter(User, User.userName == getattr(self, 'txt_in_username').entry.get()).first()
-            if user == None: MessageModal(self,title='error',message=f'This username doesn\'t exist !',messageType='error')
+            if user == None: MessageModal(self,title='Error',message=f'This username doesn\'t exist!',messageType='error')
             else:
                 if user.password != getattr(self, 'txt_in_password').entry.get():
                     sparepwd = Container.filter(SparePwd, SparePwd.userId == user.id).order_by(SparePwd.expirationDate.desc()).first()
                     if sparepwd != None and sparepwd.verificationCode == getattr(self, 'txt_in_password').entry.get():
                         if sparepwd.expirationDate < datetime.now():
-                            MessageModal(self,title='expired code',message=f'This verification code has expired !',messageType='error')
+                            MessageModal(self,title='Expired code',message=f'This verification code has expired!',messageType='error')
                         else:
                             window = ProfileWindow(self.master, user=user)
                             self.windowManager.run(window)
-                            MessageModal(self,title='Change password',message=f'Please change your password !',messageType='info')
+                            MessageModal(self,title='Change password',message=f'Please change your password!',messageType='info')
                     else:
-                        MessageModal(self,title='Wrong password',message=f'Wrong password, please try again or request a verification code !',messageType='error')
+                        MessageModal(self,title='Wrong password',message=f'Wrong password, please try again or request a verification code!',messageType='error')
                 else: 
                     self.windowManager.run(HomeWindow(self.master, user= user))
 
@@ -192,12 +194,12 @@ class SignWindow(Window):
         validated_fields = self.validate_step()
         if self.current+1 == 3 and validated_fields == 2:
             if Container.filter(User, User.userName == getattr(self, 'txt_up_username').entry.get()).first() != None: 
-                MessageModal(self,title='UserName taken',message=f'{getattr(self, "txt_up_username").entry.get()} is already taken\nplease pick another userName !',messageType='error')
+                MessageModal(self,title='UserName taken',message=f'{getattr(self, "txt_up_username").entry.get()} is already taken\nplease pick another userName!',messageType='error')
             else:
                 atts = {}
                 Container.save(User(email=self.txt_email.entry.get(), userName=self.txt_up_username.entry.get(), firstName=self.txt_firstname.entry.get(), lastName=self.txt_lastname.entry.get(), password=self.txt_up_pwd.entry.get(), company=self.txt_company.entry.get(), gender=self.txt_gender.entry.get()))
                 self.empty_all()
-                MessageModal(self,title='success',message='Account created !\nFeel free to Login and good luck with your work !',messageType='info')
+                MessageModal(self,title='Success',message='Account created !\nFeel free to Login and good luck with your work!',messageType='info')
                 MoveTransition(self.frm_veil_set_x, self.frm_veil_get_x, 0, 2.5)
         else:
             return validated_fields
@@ -215,17 +217,17 @@ class SignWindow(Window):
 
     # BOOKMARK: Forgotten password
     def lbl_forgotpwd_click(self, event):
-        if getattr(self, 'txt_in_username').entry.get() == '': MessageModal(self,title='error',message=f'Please enter your username to recieve an email containing the verification code !',messageType='info')
+        if getattr(self, 'txt_in_username').entry.get() == '': MessageModal(self,title='Error',message=f'Please enter your username to recieve an email containing the verification code!',messageType='info')
         else:
             user = Container.filter(User, User.userName == getattr(self, 'txt_in_username').entry.get()).first()
-            if user == None: MessageModal(self,title='error',message=f'This username doesn\'t exist !',messageType='error')
+            if user == None: MessageModal(self,title='Error',message=f'This username doesn\'t exist!',messageType='error')
             else:
                 sparepwd = Container.filter(SparePwd, SparePwd.userId == user.id).first()
                 if sparepwd == None or sparepwd.expirationDate < datetime.now(): 
                     sparepwd = SparePwd(user= user, expirationDate= datetime.now() + timedelta(days=1), verificationCode= generate_code())
                     Container.save(sparepwd)
                 
-                MessageModal(self,title='success',message='A verification code has been sent to your email !',messageType='info')
+                MessageModal(self,title='Success',message='A verification code has been sent to your email!',messageType='info')
                 send_email(user, sparepwd.verificationCode)
 
     # BOOKMARK: Go to Sign In Form
@@ -268,30 +270,30 @@ class SignWindow(Window):
         try:
             for i in self.up_congig[self.steptitles[self.current]]:
                 if getattr(self,i.get('name')).entry.get() == '' and i.get('name') not in ['txt_confirm']:
-                    raise Exception(i.get("label"),f'{i.get("label")} Cannot be null !')
+                    raise Exception(camel_case(i.get("label")),f'{i.get("label")} Cannot be null!')
 
                 elif i.get('name') in ['txt_firstname','txt_lastname'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', getattr(self,i.get('name')).entry.get()):
-                    raise Exception(i.get("label"),f'\n1. Can contain 2 words \n2. Must be between 2 - 15 alphabets each \n3. Can contain 1 space between the 2 words only \n4. Should not contain any special characters or numbers')
+                    raise Exception(camel_case(i.get("label")),f'\n1.Can contain 2 words with 1 space in between\n2.Must be between 2 - 15 alphabets each')
                         
                 elif i.get('name') in ['txt_up_username','txt_up_pwd'] and not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', getattr(self,i.get('name')).entry.get()):
-                    raise Exception(i.get("label"),f'\n1. Must be between 6 - 14 characters \n2. Must contain 1 Capital letter \n3. Must contain 1 special character ($@-)')
+                    raise Exception(camel_case(i.get("label")),f'\n1.Must be between 6 - 14 characters \n2.Must contain 1 Capital letter and 1 special character ($@-)')
                         
                 elif i.get('name') == 'txt_email' and not re.fullmatch('[^@]+@[^@]+\.[^@]+', getattr(self,i.get('name')).entry.get()):
-                    raise Exception(i.get("label"),f'Please enter a valid email\nEX: emailName@email.com')
+                    raise Exception(camel_case(i.get("label")),f'Please enter a valid email!\nEX: emailName@email.com')
                         
                 elif i.get('name') == 'txt_company' and getattr(self,i.get('name')).entry.get() != '' and not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', getattr(self,i.get('name')).entry.get()):
-                    raise Exception(i.get("label"),f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character')
+                    raise Exception(camel_case(i.get("label")),f'\n1.Must be between 4 - 20 characters\n2.should not contain any special character')
                         
                 elif i.get('name') == 'txt_gender' and getattr(self,i.get('name')).entry.get() != '' and getattr(self,i.get('name')).entry.get().lower() not in ['female','male']:
-                    raise Exception(i.get("label"),f'Gender must be either male or female !')
+                    raise Exception(camel_case(i.get("label")),f'Gender must be either male or female!')
                         
                 elif i.get('name') == 'txt_confirm' and getattr(self,i.get('name')).entry.get() != getattr(self,'txt_up_pwd').entry.get():
-                    raise Exception('password confirmation',f'Password doesn\'t match.\nPlease confirm your password !')
+                    raise Exception('Password confirmation',f'Password doesn\'t match.\nPlease confirm your password!')
 
                 valid_fields += 1
 
         except Exception as ex:
-            MessageModal(self,title=f'{ex.args[0]} error',message=ex.args[1],messageType='error')
+            MessageModal(self,title=f'{ex.args[0]} Error',message=ex.args[1],messageType='error')
         finally:
             return valid_fields
 
