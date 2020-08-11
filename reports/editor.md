@@ -26,6 +26,8 @@
 - [X] Screenshotting a modal
 - [X] Drawing Diagram: children aren't associated with their parents correctly
 - [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
+- [ ] Serialization: weird object redundancy
+- [ ] When drawing diagram from xml file, undo/redo doesn't work
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events

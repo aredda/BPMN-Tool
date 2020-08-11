@@ -677,13 +677,14 @@ class EditorWindow(SessionWindow):
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
 
-        self.diplane.element = self.definitions.collaboration
-
         import os
         clear = lambda: os.system('cls')
         clear()
 
+        self.diplane.element = self.definitions.collaboration
+
         # print the content of the new file  
+        print (self.diplane.element, '\n----')
         print(to_pretty_xml(self.definitions.serialize()))
 
         # get privilege
@@ -928,6 +929,8 @@ class EditorWindow(SessionWindow):
             # redraw
             guicontainer.erase()
             guicontainer.draw()
+        # assign canvas
+        self.assign_canvas_all()
 
     # saving a jpg/png image
     def take_screenshot(self, subject=None):
