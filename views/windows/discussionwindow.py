@@ -178,7 +178,9 @@ class DiscussionWindow(SessionWindow):
     # Configure sessionlistitem click event
     def configure_session_click(self):
         for li in self.msgItems:
-            li.lbl_username.bind('<Button-1>', lambda event,listItem=li: self.Configure_session(event,listItem))
+            comps = [li, li.frm_content, li.lbl_username, li.lbl_user, li.lbl_content, li.lbl_time, li.img_photo]
+            for c in comps:
+                c.bind('<Button-1>', lambda event,listItem=li: self.Configure_session(event,listItem))
 
             
     def send_message(self, event, listItem):

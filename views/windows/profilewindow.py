@@ -12,6 +12,7 @@ from models.entities.Entities import User,Relation
 
 from helpers.imageutility import getdisplayableimage
 from helpers.filehelper import filetobytes
+from helpers.stringhelper import camel_case
 import tkinter.filedialog as filedialog
 import re
 from views.windows.modals.messagemodal import MessageModal
@@ -188,36 +189,36 @@ class ProfileWindow(TabbedWindow):
         try:
             for key, value in data.items():
                 if value == None and key not in ['confirmPwd', 'image']:
-                    raise Exception(key,f'{key} Cannot be null !')
+                    raise Exception(camel_case(key),f'{key} Cannot be null!')
 
                 elif key in ['firstName','lastName'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):
-                    raise Exception(key,f'\n1. Can contain 2 words \n2. Must be between 2 - 15 alphabets each \n3. Can contain 1 space between the 2 words only \n4. Should not contain any special characters or numbers')
+                    raise Exception(camel_case(key),f'\n1.Can contain 2 words with 1 space in between\n2.Must be between 2 - 15 alphabets each')
                         
                 elif key in ['userName','password'] and not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', value):
-                    raise Exception(key,f'\n1. Must be between 6 - 14 characters \n2. Must contain 1 Capital letter \n3. Must contain 1 special character ($@-)')
+                    raise Exception(camel_case(key),f'\n1.Must be between 6 - 14 characters \n2.Must contain 1 Capital letter and 1 special character ($@-)')
                         
                 elif key == 'email' and not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
-                    raise Exception(key,f'Please enter a valid email\nEX: emailName@email.com')
+                    raise Exception(camel_case(key),f'Please enter a valid email!\nEX: emailName@email.com')
                         
                 elif key == 'company' and value != None and not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', value):
-                    raise Exception(key,f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character')
+                    raise Exception(camel_case(key),f'\n1.Must be between 4 - 20 characters\n2.should not contain any special character')
                         
                 elif key == 'gender' and value != None and value.lower() not in ['female','male']:
-                    raise Exception(key,f'Gender must be either male or female !')
+                    raise Exception(camel_case(key),f'Gender must be either male or female!')
                         
                 elif key == 'confirmPwd' and value != data['password']:
-                    raise Exception('password confirmation',f'Password doesn\'t match.\nPlease confirm your password !')
+                    raise Exception('password confirmation',f'Password doesn\'t match.\nPlease confirm your password!')
 
             return True
 
         except Exception as ex:
-            MessageModal(self,title=f'{ex.args[0]} error',message=ex.args[1],messageType='error')
+            MessageModal(self,title=f'{ex.args[0]} Error',message=ex.args[1],messageType='error')
             return False
 
     def refresh_window(self, message=None):
         window = ProfileWindow(self.master)
         self.windowManager.run(window)
-        if message != None: MessageModal(window,title=f'success',message=message,messageType='info')
+        if message != None: MessageModal(window,title=f'Success',message=message,messageType='info')
         self.destroy()
 
     def save_changes(self, event):
@@ -231,7 +232,7 @@ class ProfileWindow(TabbedWindow):
             # save changes
             Container.save(ProfileWindow.ACTIVE_USER)
             # reload the window
-            self.refresh_window('Changes saved succefully !')
+            self.refresh_window('Changes saved succefully!')
 
     def remove_collaborator(self,relation):
         def delete_relation(relation):
@@ -245,8 +246,8 @@ class ProfileWindow(TabbedWindow):
                     li.destroy()
                     # self.collaboratorItems.remove(li)
 
-            self.refresh_window(f'{relation.userTwo.userName} has been removed succefully !')
+            self.refresh_window(f'{relation.userTwo.userName} has been removed succefully!')
         # confirm with the user
-        msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to remove {relation.userTwo.userName} from your collaboration list ?',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
+        msg = MessageModal(self,title=f'Confirmation',message=f'Are you sure you want to remove {relation.userTwo.userName} from your collaboration list?',messageType='prompt',actions={'yes' : lambda e: delete_relation(relation)})
 
    

@@ -76,7 +76,7 @@ class CollaborationWindow(TabbedWindow):
                 'text': 'End Session',
                 'type': DangerButton,
                 # BOOKARK: Ending Session Command
-                'cmnd': lambda e: self.show_prompt('Are you sure you want to terminate the session ?', lambda e: self.delete_session(), 'Terminating the session')
+                'cmnd': lambda e: self.show_prompt('Are you sure you want to terminate the session?', lambda e: self.delete_session(), 'Terminating the session')
             },
             {
                 'icon': 'invite.png',
@@ -129,7 +129,7 @@ class CollaborationWindow(TabbedWindow):
             
             
             if msg != None: msg.destroy()
-            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, inv, 'edit'), 'no' : lambda e: generate_link(msg2, modal, inv, 'read')})
+            msg2 = MessageModal(self,title=f'Confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, inv, 'edit'), 'no' : lambda e: generate_link(msg2, modal, inv, 'read')})
 
         def set_old_link(msg,modal):
             set_link(inv.link)
@@ -137,7 +137,7 @@ class CollaborationWindow(TabbedWindow):
 
         inv = Container.filter(InvitationLink, InvitationLink.senderId == CollaborationWindow.ACTIVE_USER.id, InvitationLink.sessionId == self.session.id).first()
         if inv != None:
-            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists: \n{inv.link}\nDo you want to override it ?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, inv) if inv.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists, Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, inv) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)
 
@@ -148,20 +148,20 @@ class CollaborationWindow(TabbedWindow):
             notif =  Notification(type= NotificationType.INVITED.value, notificationTime= datetime.datetime.now(), nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.sender, recipient= inv.recipient)
             Container.save(notif)
             msg.destroy()
-            MessageModal(self,title=f'success',message=f'Invitation sent to {user.userName} successfully !',messageType='info')
+            MessageModal(self,title=f'Success',message=f'Invitation sent to {user.userName} successfully!',messageType='info')
 
 
         user = Container.filter(User, User.userName == username).first()
         collabs = Container.filter(User, Collaboration.sessionId == self.session.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all()
         
         if user == None:
-            MessageModal(self,title='user error 404',message=f'{username} doesn\'t exist !' if username != '' and not str.isspace(username) else 'Please enter a userName !',messageType='error')
+            MessageModal(self,title='User error 404',message=f'{username} doesn\'t exist!' if username != '' and not str.isspace(username) else 'Please enter a username!',messageType='error')
         elif user in collabs:
-            MessageModal(self,title='user already in',message=f'{username} is already in the session !',messageType='error')
+            MessageModal(self,title='User already in',message=f'{username} is already in the session!',messageType='error')
         elif Container.filter(Invitation, Invitation.recipientId == user.id, Invitation.sessionId == self.session.id, Invitation.status == Status.PENDING.value).first() != None:
-            MessageModal(self,title='user already invited',message=f'An invite is already sent to {username} !',messageType='info')
+            MessageModal(self,title='User already invited',message=f'An invite is already sent to {username}!',messageType='info')
         else:
-            msg = MessageModal(self,title=f'confirmation',message=f'Do you want to give {username} the right to make changes ?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
+            msg = MessageModal(self,title=f'Confirmation',message=f'Do you want to give {username} the right to make changes?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
 
     def delete_session(self):
         Container.deleteObject(self.session.project)
@@ -237,13 +237,13 @@ class CollaborationWindow(TabbedWindow):
 
     def export_project(self, title, date, fileBytes):
         if fileBytes == None:
-            MessageModal(self, title= 'error', message= 'No changes has been made yet on this session\'s project yet !', messageType= 'error')
+            MessageModal(self, title= 'Error', message= 'No changes has been made yet on this session\'s project yet!', messageType= 'error')
         else: 
             folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
 
             if folderName != '':
                 bytestofile(f'{folderName}',f'{title}_{date.strftime("%d-%m-%Y_%H-%M-%S")}','xml',fileBytes)
-                MessageModal(self,title=f'success',message=f'File saved in {folderName} !',messageType='info')
+                MessageModal(self,title=f'Success',message=f'File saved in {folderName}!',messageType='info')
     
     def get_btn_list(self,history):
         
@@ -259,10 +259,10 @@ class CollaborationWindow(TabbedWindow):
                         Container.deleteObject(li.dataObject)
                         li.destroy()
                 
-                MessageModal(self,title=f'success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}',messageType='info')
+                MessageModal(self,title=f'Success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}!',messageType='info')
                 getattr(self, 'lbl_'+ CollaborationWindow.lblSettings[2]['prop'])['text'] = history.editDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != history.editDate.strftime("%x") else 'Today at - '+history.editDate.strftime("%X")
             
-            msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
+            msg = MessageModal(self,title=f'Confirmation',message=f'Are you sure you want to revert to that change?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
 
 
         btn_list = [{
@@ -311,6 +311,6 @@ class CollaborationWindow(TabbedWindow):
                     li.destroy()
                     getattr(self, 'lbl_'+ CollaborationWindow.lblSettings[3]['prop'])['text'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
                     
-            MessageModal(self,title=f'success',message=f'{user.userName} has been kicked out of the session !',messageType='info')
+            MessageModal(self,title=f'Success',message=f'{user.userName} has been kicked out of the session!',messageType='info')
 
-        msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to kick {user.userName} ?',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})
+        msg = MessageModal(self,title=f'Confirmation',message=f'Are you sure you want to kick {user.userName}?',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})

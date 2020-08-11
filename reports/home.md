@@ -1,1 +1,1 @@
-- [ ] (mohamed) a click on the item should redirect to the project/session window
+- [x] (mohamed) a click on the item should redirect to the project/session window

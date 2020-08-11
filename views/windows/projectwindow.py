@@ -103,10 +103,10 @@ class ProjectWindow(TabbedWindow):
                         Container.deleteObject(li.dataObject)
                         li.destroy()
 
-                MessageModal(self,title=f'success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}',messageType='info')
+                MessageModal(self,title=f'Success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}!',messageType='info')
                 getattr(self, 'lbl_'+ ProjectWindow.lblSettings[2]['prop'])['text'] = history.editDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != history.editDate.strftime("%x") else 'Today at - '+history.editDate.strftime("%X")
             
-            msg = MessageModal(self,title=f'confirmation',message=f'Are you sure you want to revert to that change ?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
+            msg = MessageModal(self,title=f'Confirmation',message=f'Are you sure you want to revert to that change?',messageType='prompt',actions={'yes' : lambda e: revert_changes(msg,history)})
 
         btns = [
                 {
@@ -179,13 +179,13 @@ class ProjectWindow(TabbedWindow):
 
     def export_project(self, title, date, fileBytes):
         if fileBytes == None:
-            MessageModal(self, title= 'error', message= 'No changes has been made on this project!', messageType= 'error')
+            MessageModal(self, title= 'Error', message= 'No changes has been made on this project!', messageType= 'error')
         else:    
             folderName = filedialog.askdirectory(initialdir="/", title='Please select a directory')
 
             if folderName != '':
                 bytestofile(f'{folderName}',f'{title}_{date.strftime("%d-%m-%Y_%H-%M-%S")}','xml',fileBytes)
-                MessageModal(self,title=f'success',message=f'File saved in {folderName} !',messageType='info')
+                MessageModal(self,title=f'Success',message=f'File saved in {folderName}!',messageType='info')
 
     def generate_share_link(self, dataObject, modal):
         def set_link(link):
@@ -204,7 +204,7 @@ class ProjectWindow(TabbedWindow):
             
             
             if msg != None: msg.destroy()
-            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
+            msg2 = MessageModal(self,title=f'Confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
 
         def set_old_link(msg,modal):
             set_link(slink.link)
@@ -213,6 +213,6 @@ class ProjectWindow(TabbedWindow):
         
         slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
         if slink != None:
-            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.datetime.now() else MessageModal(self,title='link found',message=f'A link already exists, Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.datetime.now() else MessageModal(self,title='Link found',message=f'A link already exists, Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)

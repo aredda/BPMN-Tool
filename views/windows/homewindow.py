@@ -233,7 +233,7 @@ class HomeWindow(TabbedWindow):
                 create_project(filetobytes(filename))
 
         if not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', title):
-            MessageModal(self,title=f'title error',message=f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character',messageType='error')
+            MessageModal(self,title=f'Title error',message=f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character',messageType='error')
         else:
             create_session() if nature == HomeWindow.SESSION_LI else ( create_project() if load == False else load_project())
             modal.destroy()
@@ -246,17 +246,17 @@ class HomeWindow(TabbedWindow):
         self.refresh_window()
 
     def delete_project(self, dataObject):
-        MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} project ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete {dataObject.title} project?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
 
     def delete_session(self, dataObject):
-        MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} session ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete {dataObject.title} session?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
 
     # BOOKMARK: this should redirect to the editor window
     def join_project(self, modal):
         link = modal.get_form_data()['txt_link']
         slink = Container.filter(ShareLink, ShareLink.link == link).first()
-        if slink == None: MessageModal(self, title= f'link error' ,message= 'This link doesn\'t exist !', messageType= 'error')
-        elif slink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired !', messageType= 'error')
+        if slink == None: MessageModal(self, title= f'Link error' ,message= 'This link doesn\'t exist!', messageType= 'error')
+        elif slink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired!', messageType= 'error')
         else:
             if slink.project.owner != HomeWindow.ACTIVE_USER :noti = Notification(notificationTime= datetime.now(), type= NotificationType.JOINED.value, nature= NotificationNature.SHARELINK.value, invitationId= slink.id, actor= HomeWindow.ACTIVE_USER, recipient= slink.project.owner)
             modal.destroy()
@@ -266,10 +266,10 @@ class HomeWindow(TabbedWindow):
         link = modal.get_form_data()['txt_link']
         date = datetime.now()
         invlink = Container.filter(InvitationLink, InvitationLink.link == link).first()
-        if invlink == None: MessageModal(self, title= f'link error' ,message= 'This link doesn\'t exist !', messageType= 'error')
-        elif invlink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired !', messageType= 'error')
+        if invlink == None: MessageModal(self, title= f'Link error' ,message= 'This link doesn\'t exist!', messageType= 'error')
+        elif invlink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired!', messageType= 'error')
         elif Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == invlink.sessionId).first() != None or invlink.session.owner == HomeWindow.ACTIVE_USER:
-            MessageModal(self, title= f'error' ,message= f'You are already in {invlink.session.title} session !', messageType= 'error')
+            MessageModal(self, title= f'Error' ,message= f'You are already in {invlink.session.title} session!', messageType= 'error')
         else:
             # create relations if they don't exist
             if Container.filter(Relation,Relation.userOne == HomeWindow.ACTIVE_USER, Relation.userTwo == invlink.sender ).first() == None: Container.save(Relation(userOne= HomeWindow.ACTIVE_USER, userTwo= invlink.sender))
@@ -299,7 +299,7 @@ class HomeWindow(TabbedWindow):
             
             
             if msg != None: msg.destroy()
-            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
+            msg2 = MessageModal(self,title=f'Confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
 
         def set_old_link(msg,modal):
             set_link(slink.link)
@@ -308,12 +308,12 @@ class HomeWindow(TabbedWindow):
         
         slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
         if slink != None:
-            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.now() else MessageModal(self,title='link found',message=f'An active link already exists: Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.now() else MessageModal(self,title='Link found',message=f'An active link already exists, Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)
 
     def refresh_window(self, message=None):
         window = HomeWindow(self.master)
         self.windowManager.run(window)
-        if message != None: MessageModal(window,title=f'success',message=message,messageType='info')
+        if message != None: MessageModal(window,title=f'Success',message=message,messageType='info')
         self.destroy()

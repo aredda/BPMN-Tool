@@ -682,7 +682,7 @@ class EditorWindow(SessionWindow):
 
         # BOOKMARK_TOCHANGE: uncomment those
         if get_privilege() == 'read':
-            MessageModal(self, 'Can\'t save changes', message='you don\'t have the right to edit this project!', messageType='error')
+            MessageModal(self, 'Can\'t save changes', message='You don\'t have the right to edit this project!', messageType='error')
         else:
             newFile = elementtobytes(self.definitions.serialize())
             date = datetime.now()
@@ -707,7 +707,7 @@ class EditorWindow(SessionWindow):
             if self.subject.__class__ == Session: self.windowManager.run_tag('collaboration', session=self.subject)
             else: self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
 
-        msg = MessageModal(self, title='confirmation', message='Are you sure you want to leave this window?', messageType='prompt', actions={'yes': lambda e: back(msg)})
+        msg = MessageModal(self, title='Confirmation', message='Are you sure you want to leave this window?', messageType='prompt', actions={'yes': lambda e: back(msg)})
 
     # linking funcs
     def can_link(self, source, target):

@@ -56,7 +56,7 @@ because we are going to add other models concerning data..
 <!-- - [ ] hide session's name section and textmessage part **not a big deal** -->
 ### profile window
 - [x] password and confirmPwd must be hidden
-- [ ] (mohamed) MessageModal button disappears when message is big
+- [x] (mohamed) MessageModal button disappears when message is big
 ### form modal factory in home window
 - [x] modal interfers with openfiledialog 
 ### collaboration window
