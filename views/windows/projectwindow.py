@@ -154,12 +154,16 @@ class ProjectWindow(TabbedWindow):
         frm_preview.pack(expand=1, fill=BOTH, pady=15)
 
         frm_preview.update()
+        
+        def resize_image(event, label):
+            if self.project.image !=None:
+                photo = getdisplayableimage(self.project.image,(frm_preview.winfo_width(),frm_preview.winfo_height()))
+                label.configure(image=photo)
+                label.image = photo
 
-        if self.project.image != None:
-            photo = getdisplayableimage(self.project.image,(self.tb_info.winfo_width(),self.tb_info.winfo_height()))
-            lbl_image = Label(frm_preview, image = photo)
-            lbl_image.image=photo
-            lbl_image.pack(fill=BOTH,expand=1)
+        lbl_image = Label(frm_preview, bg='white')
+        lbl_image.pack(fill=BOTH,expand=1)
+        lbl_image.bind('<Configure>', lambda e, l=lbl_image, : resize_image(e, l))
 
 
         # Filling the history tab

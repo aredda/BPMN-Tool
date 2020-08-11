@@ -108,6 +108,15 @@ class HomeWindow(TabbedWindow):
         self.lv_session.set_gridcols(4)
         self.lv_session.pack(fill=BOTH, expand=1)
 
+    def set_image(self, li, image):
+        if image != None:
+            photo = getdisplayableimage(image,(li.winfo_width(),205))
+            li.lbl_image.configure(image=photo)
+            li.lbl_image.image = photo
+
+    def resize_image(self, event, li, image):
+        self.set_image(li,image)
+
     # BOOKMARK_DONE: fill project items
     def fill_projects(self):
         # cleaning up old items
@@ -115,7 +124,9 @@ class HomeWindow(TabbedWindow):
         # refilling 
         for item in Container.filter(Project, Project.ownerId == HomeWindow.ACTIVE_USER.id):
             if Container.filter(Session, Session.projectId == item.id).first() == None:
-                self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.lastEdited, 'image': item.image}, None, lambda i: self.create_list_item(i), 15)
+                li = self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.lastEdited, 'image': item.image}, None, lambda i: self.create_list_item(i), 15)
+                # self.set_image(li, item.image)
+                li.lbl_image.bind('<Configure>', lambda e, l=li, image= item.image: self.resize_image(e, l, image))
 
     # BOOKMARK_DONE: fill session items
     def fill_sessions(self):
@@ -124,7 +135,9 @@ class HomeWindow(TabbedWindow):
         # refilling 
         for item in Container.filter(Session):
             if item.owner == HomeWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == item.id).first() != None:
-                self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1), 'image': item.project.image}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+                li = self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1), 'image': item.project.image}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+                # self.set_image(li, item.project.image)
+                li.lbl_image.bind('<Configure>', lambda e, l=li, image= item.project.image: self.resize_image(e, l, image))
 
     # BOOKMARK: Project List Item & Session List Item Creation Method
     def create_list_item(self, item: ListItem, liType: int = PROJECT_LI):
@@ -135,13 +148,10 @@ class HomeWindow(TabbedWindow):
         img_thumb = Frame(item, height=img_size, bg=white)
         img_thumb.pack_propagate(0)
 
-        # if item.bindings.get('image', None) != None:
-        #     item.update_idletasks()
-        #     print(img_thumb.winfo_width())
-        #     photo = getdisplayableimage(item.bindings.get('image', None),(self.winfo_width(),205))
-        #     lbl_image = Label(img_thumb, image = photo)
-        #     lbl_image.image=photo
-        #     lbl_image.pack(fill=BOTH,expand=1)
+        # adding image label
+        item.lbl_image = Label(img_thumb,bg='white')
+        item.lbl_image.pack(fill=BOTH,expand=1)
+        comps.append(item.lbl_image)
 
         border_bottom = Frame(item, bg=border)
         frm_info = Frame(item, bg=silver, padx=10, pady=10)
@@ -228,18 +238,6 @@ class HomeWindow(TabbedWindow):
             self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=menu_buttons)
         # options icon
         IconFrame(item, 'resources/icons/ui/menu.png', 10, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
-
-        if item.bindings.get('image', None) != None:
-            self.update()
-            print(item.winfo_reqwidth())
-            print(item.winfo_width())
-
-            photo = getdisplayableimage(item.bindings.get('image', None),(item.winfo_reqwidth(),205))
-            lbl_image = Label(img_thumb, image = photo)
-            lbl_image.image=photo
-            lbl_image.pack(fill=BOTH,expand=1)
-
-            comps.append(lbl_image)
 
         for c in comps:
             c.bind('<Double-Button-1>', lambda e: self.windowManager.run(ProjectWindow(self, item.dataObject)) if liType == HomeWindow.PROJECT_LI else self.windowManager.run(CollaborationWindow(self, item.dataObject)))

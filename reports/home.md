@@ -1,3 +1,3 @@
 - [x] (mohamed) a click on the item should redirect to the project/session window
 - [x] (mohamed) a menuItem to leave the session
-- [ ] (mohamed) image's size doesn't fit the card
+- [x] (mohamed) image's size doesn't fit the card

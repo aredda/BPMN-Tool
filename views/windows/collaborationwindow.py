@@ -210,11 +210,15 @@ class CollaborationWindow(TabbedWindow):
 
         frm_preview.update()
 
-        if self.session.project.image != None:
-            photo = getdisplayableimage(self.session.project.image,(self.tb_info.winfo_width(),self.tb_info.winfo_height()))
-            lbl_image = Label(frm_preview, image = photo)
-            lbl_image.image=photo
-            lbl_image.pack(fill=BOTH,expand=1)
+        def resize_image(event, label):
+            if self.session.project.image !=None:
+                photo = getdisplayableimage(self.session.project.image,(frm_preview.winfo_width(),frm_preview.winfo_height()))
+                label.configure(image=photo)
+                label.image = photo
+
+        lbl_image = Label(frm_preview, bg='white')
+        lbl_image.pack(fill=BOTH,expand=1)
+        lbl_image.bind('<Configure>', lambda e, l=lbl_image, : resize_image(e, l))
 
 
         self.lv_members = Scrollable(frm_group, bg=background)
