@@ -50,7 +50,7 @@ class ProjectWindow(TabbedWindow):
     ]
 
     def __init__(self, root, project=None, **args):
-        TabbedWindow.__init__(self, root, ProjectWindow.tabSettings, 'Project\'s Title', **args)
+        TabbedWindow.__init__(self, root, ProjectWindow.tabSettings, project.title, **args)
         
         self.project = project
         self.configure_settings()
@@ -168,7 +168,7 @@ class ProjectWindow(TabbedWindow):
 
         # BOOKMARK: fill history items
         for i in Container.filter(History, History.projectId == self.project.id).order_by(History.editDate.desc()):
-            li = ListItem(self.frm_list_view.interior, i, {'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}'}, self.get_btn_list(i))
+            li = ListItem(self.frm_list_view.interior, i, {'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}', 'image': i.editor.image}, self.get_btn_list(i))
             li.pack(anchor=N+W, pady=(0, 10), fill=X, padx=5)
             self.historyItems.append(li)
     

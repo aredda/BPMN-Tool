@@ -63,7 +63,7 @@ class IconFrame(Canvas, Animatable):
                 # assign image
                 self._image = img
         else:
-            self._image = getdisplayableimage(image, (self.size-self.imgPadding,self.size-self.imgPadding))
+            self._image = getdisplayableimage(image, (self.size,self.size))
         # display image
         if hasattr(self, 'img_image'):
             self.delete(self.img_image)

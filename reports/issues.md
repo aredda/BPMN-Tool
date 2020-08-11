@@ -46,7 +46,7 @@ because we are going to add other models concerning data..
 ### message listItem
 - [x] long messages errors
 ### Saved Collaborators
-- [ ] (mohamed) collaborator's image doesn't show **changing it affects profile image**
+- [x] (mohamed) collaborator's image doesn't show **changing it affects profile image**
 <!-- - [ ] listItem width issue when the number is impair **not a big deal** -->
 ### discussion window 
 - [ ] (ibrahim) scrollbar should be at the end when we enter a session 

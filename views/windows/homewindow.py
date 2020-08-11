@@ -129,24 +129,27 @@ class HomeWindow(TabbedWindow):
     # BOOKMARK: Project List Item & Session List Item Creation Method
     def create_list_item(self, item: ListItem, liType: int = PROJECT_LI):
         item.configure (highlightthickness=1, highlightbackground=border, bg=white)
+        comps = []
 
         img_size = 205
         img_thumb = Frame(item, height=img_size, bg=white)
         img_thumb.pack_propagate(0)
 
-        if item.bindings.get('image', None) != None:
-            photo = getdisplayableimage(item.bindings.get('image', None),(self.winfo_width(),205))
-            lbl_image = Label(img_thumb, image = photo)
-            lbl_image.image=photo
-            lbl_image.pack(fill=BOTH,expand=1)
-
-        
+        # if item.bindings.get('image', None) != None:
+        #     item.update_idletasks()
+        #     print(img_thumb.winfo_width())
+        #     photo = getdisplayableimage(item.bindings.get('image', None),(self.winfo_width(),205))
+        #     lbl_image = Label(img_thumb, image = photo)
+        #     lbl_image.image=photo
+        #     lbl_image.pack(fill=BOTH,expand=1)
 
         border_bottom = Frame(item, bg=border)
         frm_info = Frame(item, bg=silver, padx=10, pady=10)
         frm_details = Frame(frm_info, bg=silver)
         
-        Label(frm_info, text=item.bindings.get('title', '{title}'), bg=silver, fg=black, font='-size 18').pack(side=TOP, fill=X, pady=(0, 10))
+        lbl_title = Label(frm_info, text=item.bindings.get('title', '{title}'), bg=silver, fg=black, font='-size 18')
+        lbl_title.pack(side=TOP, fill=X, pady=(0, 10))
+        comps.append(lbl_title)
 
         panel_settings = [
             {
@@ -168,13 +171,22 @@ class HomeWindow(TabbedWindow):
         for i in panel_settings:
             frm = Frame(frm_details, bg=silver)
             frm.pack(side=LEFT, fill=X, expand=1)
-            Label(frm, text=i.get('label'), fg=teal, bg=silver, font='-size 8').pack(fill=X)
-            Label(frm, text=i.get('text'), fg=gray, bg=silver, font='-size 9').pack(fill=X)
+            comps.append(frm)
+            lbl_label = Label(frm, text=i.get('label'), fg=teal, bg=silver, font='-size 8')
+            lbl_label.pack(fill=X)
+            comps.append(lbl_label)
+            lbl_text = Label(frm, text=i.get('text'), fg=gray, bg=silver, font='-size 9')
+            lbl_text.pack(fill=X)
+            comps.append(lbl_text)
+
         
         img_thumb.pack(fill=X, side=TOP)
+        comps.append(img_thumb)
         border_bottom.pack(fill=X, side=TOP)
         frm_info.pack(fill=X, side=TOP)
+        comps.append(frm_info)
         frm_details.pack(fill=X, side=TOP)
+        comps.append(frm_details)
 
         # BOOKMARK_DONE: project item's menu
         def options_menu(e):
@@ -198,16 +210,39 @@ class HomeWindow(TabbedWindow):
                     'text': 'Delete',
                     'icon': 'delete.png',
                     'cmnd': lambda e: self.delete_project(item.dataObject) if liType == self.PROJECT_LI else self.delete_session(item.dataObject) 
+                },
+                {
+                    'text': 'Quit',
+                    'icon': 'logout.png',
+                    'cmnd': lambda e: self.quit_session(item.dataObject)
                 }
             ]
             # pop unwanted buttons
             if liType == self.SESSION_LI: 
                 menu_buttons.pop(1)
                 if item.dataObject.owner != HomeWindow.ACTIVE_USER: menu_buttons.pop(1)
+                else: menu_buttons.pop(2)
+            else:
+                menu_buttons.pop(3)
             # show menu
             self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=menu_buttons)
         # options icon
         IconFrame(item, 'resources/icons/ui/menu.png', 10, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
+
+        if item.bindings.get('image', None) != None:
+            self.update()
+            print(item.winfo_reqwidth())
+            print(item.winfo_width())
+
+            photo = getdisplayableimage(item.bindings.get('image', None),(item.winfo_reqwidth(),205))
+            lbl_image = Label(img_thumb, image = photo)
+            lbl_image.image=photo
+            lbl_image.pack(fill=BOTH,expand=1)
+
+            comps.append(lbl_image)
+
+        for c in comps:
+            c.bind('<Double-Button-1>', lambda e: self.windowManager.run(ProjectWindow(self, item.dataObject)) if liType == HomeWindow.PROJECT_LI else self.windowManager.run(CollaborationWindow(self, item.dataObject)))
 
     # BOOKMARK: this is how a COMMAND should be
     def create(self, modal, nature= PROJECT_LI, load= False):
@@ -250,6 +285,9 @@ class HomeWindow(TabbedWindow):
 
     def delete_session(self, dataObject):
         MessageModal(self,title=f'Confirmation',message=f'Do you want to delete {dataObject.title} session?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
+
+    def quit_session(self, dataObject):
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to quit {dataObject.title} session?',messageType='prompt',actions={'yes' : lambda e: self.delete(Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == dataObject.id).first())})
 
     # BOOKMARK: this should redirect to the editor window
     def join_project(self, modal):

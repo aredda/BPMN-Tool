@@ -229,7 +229,8 @@ class CollaborationWindow(TabbedWindow):
             if i.project.owner == CollaborationWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.sessionId == self.session.id, Collaboration.userId == CollaborationWindow.ACTIVE_USER.id).first() != None:
                 li = ListItem(self.frm_list_view.interior, i,
                     {
-                        'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}'
+                        'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}',
+                        'image': i.editor.image
                     },
                     self.get_btn_list(i))
                 li.pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
@@ -289,7 +290,8 @@ class CollaborationWindow(TabbedWindow):
         for i in Container.filter(User, Collaboration.sessionId == self.session.id,User.id != CollaborationWindow.ACTIVE_USER.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all():
             li = ListItem(self.lv_members.interior, i, 
                 {
-                    'username' : i.userName
+                    'username' : i.userName,
+                    'image': i.image
                 },
                 [{
                     'icon': 'cancel.png',
