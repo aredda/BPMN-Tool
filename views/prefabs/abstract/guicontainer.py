@@ -15,12 +15,25 @@ class GUIContainer(Prefab):
             self.children.append(child)
             # append in the list of model children
             self.element.add(child.element.get_tag(), child.element)
+            # add those flows
+            for flow in child.flows:
+                # skip message flows
+                if flow.element.get_tag() == 'sequenceflow':
+                    # add this element to
+                    self.element.add('sequenceflow', flow.element)
 
     def remove_child(self, child):
         if child in self.children:
+            # deny child
             child.parent = None
+            # remove it from collection
             self.children.remove(child)
+            # remove it from model collection
             self.element.remove(child.element.get_tag(), child.element)
+            # remove its flows
+            for flow in child.flows:
+                if flow.element.get_tag() == 'sequenceflow':
+                    self.element.remove('sequenceflow', flow.element)
     
     def move(self, x, y):
         # save previous

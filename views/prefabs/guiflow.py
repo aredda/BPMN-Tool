@@ -22,12 +22,6 @@ class GUIFlow(Prefab):
         if self.guitarget != None:
             self.guitarget.add_flow(self)
 
-        # error catching
-        if self.guisource == None:
-            print ('ERROR: GUI Source cannot be None')
-        if self.guitarget == None:
-            print ('ERROR: GUI Target cannot be None')
-
     def draw_at(self, x, y):
         super().draw_at(x, y)
         cnv: Canvas = self.canvas

@@ -162,7 +162,11 @@ class EditorWindow(SessionWindow):
 
         # draw func test
         if subject != None:
-            self.draw_diagram(subject.file if isinstance(subject, Project) else subject.project.file)
+            # retrieve file
+            f = subject.file if isinstance(subject, Project) else subject.project.file
+            # check
+            if f != None:
+                self.draw_diagram(f)
 
     def setup_tools(self):
         # prepare an empty collection
@@ -560,6 +564,7 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Control-y>', lambda e: self.redo())
         self.cnv_canvas.bind_all('<Control-0>', lambda e: self.reset_zoom())
         self.cnv_canvas.bind_all('<Control-v>', lambda e: self.reset_view())
+        self.cnv_canvas.bind_all('<Control-s>', lambda e: self.save_work())
 
 
     # a searching method to find the corresponding gui element from the given id
@@ -672,8 +677,14 @@ class EditorWindow(SessionWindow):
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
 
-        # serialization adjustments
-        self.diplane.element = 'collaboration'
+        self.diplane.element = self.definitions.collaboration
+
+        import os
+        clear = lambda: os.system('cls')
+        clear()
+
+        # print the content of the new file  
+        print(to_pretty_xml(self.definitions.serialize()))
 
         # get privilege
         def get_privilege():
@@ -686,20 +697,16 @@ class EditorWindow(SessionWindow):
         if get_privilege() == 'read':
             MessageModal(self, 'Can\'t save changes', message='you don\'t have the right to edit this project!', messageType='error')
         else:
-            newFile = elementtobytes(self.definitions.serialize())
             date = datetime.now()
             # get project of subject
             project = self.subject if self.subject.__class__ == Project else self.subject.project
             # update project
-            project.file = newFile
+            project.file = elementtobytes(self.definitions.serialize())
             project.lastEdited = date
             # get image and affect it
             self.take_screenshot(project)
             # save entity
-            Container.save(project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=project))
-
-        # get etree from file  
-        print(to_pretty_xml(bytestoelement(project.file)))
+            Container.save(project, History(editDate=date, file=project.file, editor=EditorWindow.ACTIVE_USER, project=project))
 
     def back_to_subject(self):
         def back(msg):
@@ -853,7 +860,7 @@ class EditorWindow(SessionWindow):
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         root_element = bytestoelement(byte_data)
-        # see what's going on first
+        # show the content
         # print (to_pretty_xml(root_element))
         # instantiate a deserializer
         deserializer = Deserializer(root_element)
@@ -902,6 +909,8 @@ class EditorWindow(SessionWindow):
             # skip other gui elements
             if isinstance(guicontainer, GUIContainer) == False:
                 continue
+            # elements to append
+            children = []
             # loop through its element's children
             for key in guicontainer.element.elements.keys():
                 # skip flows
@@ -912,7 +921,10 @@ class EditorWindow(SessionWindow):
                     # find gui element of this element
                     guie = self.find_guielement_by_element(child_element)
                     # add it to the container
-                    guicontainer.append_child(guie)
+                    children.append(guie)
+            # to avoid some runtime errors concerning dictionary size change
+            for child in children:
+                guicontainer.append_child(child)
             # redraw
             guicontainer.erase()
             guicontainer.draw()

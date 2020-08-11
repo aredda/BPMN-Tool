@@ -187,23 +187,27 @@ class HomeWindow(TabbedWindow):
                     'cmnd': lambda e: self.windowManager.run(ProjectWindow(self, item.dataObject)) if liType == HomeWindow.PROJECT_LI else self.windowManager.run(CollaborationWindow(self, item.dataObject))
                 },
                 {
+                    'text': 'Edit',
+                    'icon': 'edit.png',
+                    'cmnd': lambda e: self.windowManager.run_tag('editor', item.dataObject)
+                },
+                {
                     'text': 'Share',
                     'icon': 'share.png',
-                    'cmnd': lambda e: (self.windowManager.get_module('ShareModal'))(
-                    self,
-                    lambda modal: self.generate_share_link(item.dataObject, modal)
-                )
+                    'cmnd': lambda e: (self.windowManager.get_module('ShareModal'))(self, lambda modal: self.generate_share_link(item.dataObject, modal))
                 },
                 {
                     'text': 'Delete',
                     'icon': 'delete.png',
+                    'fg': danger,
                     'cmnd': lambda e: self.delete_project(item.dataObject) if liType == self.PROJECT_LI else self.delete_session(item.dataObject) 
                 }
             ]
             # pop unwanted buttons
             if liType == self.SESSION_LI: 
-                menu_buttons.pop(1)
-                if item.dataObject.owner != HomeWindow.ACTIVE_USER: menu_buttons.pop(1)
+                menu_buttons.pop(2)
+                if item.dataObject.owner != HomeWindow.ACTIVE_USER: 
+                    menu_buttons.pop(2)
             # show menu
             self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=menu_buttons)
         # options icon

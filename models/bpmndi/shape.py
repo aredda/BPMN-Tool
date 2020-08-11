@@ -17,5 +17,9 @@ class BPMNShape(BPMNDIElement):
         # is horizontal
         if hasattr(self, 'isHorizontal') == True:
             e.attrib['isHorizontal'] = str(True)
+        # if it's a process, change the bpmnElement
+        if self.element.__class__.__name__ == 'Process':
+            if self.element.participant != None:
+                e.attrib['bpmnElement'] = self.element.participant
 
         return e
