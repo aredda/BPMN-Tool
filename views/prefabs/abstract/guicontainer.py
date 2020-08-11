@@ -9,6 +9,8 @@ class GUIContainer(Prefab):
 
     def append_child(self, child):
         if child not in self.children:
+            # set parent
+            child.parent = self
             # append in the list of gui children
             self.children.append(child)
             # append in the list of model children
@@ -16,6 +18,7 @@ class GUIContainer(Prefab):
 
     def remove_child(self, child):
         if child in self.children:
+            child.parent = None
             self.children.remove(child)
             self.element.remove(child.element.get_tag(), child.element)
     

@@ -21,6 +21,11 @@ class ColorTransition(Transition):
             timer = 0
             targetColorRgb = to_rgb(self.target_value)
 
+            # disable animation
+            self.setter(to_hex(targetColorRgb))
+
+            return
+
             while to_rgb (self.getter()) != targetColorRgb:
                 # If the transition took long just kill the thread
                 # Or check for exit time

@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as et
-from models.xmlserializable import XMLSerializable
 from resources.namespaces import *
+from helpers.stringhelper import generate_code
+from models.xmlserializable import XMLSerializable
 
 class BPMNDIElement(XMLSerializable):
 
@@ -12,8 +13,10 @@ class BPMNDIElement(XMLSerializable):
     def serialize(self):
         e = et.Element(bpmndi + self.__class__.__name__)
 
-        if self.element != None: e.attrib['id'] = str (self.element.id) + '_di'
         if self.element != None: 
-            e.attrib['bpmnElement'] = self.element if isinstance(self.element, str) == True else str (self.element.id)
+            e.attrib['id'] = self.__class__.__name__ + '_' + generate_code() if not hasattr(self.element, 'id') else str (self.element.id) + '_di'
+
+        if self.element != None: 
+            e.attrib['bpmnElement'] = self.element if isinstance(self.element, str) else str (self.element.id)
 
         return e

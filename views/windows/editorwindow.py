@@ -510,10 +510,8 @@ class EditorWindow(SessionWindow):
                 # if the element already had a parent, 
                 if self.DRAG_ELEMENT.parent != None:
                     self.DRAG_ELEMENT.parent.remove_child(self.DRAG_ELEMENT)
-                self.DRAG_ELEMENT.parent = None
                 # append the element to the new container
                 if container != None:
-                    self.DRAG_ELEMENT.parent = container
                     container.append_child(self.DRAG_ELEMENT)
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
@@ -673,6 +671,10 @@ class EditorWindow(SessionWindow):
 
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
+
+        # serialization adjustments
+        self.diplane.element = 'collaboration'
+
         # get privilege
         def get_privilege():
             if self.subject.owner == EditorWindow.ACTIVE_USER: 
@@ -695,19 +697,19 @@ class EditorWindow(SessionWindow):
             self.take_screenshot(project)
             # save entity
             Container.save(project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=project))
-            # inform user
-            self.show_info('Changes saved succesfully!', 'Success')
 
         # get etree from file  
-        # print(to_pretty_xml(bytestoelement(project.file)))
+        print(to_pretty_xml(bytestoelement(project.file)))
 
     def back_to_subject(self):
         def back(msg):
             msg.destroy()
-            if self.subject.__class__ == Session: self.windowManager.run_tag('collaboration', session=self.subject)
-            else: self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
+            if self.subject.__class__ == Session: 
+                self.windowManager.run_tag('collaboration', session=self.subject)
+            else: 
+                self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
 
-        msg = MessageModal(self, title='confirmation', message='Are you sure you want to leave this window?', messageType='prompt', actions={'yes': lambda e: back(msg)})
+        self.show_prompt('Are you sure you want to leave this window?', lambda e: back(msg), 'Quit Prompt')
 
     # linking funcs
     def can_link(self, source, target):
@@ -851,6 +853,8 @@ class EditorWindow(SessionWindow):
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         root_element = bytestoelement(byte_data)
+        # see what's going on first
+        # print (to_pretty_xml(root_element))
         # instantiate a deserializer
         deserializer = Deserializer(root_element)
         # retrieve a definitions instance
@@ -921,6 +925,8 @@ class EditorWindow(SessionWindow):
             self.reset_view()
             # hide tools
             self.hide_tools()
+            # change canvas background color
+            self.cnv_canvas.config(bg=white)
             # pause thread
             sleep(0.5)
             # take a screen shot
@@ -933,6 +939,10 @@ class EditorWindow(SessionWindow):
                 subject.image = filetobytes('resources/temp/shot.png')
             # show tools again
             self.show_tools()
+            # change back the canvas bg
+            self.cnv_canvas.config(bg=background)
+            # inform the user
+            self.show_help_panel('A screenshot was taken before saving', teal)
         # start screenshot thread
         Thread(target=runnable).start()
     

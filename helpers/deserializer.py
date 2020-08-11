@@ -121,7 +121,7 @@ class Deserializer:
             for breed in Deserializer.all_breeds:
                 for child in process:
                     # purify tag 
-                    tag = child.tag.split('}')[1].lower()
+                    tag = child.tag.split('}')[1].lower() if '}' in child.tag else child.tag.lower()
                     # if this child is subprocess
                     if 'sub' in tag:
                         if child not in processList:
