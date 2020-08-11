@@ -121,7 +121,7 @@ class Deserializer:
             for breed in Deserializer.all_breeds:
                 for child in process:
                     # purify tag 
-                    tag = child.tag.split('}')[1].lower()
+                    tag = child.tag.split('}')[1].lower() if '}' in child.tag else child.tag.lower()
                     # if this child is subprocess
                     if 'sub' in tag:
                         if child not in processList:
@@ -136,7 +136,7 @@ class Deserializer:
             # attach children to collection
             collection['children'] = children
             # if this element is a subprocess then mark it
-            if 'sub' in process.tag.split('}')[1].lower(): collection['isSubProcess'] = True
+            if 'sub' in (process.tag.split('}')[1] if '}' in process.tag else process.tag).lower(): collection['isSubProcess'] = True
             # add process element to the list of elements
             self.xelements['process'][processRef] = collection
 
@@ -163,7 +163,7 @@ class Deserializer:
                     if breed not in children: children[breed] = {}
                     # retrieve xml element
                     xe = self.xelements['process'][p_id]['children'][breed][e_id]
-                    xe_tag = xe.tag.split('}')[1].lower()
+                    xe_tag = xe.tag.split('}')[1].lower() if '}' in xe.tag else xe.tag.lower()
                     # instantiate an object
                     instance = (self.get_class(breed))(**xe.attrib)
                     # association settings
@@ -175,7 +175,7 @@ class Deserializer:
                         # retrieve breed class
                         type_cls = EventType if breed == 'event' else (TaskType if breed == 'task' else GatewayType)
                         # retrieve type
-                        instance_type = xe.tag.split('}')[1].lower().rstrip(breed)
+                        instance_type = (xe.tag.split('}')[1] if '}' in xe.tag else xe.tag).lower().rstrip(breed)
                         # affect event
                         instance.type = get_enum(type_cls, instance_type if len(instance_type) > 0 else default)
                     # check if instance belongs to these breeds, then extract the type
@@ -190,7 +190,7 @@ class Deserializer:
                         # definition extraction
                         event_definition = EventDefinition.Default
                         for child in xe: 
-                            if 'definition' in child.tag.lower(): event_definition = get_enum(EventDefinition, child.tag.split('}')[1].lower().rstrip('eventdefinition'))
+                            if 'definition' in child.tag.lower(): event_definition = get_enum(EventDefinition, (child.tag.split('}')[1] if '}' in child.tag else child.tag).lower().rstrip('eventdefinition'))
                         # setting up
                         instance.definition = event_definition
                     # flow settings
@@ -205,7 +205,7 @@ class Deserializer:
                             self.failed_links.append(instance)
                         # check if it's a conditional flow
                         for child in xe:
-                            if 'conditionExpression' in child.tag.split('}')[1].lower(): instance.type = SequenceType.CONDITIONAL  
+                            if 'conditionExpression' in (child.tag.split('}')[1] if '}' in child.tag else child.tag).lower(): instance.type = SequenceType.CONDITIONAL  
                     # data object reference settings
                     if breed == 'dataobjectreference':
                         instance.dataObject = self.find_element(xe.attrib['dataObjectRef'])
@@ -230,7 +230,7 @@ class Deserializer:
                     # loop through its elements
                     for child in xe:
                         # purify tag name
-                        pure_tag = child.tag.split('}')[1].lower()
+                        pure_tag = (child.tag.split('}')[1] if '}' in child.tag else child.tag).lower()
                         # append the sequence flow to the incoming or ougoing list
                         if hasattr(se, pure_tag):
                             getattr(se, pure_tag).append(self.find_element(child.text))
@@ -380,7 +380,7 @@ class Deserializer:
                     obj.start = (xpoints[0].attrib['x'], xpoints[0].attrib['y'])
                     obj.end = (xpoints[-1].attrib['x'], xpoints[-1].attrib['y'])
                 # add it to the plane container
-                plane.add(xchild.tag.split('}')[1].lower() , obj)
+                plane.add((xchild.tag.split('}')[1] if '}' in xchild.tag else xchild.tag).lower() , obj)
                 # save this di element by its element's id to facilitate retrieval later
                 self.delements[xchild.attrib['bpmnElement']] = obj
         # add the plane to diagram
@@ -390,7 +390,7 @@ class Deserializer:
 
     def setup_activity(self, xelement, instance):
         # get tag
-        xe_tag = xelement.tag.split('}')[1].lower()
+        xe_tag = (xelement.tag.split('}')[1] if '}' in xelement.tag else xelement.tag).lower()
         # default activity flag
         activity_flag = ActivityFlag.Default
         # check if this activity is flagged as adhoc
@@ -399,7 +399,7 @@ class Deserializer:
         # check if this activity is flaffed as a looped one
         for child in xelement:
             # retrieve purified tag
-            child_tag = child.tag.split('}')[1].lower()
+            child_tag = (child.tag.split('}')[1] if '}' in child.tag else child.tag).lower()
             # check if this is a loop flag
             if 'loopcharacteristics' in child_tag:
                 if 'standard' in child_tag: 

@@ -86,6 +86,7 @@ class Window(Toplevel):
     def show_menu(self, **options):
         if hasattr(self, 'frm_menu') == False:
             self.frm_menu = Frame(self, bg=options.get('bg', white), width=options.get('width', 0), height=options.get('height', 0), highlightthickness=1, highlightbackground=border, padx=5, pady=5)
+            self.frm_menu.bind('<Leave>', lambda e: self.hide_component('frm_menu'))
         # reposition menu modal
         self.frm_menu.place(x=options.get('x'), y=options.get('y'), anchor=N+E)
         # destroy children
@@ -123,6 +124,7 @@ class Window(Toplevel):
             self.frm_popup = Scrollable(self, bg=background)
             self.frm_popup.pack_propagate(0)
             self.frm_popup.config(highlightthickness=1, highlightbackground=border)
+            self.frm_popup.bind('<Leave>', lambda e: self.hide_component('frm_popup'))
 
         self.frm_popup.empty()
         self.frm_popup.place(x=x, y=y, width=360, height=480)

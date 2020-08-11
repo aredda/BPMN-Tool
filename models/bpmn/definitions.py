@@ -14,7 +14,7 @@ class Definitions(Container):
         self.elements['process'] = []
         self.elements['message'] = []
 
-        self.collaboration = args.get('collaboration', None)
+        self.collaboration = args.get('collaboration', 'Collaboration_' + generate_code())
 
     def serialize(self):
         # register namespaces
@@ -25,7 +25,7 @@ class Definitions(Container):
 
         # Create a collaboration element
         collaboration = et.Element(bpmn + 'collaboration')
-        collaboration.attrib['id'] = 'collaboration' if self.collaboration == None else self.collaboration
+        collaboration.attrib['id'] = self.collaboration
 
         # Append participants elements to collaboration element
         for process in self.elements['process']:

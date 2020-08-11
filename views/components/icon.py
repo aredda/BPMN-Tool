@@ -51,19 +51,23 @@ class IconFrame(Canvas, Animatable):
         return self.bgColor
 
     def set_image(self, image):
+        # calculate actual size
+        actual_size = self.size - self.imgPadding
         # Configure image & draw image
         if isinstance(image, str):
+            # construct a cache key
+            cache_key = image + f'_{actual_size}'
             # attempt to retrieve image from cache
-            self._image = CacheManager.get_cached_image(image) 
+            self._image = CacheManager.get_cached_image(cache_key) 
             # repair image
             if self._image == None:
-                img = ImageTk.PhotoImage(Img.open(image).resize((self.size-self.imgPadding, self.size-self.imgPadding)))
+                img = ImageTk.PhotoImage(Img.open(image).resize((actual_size, actual_size)))
                 # cache this image
-                CacheManager.add_cache_record(image, img)
+                CacheManager.add_cache_record(cache_key, img)
                 # assign image
                 self._image = img
         else:
-            self._image = getdisplayableimage(image, (self.size-self.imgPadding,self.size-self.imgPadding))
+            self._image = getdisplayableimage(image, (actual_size, actual_size))
         # display image
         if hasattr(self, 'img_image'):
             self.delete(self.img_image)

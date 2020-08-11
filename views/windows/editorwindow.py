@@ -162,7 +162,11 @@ class EditorWindow(SessionWindow):
 
         # draw func test
         if subject != None:
-            self.draw_diagram(subject.file if isinstance(subject, Project) else subject.project.file)
+            # retrieve file
+            f = subject.file if isinstance(subject, Project) else subject.project.file
+            # check
+            if f != None:
+                self.draw_diagram(f)
 
     def setup_tools(self):
         # prepare an empty collection
@@ -510,10 +514,8 @@ class EditorWindow(SessionWindow):
                 # if the element already had a parent, 
                 if self.DRAG_ELEMENT.parent != None:
                     self.DRAG_ELEMENT.parent.remove_child(self.DRAG_ELEMENT)
-                self.DRAG_ELEMENT.parent = None
                 # append the element to the new container
                 if container != None:
-                    self.DRAG_ELEMENT.parent = container
                     container.append_child(self.DRAG_ELEMENT)
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
@@ -562,6 +564,7 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Control-y>', lambda e: self.redo())
         self.cnv_canvas.bind_all('<Control-0>', lambda e: self.reset_zoom())
         self.cnv_canvas.bind_all('<Control-v>', lambda e: self.reset_view())
+        self.cnv_canvas.bind_all('<Control-s>', lambda e: self.save_work())
 
 
     # a searching method to find the corresponding gui element from the given id
@@ -673,6 +676,17 @@ class EditorWindow(SessionWindow):
 
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
+
+        import os
+        clear = lambda: os.system('cls')
+        clear()
+
+        self.diplane.element = self.definitions.collaboration
+
+        # print the content of the new file  
+        print (self.diplane.element, '\n----')
+        print(to_pretty_xml(self.definitions.serialize()))
+
         # get privilege
         def get_privilege():
             if self.subject.owner == EditorWindow.ACTIVE_USER: 
@@ -684,30 +698,26 @@ class EditorWindow(SessionWindow):
         if get_privilege() == 'read':
             MessageModal(self, 'Can\'t save changes', message='you don\'t have the right to edit this project!', messageType='error')
         else:
-            newFile = elementtobytes(self.definitions.serialize())
             date = datetime.now()
             # get project of subject
             project = self.subject if self.subject.__class__ == Project else self.subject.project
             # update project
-            project.file = newFile
+            project.file = elementtobytes(self.definitions.serialize())
             project.lastEdited = date
             # get image and affect it
             self.take_screenshot(project)
             # save entity
-            Container.save(project, History(editDate=date, file=newFile, editor=EditorWindow.ACTIVE_USER, project=project))
-            # inform user
-            self.show_info('Changes saved succesfully!', 'Success')
-
-        # get etree from file  
-        # print(to_pretty_xml(bytestoelement(project.file)))
+            Container.save(project, History(editDate=date, file=project.file, editor=EditorWindow.ACTIVE_USER, project=project))
 
     def back_to_subject(self):
         def back(msg):
             msg.destroy()
-            if self.subject.__class__ == Session: self.windowManager.run_tag('collaboration', session=self.subject)
-            else: self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
+            if self.subject.__class__ == Session: 
+                self.windowManager.run_tag('collaboration', session=self.subject)
+            else: 
+                self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
 
-        msg = MessageModal(self, title='confirmation', message='Are you sure you want to leave this window?', messageType='prompt', actions={'yes': lambda e: back(msg)})
+        self.show_prompt('Are you sure you want to leave this window?', lambda e: back(msg), 'Quit Prompt')
 
     # linking funcs
     def can_link(self, source, target):
@@ -851,6 +861,8 @@ class EditorWindow(SessionWindow):
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         root_element = bytestoelement(byte_data)
+        # show the content
+        # print (to_pretty_xml(root_element))
         # instantiate a deserializer
         deserializer = Deserializer(root_element)
         # retrieve a definitions instance
@@ -898,6 +910,8 @@ class EditorWindow(SessionWindow):
             # skip other gui elements
             if isinstance(guicontainer, GUIContainer) == False:
                 continue
+            # elements to append
+            children = []
             # loop through its element's children
             for key in guicontainer.element.elements.keys():
                 # skip flows
@@ -908,10 +922,15 @@ class EditorWindow(SessionWindow):
                     # find gui element of this element
                     guie = self.find_guielement_by_element(child_element)
                     # add it to the container
-                    guicontainer.append_child(guie)
+                    children.append(guie)
+            # to avoid some runtime errors concerning dictionary size change
+            for child in children:
+                guicontainer.append_child(child)
             # redraw
             guicontainer.erase()
             guicontainer.draw()
+        # assign canvas
+        self.assign_canvas_all()
 
     # saving a jpg/png image
     def take_screenshot(self, subject=None):
@@ -921,6 +940,8 @@ class EditorWindow(SessionWindow):
             self.reset_view()
             # hide tools
             self.hide_tools()
+            # change canvas background color
+            self.cnv_canvas.config(bg=white)
             # pause thread
             sleep(0.5)
             # take a screen shot
@@ -933,6 +954,10 @@ class EditorWindow(SessionWindow):
                 subject.image = filetobytes('resources/temp/shot.png')
             # show tools again
             self.show_tools()
+            # change back the canvas bg
+            self.cnv_canvas.config(bg=background)
+            # inform the user
+            self.show_help_panel('A screenshot was taken before saving', teal)
         # start screenshot thread
         Thread(target=runnable).start()
     

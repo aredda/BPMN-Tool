@@ -35,7 +35,7 @@ class ListItemFactory(Factory):
             frm_body = Frame(item, bg=white)
             frm_body.pack(side=LEFT, fill=BOTH, expand=1, padx=(10, 0))
 
-            item.lbl_content = Label(frm_body, fg=black, bg=white, font='-size 10 -weight bold', text=item.bindings.get('content', '{content}'), pady=0, padx=0)
+            item.lbl_content = Label(frm_body, wraplength=200, fg=black, bg=white, font='-size 10 -weight bold', text=item.bindings.get('content', '{content}'), pady=0, padx=0)
             item.lbl_content.pack(side=TOP, anchor=N+W, pady=(0, 10))
 
             if item.buttonSettings != None:
@@ -144,9 +144,9 @@ class ListItemFactory(Factory):
 
         # BOOKMARK_DONE: configure discussion list item
         return ListItem(root, dataItem, {
-            'session': dataItem.session.title,
+            'session': dataItem.session.title if len(dataItem.session.title) < 20 else (dataItem.session.title[17] + '...'),
             'username': dataItem.user.userName,
-            'content': dataItem.content,
+            'content': dataItem.content if len(dataItem.content) < 20 else (dataItem.content[:17] + '...'),
             'time': dataItem.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.sentDate.strftime("%x") else dataItem.sentDate.strftime("%X"),
             'image': dataItem.user.image
         }, None, create)

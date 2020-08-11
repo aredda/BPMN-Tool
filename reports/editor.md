@@ -22,10 +22,12 @@
 - [X] Keyboard Shortcuts
 - [X] Image Loading Optimizing
 - [ ] Prevent the visitor from editing if he doesn't have the privilige to
-- [ ] Caching issue: wrong image sizes
-- [ ] Screenshotting a modal
-- [ ] Drawing Diagram: children aren't associated with their parents correctly
+- [X] Caching issue: wrong image sizes
+- [X] Screenshotting a modal
+- [X] Drawing Diagram: children aren't associated with their parents correctly
 - [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
+- [ ] Serialization: weird object redundancy
+- [ ] When drawing diagram from xml file, undo/redo doesn't work
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events

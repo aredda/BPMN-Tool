@@ -32,6 +32,11 @@ class CollaborationWindow(TabbedWindow):
             'icon': 'history.png',
             'text': 'History',
             'tag': 'tb_hist'
+        },
+        {
+            'icon': 'session.png',
+            'text': 'Members',
+            'tag': 'tb_member'
         }
     ]
 
@@ -209,16 +214,13 @@ class CollaborationWindow(TabbedWindow):
         frm_preview.pack(side=LEFT, fill=BOTH, expand=1)
 
         frm_preview.update()
+        frm_preview.pack_propagate(0)
 
         if self.session.project.image != None:
-            photo = getdisplayableimage(self.session.project.image,(self.tb_info.winfo_width(),self.tb_info.winfo_height()))
-            lbl_image = Label(frm_preview, image = photo)
-            lbl_image.image=photo
-            lbl_image.pack(fill=BOTH,expand=1)
-
-
-        self.lv_members = Scrollable(frm_group, bg=background)
-        self.lv_members.pack(side=RIGHT, fill=BOTH, padx=(10, 0))
+            photo = getdisplayableimage(self.session.project.image, (self.tb_info.winfo_width(), self.tb_info.winfo_height()))
+            lbl_image = Label(frm_preview, image=photo)
+            lbl_image.image = photo
+            lbl_image.pack()
 
         # Filling the history tab
         self.frm_list_view = Scrollable(self.tb_hist, bg=background)
@@ -234,6 +236,10 @@ class CollaborationWindow(TabbedWindow):
                     self.get_btn_list(i))
                 li.pack(anchor=N+W, fill=X, pady=(0, 10), padx=5)
                 self.historyItems.append(li)
+
+        # filling member tab
+        self.lv_members = Scrollable(self.tb_member, bg=background)
+        self.lv_members.pack(fill=BOTH, expand=1)
 
     def export_project(self, title, date, fileBytes):
         if fileBytes == None:
@@ -298,7 +304,7 @@ class CollaborationWindow(TabbedWindow):
 
                 }] if CollaborationWindow.ACTIVE_USER == self.session.owner else None
                 )
-            li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10))
+            li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10), fill=X, expand=1)
             self.collaboratorItems.append(li)
             
 
