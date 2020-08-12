@@ -103,28 +103,25 @@ class SessionWindow(Window):
         self.time_to_kill = False
         # start thread
         threading.Thread(target=self.runnable).start()
-
+        # print ('gotta be refreshed')
 
     def change_session_item_style(self, item, style=CHAT_UNREAD):
         # Change background
-        changeBgTo = [item, item.frm_content, item.lbl_username, item.lbl_user, item.lbl_content, item.lbl_time, item.img_photo]
-        for w in changeBgTo:
+        for w in [item, item.frm_content, item.lbl_username, item.lbl_user, item.lbl_content, item.lbl_time, item.img_photo]:
             w.config(bg=style['bg'])
         # Change foreground
         for i in style.keys():
             if hasattr(item, i):
                 getattr(item, i).config(fg=style[i])
 
-
     def configure_msg_listitem(self, root, item):
         li = ListItemFactory.DiscussionListItem(root, item)
         # set message listItem click
-        comps = [li, li.frm_content, li.lbl_username, li.lbl_user, li.lbl_content, li.lbl_time, li.img_photo]
-        for c in comps:
+        for c in [li, li.frm_content, li.lbl_username, li.lbl_user, li.lbl_content, li.lbl_time, li.img_photo]:
             c.bind('<Button-1>', lambda e: self.windowManager.run_tag('discussion',session= item.session))
         # change style for unread messages
         if item.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == item.id,SeenMessage.seerId == SessionWindow.ACTIVE_USER.id).first() == None:
-                self.change_session_item_style(li,self.CHAT_UNREAD)
+            self.change_session_item_style(li,self.CHAT_UNREAD)
         # change message icon's image on click
         self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
         return li

@@ -53,7 +53,6 @@ class ProjectWindow(TabbedWindow):
         TabbedWindow.__init__(self, root, ProjectWindow.tabSettings, project.title, **args)
         
         self.project = project
-        self.configure_settings()
 
         self.historyItems = []
 
@@ -77,10 +76,6 @@ class ProjectWindow(TabbedWindow):
             },
             {
                 'icon': 'save.png',
-                'text': 'Export as SVG'
-            },
-            {
-                'icon': 'save.png',
                 'text': 'Export as XML',
                 'cmnd': lambda e: self.export_project('current_'+self.project.title, self.project.lastEdited, self.project.file)
             }
@@ -88,6 +83,7 @@ class ProjectWindow(TabbedWindow):
 
         # Design elements
         self.design()
+        self.configure_settings()
 
     def get_btn_list(self, history):
 
@@ -150,36 +146,48 @@ class ProjectWindow(TabbedWindow):
 
             setattr(self, 'lbl_' + i.get('prop'), lbl_prop)
 
-        frm_preview = Frame(self.tb_info, bg=white, highlightthickness=1, highlightbackground=border)
-        frm_preview.pack(expand=1, fill=BOTH, pady=15)
+        self.frm_preview = Frame(self.tb_info, bg=white, highlightthickness=1, highlightbackground=border)
+        self.frm_preview.pack(expand=1, fill=BOTH, pady=15)
 
-        frm_preview.update()
+        self.frm_preview.update()
         
         def resize_image(event, label):
             if self.project.image !=None:
-                photo = getdisplayableimage(self.project.image,(frm_preview.winfo_width(),frm_preview.winfo_height()))
+                photo = getdisplayableimage(self.project.image,(self.frm_preview.winfo_width(),self.frm_preview.winfo_height()))
                 label.configure(image=photo)
                 label.image = photo
 
-        lbl_image = Label(frm_preview, bg='white')
-        lbl_image.pack(fill=BOTH,expand=1)
-        lbl_image.bind('<Configure>', lambda e, l=lbl_image, : resize_image(e, l))
-
+        self.lbl_image = Label(self.frm_preview, bg='white')
+        self.lbl_image.pack(fill=BOTH,expand=1)
+        self.lbl_image.bind('<Configure>', lambda e, l=self.lbl_image: resize_image(e, l))
 
         # Filling the history tab
         self.frm_list_view = Scrollable(self.tb_hist, bg=background)
         self.frm_list_view.pack(expand=1, fill=BOTH, pady=(0, 15))
 
+        self.fill_history()
+    
+    def fill_history(self):
         # BOOKMARK: fill history items
+        self.frm_list_view.empty()
         for i in Container.filter(History, History.projectId == self.project.id).order_by(History.editDate.desc()):
             li = ListItem(self.frm_list_view.interior, i, {'username': f'{i.editor.userName} edited on {i.editDate.strftime("%d/%m/%Y at %X")}', 'image': i.editor.image}, self.get_btn_list(i))
             li.pack(anchor=N+W, pady=(0, 10), fill=X, padx=5)
             self.historyItems.append(li)
-    
+
     def configure_settings(self):
-        ProjectWindow.lblSettings[0]['prop'] = self.project.title 
-        ProjectWindow.lblSettings[1]['prop'] = self.project.creationDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.project.creationDate.strftime("%x") else 'Today at - '+self.project.creationDate.strftime("%X")
-        ProjectWindow.lblSettings[2]['prop'] = self.project.lastEdited.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.project.lastEdited.strftime("%x") else 'Today at - '+self.project.lastEdited.strftime("%X")
+        def get_label(prop): return getattr(self, f'lbl_{prop}')
+        # changing texts
+        get_label(ProjectWindow.lblSettings[0]['prop'])['text']  = self.project.title 
+        get_label(ProjectWindow.lblSettings[1]['prop'])['text'] = self.project.creationDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.project.creationDate.strftime("%x") else 'Today at - '+self.project.creationDate.strftime("%X")
+        get_label(ProjectWindow.lblSettings[2]['prop'])['text'] = self.project.lastEdited.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.project.lastEdited.strftime("%x") else 'Today at - '+self.project.lastEdited.strftime("%X")
+        # update image
+        if self.project.image == None:
+            return
+        # proceed
+        photo = getdisplayableimage(self.project.image,(self.frm_preview.winfo_width(),self.frm_preview.winfo_height()))
+        self.lbl_image.configure(image=photo)
+        self.lbl_image.image = photo
 
     def export_project(self, title, date, fileBytes):
         if fileBytes == None:
@@ -220,3 +228,10 @@ class ProjectWindow(TabbedWindow):
             msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.datetime.now() else MessageModal(self,title='Link found',message=f'A link already exists, Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)
+
+    def refresh(self):
+        super().refresh()
+
+        self.configure_settings()
+        self.fill_history()
+        

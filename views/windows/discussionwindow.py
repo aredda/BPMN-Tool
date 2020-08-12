@@ -47,13 +47,11 @@ class DiscussionWindow(SessionWindow):
         SessionWindow.__init__(self, root, 'Discussions')
         
         self.currentItem = None
-
-        self.design()
-
         self.msgItems = []
 
+        self.design()
         self.fill_sessions()
-        self.configure_session_click()
+
         if args.get('session', None) != None: 
             for li in self.msgItems:
                 if li.dataObject.session == args['session']:
@@ -131,7 +129,7 @@ class DiscussionWindow(SessionWindow):
                 for li in self.msgItems:
                     lastmsg = Container.filter(Message, Message.sessionId == li.dataObject.session.id).order_by(Message.sentDate.desc()).first()
                     if lastmsg != None and lastmsg != li.dataObject:
-                        li.lbl_content['text']=lastmsg.content
+                        li.lbl_content['text'] = lastmsg.content if len (lastmsg.content) < 20 else lastmsg.content[:17] + '...'
                         li.lbl_time['text'] = lastmsg.sentDate.strftime("%X")
                         li.dataObject = lastmsg
                         self.change_session_item_style(li,self.CHAT_UNREAD)
@@ -160,7 +158,7 @@ class DiscussionWindow(SessionWindow):
             self.windowManager.run(CollaborationWindow(self,self.currentItem.dataObject.session))
 
     def Configure_session(self, event, listItem):
-        try:
+        # try:
             self.fill_discussion(listItem.dataObject.session)
 
             self.lbl_sessionName['text'] = listItem.dataObject.session.title
@@ -169,30 +167,31 @@ class DiscussionWindow(SessionWindow):
             self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
 
             if self.currentItem != None:
-                self.change_session_item_style(self.currentItem,self.CHAT_NORMAL)
+                self.change_session_item_style(self.currentItem, self.CHAT_NORMAL)
 
             self.currentItem = listItem
-            self.change_session_item_style(self.currentItem,self.CHAT_ACTIVE)
+            self.change_session_item_style(self.currentItem, self.CHAT_ACTIVE)
 
             if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == self.currentItem.dataObject.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
                 Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=self.currentItem.dataObject))
         
-        except Exception:
-            # Container.session.rollback()
-            print('CONFIGURE SESSION ERROR')
+        # except Exception:
+        #     # Container.session.rollback()
+        #     print('CONFIGURE SESSION ERROR')
 
     # Configure sessionlistitem click event
     def configure_session_click(self):
         for li in self.msgItems:
             for control in [li, li.lbl_username, li.img_photo, li.frm_content, li.lbl_user, li.lbl_content, li.lbl_time]:
-                control.bind('<Button-1>', lambda event,listItem=li: self.Configure_session(event,listItem))
+                control.bind('<Button-1>', lambda event, listItem=li: self.Configure_session(event, listItem))
+                # control.bind('<Button-1>', lambda e: print ('haha'))
             
     def send_message(self, event, listItem):
         if self.txt_message.get() != '' and not str.isspace(self.txt_message.get()) and listItem != None and self.is_hint_deleted == True:
             msg = Message(content=self.txt_message.get(), sentDate=datetime.datetime.now(), user=DiscussionWindow.ACTIVE_USER, session=listItem.dataObject.session)
             Container.save(msg)
             listItem.dataObject=msg
-            listItem.lbl_content['text'] = self.txt_message.get()
+            listItem.lbl_content['text'] = self.txt_message.get() if len(self.txt_message.get()) < 20 else (self.txt_message.get()[:17] + '...')
             self.txt_message.delete(0, END)
             self.fill_discussion(listItem.dataObject.session)
 
@@ -209,6 +208,9 @@ class DiscussionWindow(SessionWindow):
                 self.msgItems.append(li)
                 if msg.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
                     self.change_session_item_style(li,self.CHAT_UNREAD)
+                # append to a static a list
+        # configure item click
+        self.configure_session_click()
 
     # BOOKMARK_DONE: Fill Messages
     def fill_discussion(self, session):
@@ -265,7 +267,7 @@ class DiscussionWindow(SessionWindow):
         frm_group.pack(side=LEFT, padx=(0, 30))
 
         item.lbl_username = Label(frm_group, text=item.bindings.get('username', '{username}'), font='-size 14')
-        item.lbl_content = Label(frm_group,wraplength=500, justify='left', text=item.bindings.get('content', '{content}'))
+        item.lbl_content = Label(frm_group, wraplength=500, justify='left', text=item.bindings.get('content', '{content}'))
         item.lbl_time = Label(frm_message, text=item.bindings.get('time', '{time}'), font='-size 8')
 
         item.lbl_username.pack(side=TOP, anchor=N+W)

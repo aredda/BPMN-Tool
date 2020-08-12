@@ -56,7 +56,7 @@ class Window(Toplevel):
         self.attributes('-alpha', opacity)
 
     def hide(self):
-        self.withdraw() 
+        self.withdraw()
 
     def show(self):
         self.deiconify()

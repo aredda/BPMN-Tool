@@ -47,7 +47,6 @@ class HomeWindow(TabbedWindow):
         self.fill_projects()
         self.fill_sessions()
 
-
     def design(self):
         # lay out the components to project tab
         self.btn_container1 = Frame(self.tb_projects, bg=background, pady=10)
@@ -188,7 +187,6 @@ class HomeWindow(TabbedWindow):
             lbl_text = Label(frm, text=i.get('text'), fg=gray, bg=silver, font='-size 9')
             lbl_text.pack(fill=X)
             comps.append(lbl_text)
-
         
         img_thumb.pack(fill=X, side=TOP)
         comps.append(img_thumb)
@@ -257,7 +255,6 @@ class HomeWindow(TabbedWindow):
             project = Project(title= title, creationDate= datetime.now(), lastEdited= datetime.now(), owner= HomeWindow.ACTIVE_USER, file= bytesFile)
             Container.save(project)
             self.lv_project.grid_item(project, {'title': project.title, 'creationDate': project.creationDate, 'lastEdited': project.lastEdited}, None, lambda i: self.create_list_item(i, HomeWindow.PROJECT_LI), 15)
-            
 
         def create_session():
             project = Project(title= title+'Project', creationDate= date, lastEdited= date, owner= HomeWindow.ACTIVE_USER)
@@ -276,8 +273,6 @@ class HomeWindow(TabbedWindow):
         else:
             create_session() if nature == HomeWindow.SESSION_LI else ( create_project() if load == False else load_project())
             modal.destroy()
-
-
 
     def delete(self, dataObject):
         Container.deleteObject(dataObject)
@@ -323,12 +318,10 @@ class HomeWindow(TabbedWindow):
             modal.destroy()
             self.windowManager.run(CollaborationWindow(self.master, invlink.session))
 
-
     def generate_share_link(self, dataObject, modal):
         def set_link(link):
             modal.form[0]['input'].entry.delete(0,END)
             modal.form[0]['input'].entry.insert(0,link)
-
 
         def check_privilege(msg, modal, slink):
             def generate_link(msg2, modal, slink, privilege):
@@ -339,14 +332,12 @@ class HomeWindow(TabbedWindow):
                 self.clean_notifications()
                 set_link(link)
             
-            
             if msg != None: msg.destroy()
             msg2 = MessageModal(self,title=f'Confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
 
         def set_old_link(msg,modal):
             set_link(slink.link)
             msg.destroy()
-
         
         slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
         if slink != None:

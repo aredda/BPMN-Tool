@@ -63,7 +63,6 @@ class CollaborationWindow(TabbedWindow):
         TabbedWindow.__init__(self, root, CollaborationWindow.tabSettings, session.title, **args)
 
         self.session = session
-        self.configure_settings()
 
         self.collaboratorItems = []
         self.historyItems = []
@@ -94,11 +93,6 @@ class CollaborationWindow(TabbedWindow):
                     # BOOKMARK_DONE: Invite User Command
                     lambda modal: self.invite_user(modal.get_form_data()['txt_username'])
                 )
-            },
-            {
-                'icon': 'save.png',
-                'text': 'Export as SVG',
-                'dock': LEFT
             },
             {
                 'icon': 'save.png',
@@ -175,10 +169,21 @@ class CollaborationWindow(TabbedWindow):
         self.destroy()
     
     def configure_settings(self):
-        CollaborationWindow.lblSettings[0]['prop'] = self.session.project.title
-        CollaborationWindow.lblSettings[1]['prop'] = self.session.creationDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.creationDate.strftime("%x") else 'Today at - '+self.session.creationDate.strftime("%X")
-        CollaborationWindow.lblSettings[2]['prop'] = self.session.project.lastEdited.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.project.lastEdited.strftime("%x") else 'Today at - '+self.session.project.lastEdited.strftime("%X")
-        CollaborationWindow.lblSettings[3]['prop'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
+        # 
+        get_label = lambda prop: getattr(self, f'lbl_{prop}')
+        # change label
+        get_label(CollaborationWindow.lblSettings[0]['prop'])['text'] = self.session.project.title
+        get_label(CollaborationWindow.lblSettings[1]['prop'])['text'] = self.session.creationDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.creationDate.strftime("%x") else 'Today at - '+self.session.creationDate.strftime("%X")
+        get_label(CollaborationWindow.lblSettings[2]['prop'])['text'] = self.session.project.lastEdited.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.project.lastEdited.strftime("%x") else 'Today at - '+self.session.project.lastEdited.strftime("%X")
+        get_label(CollaborationWindow.lblSettings[3]['prop'])['text'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
+        # change image
+        if self.session.project.image !=None:
+            photo = getdisplayableimage(self.session.project.image, (self.frm_preview.winfo_width(), self.frm_preview.winfo_height()))
+            self.lbl_image.configure (image=photo)
+            self.lbl_image.image = photo
+        # fill
+        self.fill_collaboration()
+        self.fill_members()
 
     def design(self):
         # Putting the control buttons
@@ -210,20 +215,20 @@ class CollaborationWindow(TabbedWindow):
         frm_group = Frame(self.tb_info, bg=background)
         frm_group.pack(expand=1, fill=BOTH, pady=15)
 
-        frm_preview = Frame(frm_group, bg=white, highlightthickness=1, highlightbackground=border)
-        frm_preview.pack(side=LEFT, fill=BOTH, expand=1)
+        self.frm_preview = Frame(frm_group, bg=white, highlightthickness=1, highlightbackground=border)
+        self.frm_preview.pack(side=LEFT, fill=BOTH, expand=1)
 
-        frm_preview.update()
+        self.frm_preview.update()
 
         def resize_image(event, label):
             if self.session.project.image !=None:
-                photo = getdisplayableimage(self.session.project.image,(frm_preview.winfo_width(),frm_preview.winfo_height()))
+                photo = getdisplayableimage(self.session.project.image, (self.frm_preview.winfo_width(), self.frm_preview.winfo_height()))
                 label.configure(image=photo)
                 label.image = photo
 
-        lbl_image = Label(frm_preview, bg='white')
-        lbl_image.pack(fill=BOTH,expand=1)
-        lbl_image.bind('<Configure>', lambda e, l=lbl_image, : resize_image(e, l))
+        self.lbl_image = Label(self.frm_preview, bg='white')
+        self.lbl_image.pack(fill=BOTH, expand=1)
+        self.lbl_image.bind('<Configure>', lambda e, l=self.lbl_image: resize_image(e, l))
 
         # Filling the history tab
         self.frm_list_view = Scrollable(self.tb_hist, bg=background)
@@ -233,6 +238,10 @@ class CollaborationWindow(TabbedWindow):
         self.lv_members = Scrollable(self.tb_member, bg=background)
         self.lv_members.pack(fill=BOTH, expand=1)
 
+        self.fill_collaboration()
+
+    def fill_collaboration(self):
+        self.frm_list_view.empty()
         # BOOKMARK_DONE: Fill Collaboration Session Change History
         for i in Container.filter(History, History.projectId == self.session.projectId).order_by(History.editDate.desc()).all():#, or_(History.editorId == Collaboration.userId, History.editorId == self.session.ownerId) since the project is gonna be unique
             if i.project.owner == CollaborationWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.sessionId == self.session.id, Collaboration.userId == CollaborationWindow.ACTIVE_USER.id).first() != None:
@@ -311,7 +320,6 @@ class CollaborationWindow(TabbedWindow):
                 )
             li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10), fill=X)
             self.collaboratorItems.append(li)
-            
 
     def kick_user(self, user):
         def delete_collaboration(user):
@@ -325,3 +333,8 @@ class CollaborationWindow(TabbedWindow):
             MessageModal(self,title=f'Success',message=f'{user.userName} has been kicked out of the session!',messageType='info')
 
         msg = MessageModal(self,title=f'Confirmation',message=f'Are you sure you want to kick {user.userName}?',messageType='prompt',actions={'yes' : lambda e: delete_collaboration(user)})
+
+    def refresh(self):
+        super().refresh()
+
+        self.configure_settings()
