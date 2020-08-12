@@ -125,7 +125,7 @@ class HomeWindow(TabbedWindow):
         for item in Container.filter(Project, Project.ownerId == HomeWindow.ACTIVE_USER.id):
             if Container.filter(Session, Session.projectId == item.id).first() == None:
                 li = self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.lastEdited, 'image': item.image}, None, lambda i: self.create_list_item(i), 15)
-                # self.set_image(li, item.image)
+                self.set_image(li, item.image)
                 li.lbl_image.bind('<Configure>', lambda e, l=li, image= item.image: self.resize_image(e, l, image))
 
     # BOOKMARK_DONE: fill session items
@@ -136,7 +136,7 @@ class HomeWindow(TabbedWindow):
         for item in Container.filter(Session):
             if item.owner == HomeWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == item.id).first() != None:
                 li = self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1), 'image': item.project.image}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
-                # self.set_image(li, item.project.image)
+                self.set_image(li, item.project.image)
                 li.lbl_image.bind('<Configure>', lambda e, l=li, image= item.project.image: self.resize_image(e, l, image))
 
     # BOOKMARK: Project List Item & Session List Item Creation Method
