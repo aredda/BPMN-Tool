@@ -553,6 +553,11 @@ class EditorWindow(SessionWindow):
                 # reset mode
                 self.set_mode(self.DRAG_MODE)
 
+        # if the user has no right to edit
+        if self.get_privilege() != 'edit':
+            self.show_help_panel('You don\'t have the right to edit this diagram!', danger)
+            return
+
         # bind events
         self.cnv_canvas.bind('<Button-1>', action_mouse_click)
         self.cnv_canvas.bind('<Button-3>', action_mouse_rclick)
@@ -683,15 +688,8 @@ class EditorWindow(SessionWindow):
         print ('----- Saving')
         Thread(target=lambda: print(to_pretty_xml(self.definitions.serialize()))).start()
 
-        # get privilege
-        def get_privilege():
-            if self.subject.owner == EditorWindow.ACTIVE_USER: 
-                return 'edit'
-            else:
-                return (Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()).privilege
-
         # BOOKMARK_TOCHANGE: uncomment those
-        if get_privilege() == 'read':
+        if self.get_privilege() == 'read':
             MessageModal(self, 'Can\'t save changes', message='you don\'t have the right to edit this project!', messageType='error')
         else:
             date = datetime.now()
@@ -991,3 +989,7 @@ class EditorWindow(SessionWindow):
         # save svg document
         file = open('resources/temp/test.svg', 'w')
         file.write(doc.toprettyxml())
+
+    # get privilege
+    def get_privilege():
+        return 'edit' if self.subject.owner == EditorWindow.ACTIVE_USER: else return (Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()).privilege
