@@ -18,6 +18,11 @@ class MoveTransition(Transition):
     def effect(self):
         self.exit_time = False
 
+        # disable animations
+        self.setter(self.target_value)
+
+        return
+
         while abs(self.getter() - self.target_value) > self.dist:
             # Or check for exit time
             if self.exit_time == True: break

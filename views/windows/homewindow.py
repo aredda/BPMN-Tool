@@ -108,6 +108,15 @@ class HomeWindow(TabbedWindow):
         self.lv_session.set_gridcols(4)
         self.lv_session.pack(fill=BOTH, expand=1)
 
+    def set_image(self, li, image):
+        if image != None:
+            photo = getdisplayableimage(image,(li.winfo_width(),205))
+            li.lbl_image.configure(image=photo)
+            li.lbl_image.image = photo
+
+    def resize_image(self, event, li, image):
+        self.set_image(li,image)
+
     # BOOKMARK_DONE: fill project items
     def fill_projects(self):
         # cleaning up old items
@@ -115,7 +124,9 @@ class HomeWindow(TabbedWindow):
         # refilling 
         for item in Container.filter(Project, Project.ownerId == HomeWindow.ACTIVE_USER.id):
             if Container.filter(Session, Session.projectId == item.id).first() == None:
-                self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.lastEdited, 'image': item.image}, None, lambda i: self.create_list_item(i), 15)
+                li = self.lv_project.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.lastEdited, 'image': item.image}, None, lambda i: self.create_list_item(i), 15)
+                # self.set_image(li, item.image)
+                li.lbl_image.bind('<Configure>', lambda e, l=li, image= item.image: self.resize_image(e, l, image))
 
     # BOOKMARK_DONE: fill session items
     def fill_sessions(self):
@@ -124,29 +135,31 @@ class HomeWindow(TabbedWindow):
         # refilling 
         for item in Container.filter(Session):
             if item.owner == HomeWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == item.id).first() != None:
-                self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1), 'image': item.project.image}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+                li = self.lv_session.grid_item(item, {'title': item.title, 'creationDate': item.creationDate, 'lastEdited': item.project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == item.id).count()+1), 'image': item.project.image}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
+                # self.set_image(li, item.project.image)
+                li.lbl_image.bind('<Configure>', lambda e, l=li, image= item.project.image: self.resize_image(e, l, image))
 
     # BOOKMARK: Project List Item & Session List Item Creation Method
     def create_list_item(self, item: ListItem, liType: int = PROJECT_LI):
         item.configure (highlightthickness=1, highlightbackground=border, bg=white)
+        comps = []
 
         img_size = 205
         img_thumb = Frame(item, height=img_size, bg=white)
         img_thumb.pack_propagate(0)
 
-        if item.bindings.get('image', None) != None:
-            photo = getdisplayableimage(item.bindings.get('image', None),(self.winfo_width(),205))
-            lbl_image = Label(img_thumb, image = photo)
-            lbl_image.image=photo
-            lbl_image.pack(fill=BOTH,expand=1)
-
-        
+        # adding image label
+        item.lbl_image = Label(img_thumb,bg='white')
+        item.lbl_image.pack(fill=BOTH,expand=1)
+        comps.append(item.lbl_image)
 
         border_bottom = Frame(item, bg=border)
         frm_info = Frame(item, bg=silver, padx=10, pady=10)
         frm_details = Frame(frm_info, bg=silver)
         
-        Label(frm_info, text=item.bindings.get('title', '{title}'), bg=silver, fg=black, font='-size 18').pack(side=TOP, fill=X, pady=(0, 10))
+        lbl_title = Label(frm_info, text=item.bindings.get('title', '{title}'), bg=silver, fg=black, font='-size 18')
+        lbl_title.pack(side=TOP, fill=X, pady=(0, 10))
+        comps.append(lbl_title)
 
         panel_settings = [
             {
@@ -168,13 +181,22 @@ class HomeWindow(TabbedWindow):
         for i in panel_settings:
             frm = Frame(frm_details, bg=silver)
             frm.pack(side=LEFT, fill=X, expand=1)
-            Label(frm, text=i.get('label'), fg=teal, bg=silver, font='-size 8').pack(fill=X)
-            Label(frm, text=i.get('text'), fg=gray, bg=silver, font='-size 9').pack(fill=X)
+            comps.append(frm)
+            lbl_label = Label(frm, text=i.get('label'), fg=teal, bg=silver, font='-size 8')
+            lbl_label.pack(fill=X)
+            comps.append(lbl_label)
+            lbl_text = Label(frm, text=i.get('text'), fg=gray, bg=silver, font='-size 9')
+            lbl_text.pack(fill=X)
+            comps.append(lbl_text)
+
         
         img_thumb.pack(fill=X, side=TOP)
+        comps.append(img_thumb)
         border_bottom.pack(fill=X, side=TOP)
         frm_info.pack(fill=X, side=TOP)
+        comps.append(frm_info)
         frm_details.pack(fill=X, side=TOP)
+        comps.append(frm_details)
 
         # BOOKMARK_DONE: project item's menu
         def options_menu(e):
@@ -201,17 +223,30 @@ class HomeWindow(TabbedWindow):
                     'icon': 'delete.png',
                     'fg': danger,
                     'cmnd': lambda e: self.delete_project(item.dataObject) if liType == self.PROJECT_LI else self.delete_session(item.dataObject) 
+                },
+                {
+                    'text': 'Leave',
+                    'icon': 'logout.png',
+                    'fg': danger,
+                    'cmnd': lambda e: self.quit_session(item.dataObject)
                 }
             ]
             # pop unwanted buttons
             if liType == self.SESSION_LI: 
+                # remove share button
                 menu_buttons.pop(2)
-                if item.dataObject.owner != HomeWindow.ACTIVE_USER: 
-                    menu_buttons.pop(2)
+                # remove delete or leave
+                menu_buttons.pop(2 if item.dataObject.owner != HomeWindow.ACTIVE_USER else 3)
+            else:
+                # remove leave
+                menu_buttons.pop()
             # show menu
             self.show_menu(x=win_coords[0], y=win_coords[1], width=150, height=200, options=menu_buttons)
         # options icon
         IconFrame(item, 'resources/icons/ui/menu.png', 10, teal, 32, options_menu, bg=white).place(relx=1-0.03, rely=0.02, anchor=N+E)
+
+        for c in comps:
+            c.bind('<Double-Button-1>', lambda e: self.windowManager.run(ProjectWindow(self, item.dataObject)) if liType == HomeWindow.PROJECT_LI else self.windowManager.run(CollaborationWindow(self, item.dataObject)))
 
     # BOOKMARK: this is how a COMMAND should be
     def create(self, modal, nature= PROJECT_LI, load= False):
@@ -237,7 +272,7 @@ class HomeWindow(TabbedWindow):
                 create_project(filetobytes(filename))
 
         if not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', title):
-            MessageModal(self,title=f'title error',message=f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character',messageType='error')
+            MessageModal(self,title=f'Title error',message=f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character',messageType='error')
         else:
             create_session() if nature == HomeWindow.SESSION_LI else ( create_project() if load == False else load_project())
             modal.destroy()
@@ -250,17 +285,20 @@ class HomeWindow(TabbedWindow):
         self.refresh_window()
 
     def delete_project(self, dataObject):
-        MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} project ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete {dataObject.title} project?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
 
     def delete_session(self, dataObject):
-        MessageModal(self,title=f'confirmation',message=f'Do you want to delete {dataObject.title} session ?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete {dataObject.title} session?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
+
+    def quit_session(self, dataObject):
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to quit {dataObject.title} session?',messageType='prompt',actions={'yes' : lambda e: self.delete(Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == dataObject.id).first())})
 
     # BOOKMARK: this should redirect to the editor window
     def join_project(self, modal):
         link = modal.get_form_data()['txt_link']
         slink = Container.filter(ShareLink, ShareLink.link == link).first()
-        if slink == None: MessageModal(self, title= f'link error' ,message= 'This link doesn\'t exist !', messageType= 'error')
-        elif slink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired !', messageType= 'error')
+        if slink == None: MessageModal(self, title= f'Link error' ,message= 'This link doesn\'t exist!', messageType= 'error')
+        elif slink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired!', messageType= 'error')
         else:
             if slink.project.owner != HomeWindow.ACTIVE_USER :noti = Notification(notificationTime= datetime.now(), type= NotificationType.JOINED.value, nature= NotificationNature.SHARELINK.value, invitationId= slink.id, actor= HomeWindow.ACTIVE_USER, recipient= slink.project.owner)
             modal.destroy()
@@ -270,10 +308,10 @@ class HomeWindow(TabbedWindow):
         link = modal.get_form_data()['txt_link']
         date = datetime.now()
         invlink = Container.filter(InvitationLink, InvitationLink.link == link).first()
-        if invlink == None: MessageModal(self, title= f'link error' ,message= 'This link doesn\'t exist !', messageType= 'error')
-        elif invlink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired !', messageType= 'error')
+        if invlink == None: MessageModal(self, title= f'Link error' ,message= 'This link doesn\'t exist!', messageType= 'error')
+        elif invlink.expirationDate < datetime.now(): MessageModal(self, title= f'Link error' ,message= 'This link has expired!', messageType= 'error')
         elif Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == invlink.sessionId).first() != None or invlink.session.owner == HomeWindow.ACTIVE_USER:
-            MessageModal(self, title= f'error' ,message= f'You are already in {invlink.session.title} session !', messageType= 'error')
+            MessageModal(self, title= f'Error' ,message= f'You are already in {invlink.session.title} session!', messageType= 'error')
         else:
             # create relations if they don't exist
             if Container.filter(Relation,Relation.userOne == HomeWindow.ACTIVE_USER, Relation.userTwo == invlink.sender ).first() == None: Container.save(Relation(userOne= HomeWindow.ACTIVE_USER, userTwo= invlink.sender))
@@ -303,7 +341,7 @@ class HomeWindow(TabbedWindow):
             
             
             if msg != None: msg.destroy()
-            msg2 = MessageModal(self,title=f'confirmation',message=f'Do you want to grant this link the "edit" privilege ?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
+            msg2 = MessageModal(self,title=f'Confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, slink, 'edit'), 'no' : lambda e: generate_link(msg2, modal, slink, 'read')})
 
         def set_old_link(msg,modal):
             set_link(slink.link)
@@ -312,12 +350,12 @@ class HomeWindow(TabbedWindow):
         
         slink = Container.filter(ShareLink, ShareLink.projectId == dataObject.id).first()
         if slink != None:
-            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.now() else MessageModal(self,title='link found',message=f'An active link already exists: Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
+            msg = check_privilege(None, modal, slink) if slink.expirationDate < datetime.now() else MessageModal(self,title='Link found',message=f'An active link already exists, Do you want to override it?',messageType='prompt',actions={'yes': lambda e: check_privilege(msg, modal, slink) , 'no': lambda e: set_old_link(msg,modal)})
         else:
             check_privilege(None, modal, None)
 
     def refresh_window(self, message=None):
         window = HomeWindow(self.master)
         self.windowManager.run(window)
-        if message != None: MessageModal(window,title=f'success',message=message,messageType='info')
+        if message != None: MessageModal(window,title=f'Success',message=message,messageType='info')
         self.destroy()

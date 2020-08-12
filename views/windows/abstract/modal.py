@@ -17,7 +17,7 @@ class Modal(Window):
         self.frm_header.pack(side=TOP, fill=X)
         self.lbl_title = Label(self.frm_header, text=title, bg=white, fg=black, font='-size 20 -weight bold')
         self.lbl_title.pack(side=LEFT)
-        self.btn_close = IconFrame(self.frm_header, 'resources/icons/ui/cancel.png', 5, black, 50, lambda e: self.destroy(), danger)
+        self.btn_close = IconFrame(self.frm_header, 'resources/icons/ui/cancel.png', 10, black, 50, lambda e: self.destroy(), danger)
         self.btn_close.pack(side=RIGHT)
         self.frm_header.update()
 

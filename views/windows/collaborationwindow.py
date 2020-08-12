@@ -32,6 +32,11 @@ class CollaborationWindow(TabbedWindow):
             'icon': 'history.png',
             'text': 'History',
             'tag': 'tb_hist'
+        },
+        {
+            'icon': 'session.png',
+            'text': 'Members',
+            'tag': 'tb_member'
         }
     ]
 
@@ -220,13 +225,13 @@ class CollaborationWindow(TabbedWindow):
         lbl_image.pack(fill=BOTH,expand=1)
         lbl_image.bind('<Configure>', lambda e, l=lbl_image, : resize_image(e, l))
 
-
-        self.lv_members = Scrollable(frm_group, bg=background)
-        self.lv_members.pack(side=RIGHT, fill=BOTH, padx=(10, 0))
-
         # Filling the history tab
         self.frm_list_view = Scrollable(self.tb_hist, bg=background)
         self.frm_list_view.pack(expand=1, fill=BOTH, pady=(0, 15))
+
+        # filling member tab
+        self.lv_members = Scrollable(self.tb_member, bg=background)
+        self.lv_members.pack(fill=BOTH, expand=1)
 
         # BOOKMARK_DONE: Fill Collaboration Session Change History
         for i in Container.filter(History, History.projectId == self.session.projectId).order_by(History.editDate.desc()).all():#, or_(History.editorId == Collaboration.userId, History.editorId == self.session.ownerId) since the project is gonna be unique
@@ -304,7 +309,7 @@ class CollaborationWindow(TabbedWindow):
 
                 }] if CollaborationWindow.ACTIVE_USER == self.session.owner else None
                 )
-            li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10))
+            li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10), fill=X)
             self.collaboratorItems.append(li)
             
 

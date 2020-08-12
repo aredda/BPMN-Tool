@@ -24,7 +24,7 @@ class ListItem(Frame):
 
         self.configure(padx=10, pady=10, relief=SOLID, highlightthickness=1, highlightbackground=border, bg=white)
 
-        self.img_icon = IconFrame(self, self.bindings.get('image') if self.bindings.get('image') != None else 'resources/icons/ui/face.png', 15, black)
+        self.img_icon = IconFrame(self, self.bindings.get('image') if self.bindings.get('image') != None else 'resources/icons/ui/face.png', 0, black, highlightbackground=border, highlightthickness=1)
         self.img_icon.pack(side=LEFT)
 
         self.lbl_username = Label(self, text=username, bg=white, font='-size 12 -weight bold', fg=black)

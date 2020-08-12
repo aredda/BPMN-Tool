@@ -56,16 +56,13 @@ class IconFrame(Canvas, Animatable):
         # Configure image & draw image
         if isinstance(image, str):
             # construct a cache key
-            cache_key = image + f'_{actual_size}'
+            cache_key = image + f'_{self.size}_{self.imgPadding}'
             # attempt to retrieve image from cache
             self._image = CacheManager.get_cached_image(cache_key) 
             # repair image
             if self._image == None:
-                img = ImageTk.PhotoImage(Img.open(image).resize((actual_size, actual_size)))
-                # cache this image
-                CacheManager.add_cache_record(cache_key, img)
                 # assign image
-                self._image = img
+                self._image = CacheManager.get_or_add_if_absent(cache_key, ImageTk.PhotoImage(Img.open(image).resize((actual_size, actual_size))))
         else:
             self._image = getdisplayableimage(image, (actual_size, actual_size))
         # display image
