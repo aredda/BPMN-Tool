@@ -148,6 +148,9 @@ class Prefab:
 
     # erasing
     def erase(self):
+        if self.canvas == None:
+            print (str(self.element.id) + ' has no canvas!')
+            return
         # erase all drawn elements
         for id in self.id:
             self.canvas.delete(id)

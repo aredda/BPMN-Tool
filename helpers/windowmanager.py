@@ -29,6 +29,8 @@ class WindowManager:
         self.windows.append(window)
         # Focus on the new window
         window.show()
+        # Center window
+        window.center()
         # Refresh the new window
         window.refresh()
     

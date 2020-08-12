@@ -26,8 +26,11 @@
 - [X] Screenshotting a modal
 - [X] Drawing Diagram: children aren't associated with their parents correctly
 - [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
-- [ ] Serialization: weird object redundancy
-- [ ] When drawing diagram from xml file, undo/redo doesn't work
+- [x] Serialization: weird object redundancy
+- [x] When drawing diagram from xml file, undo/redo doesn't work
+- [ ] The process's name doesn't appear when drawing
+- [x] Can't link process instances!
+- [ ] Message Flows aren't displayed
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events

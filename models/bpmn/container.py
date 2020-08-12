@@ -16,8 +16,10 @@ class Container(BPMNElement):
         # Initialize an empty list
         if name not in self.elements:
             self.elements[name] = []
-        # Add element
-        self.elements[name] += list(items)
+        # Add element after checking if it exists
+        for i in items:
+            if i not in self.elements[name]:
+                self.elements[name].append(i)
 
     def remove(self, name, item):
         if name in self.elements:

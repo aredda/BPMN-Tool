@@ -33,7 +33,7 @@ class Process(Container):
         return processElement
 
     def add(self, name, *items):
-        Container.add(self, name, *items)
+        super().add(name, *items)
 
         if name == 'lane':
             for lane in items:

@@ -297,10 +297,10 @@ class EditorWindow(SessionWindow):
     def reset(self):
         # clear all
         self.clear()
+        # assign canvas
+        self.assign_canvas_all()
         # redraw elements
         for e in self.guielements:
-            # assign canvas
-            self.assign_canvas(e)
             # proceed to refresh
             e.erase()
             e.draw()
@@ -677,15 +677,11 @@ class EditorWindow(SessionWindow):
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
 
-        import os
-        clear = lambda: os.system('cls')
-        clear()
-
         self.diplane.element = self.definitions.collaboration
 
         # print the content of the new file  
-        print (self.diplane.element, '\n----')
-        print(to_pretty_xml(self.definitions.serialize()))
+        print ('----- Saving')
+        Thread(target=lambda: print(to_pretty_xml(self.definitions.serialize()))).start()
 
         # get privilege
         def get_privilege():
@@ -755,7 +751,8 @@ class EditorWindow(SessionWindow):
         # message flow case
         c1 = source.get_process() != target.get_process()
         c2 = len (self.definitions.elements['process']) > 0
-        if c1 == True and c2 == True:
+        c3 = isinstance(source, GUIProcess) and isinstance(target, GUIProcess)
+        if (c1 == True and c2 == True) or c3:
             return MessageFlow(source=source.element, target=target.element)
         # sequence flow case
         return source.element.add_link(target.element)
@@ -861,12 +858,15 @@ class EditorWindow(SessionWindow):
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         root_element = bytestoelement(byte_data)
-        # show the content
-        # print (to_pretty_xml(root_element))
+        # print ('----- Before Deserializing:')
+        Thread (target=lambda: print (to_pretty_xml(root_element))).start()
         # instantiate a deserializer
         deserializer = Deserializer(root_element)
         # retrieve a definitions instance
         self.definitions = deserializer.definitions
+        # show the content
+        # print ('----- After Deserializing:')
+        # Thread (target=lambda: print (to_pretty_xml(self.definitions.serialize()))).start()
         # draw all elements
         for e in deserializer.all_elements:
             # retrieve gui prefab class
@@ -898,7 +898,10 @@ class EditorWindow(SessionWindow):
             if _class != GUIFlow:
                 continue
             # retrieve di element
-            de = deserializer.delements.get(f.id, None)
+            de = deserializer.delements.get(f.id, 'hehe')
+            if de == 'hehe':
+                print (f.id, de)
+                continue
             # find gui source & target
             guisrc = self.find_guielement_by_element(f.source)
             guitrg = self.find_guielement_by_element(f.target)

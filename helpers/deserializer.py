@@ -71,8 +71,8 @@ class Deserializer:
         self.prepare()
         self.instantiate()
         self.setup_collaboration()
-        self.setup_lanes()
         self.setup_message_flows()
+        self.setup_lanes()
         self.setup_bpmndi()
         self.clear_clutter()
         self.repair_failed()
@@ -99,6 +99,10 @@ class Deserializer:
         for element in self.all_elements:
             if element.id == id:
                 return element
+            # process case
+            if isinstance(element, Process):
+                if element.participant == id:
+                    return element
         return None
 
     def prepare(self):
@@ -280,8 +284,8 @@ class Deserializer:
         xcollaboration = self.root_element.find(bpmn + 'collaboration')
         # check if there's a collaboration object
         if xcollaboration == None: return
-        participants = {}
         # retrieve participants
+        participants = {}
         for xchild in xcollaboration:
             if 'participant' in xchild.tag:
                 # finish process's configuration
@@ -324,7 +328,7 @@ class Deserializer:
         # check if there's a collaboration
         if xcollaboration == None: return
         # find message flows
-        for xflow in xcollaboration.findall(bpmn + 'messageFlow'):
+        for xflow in xcollaboration.findall(bpmn + 'messageflow'):
             # instantiate flow
             sflow = MessageFlow(**xflow.attrib)
             # configure flow
@@ -332,6 +336,9 @@ class Deserializer:
             sflow.target = self.find_element(xflow.attrib['targetRef'])
             # add flow
             self.definitions.add('message', sflow)
+            self.all_elements.append(sflow)
+
+            print ('found a message flow: ' + sflow.id)
 
     def setup_bpmndi(self):
         # utilities
@@ -360,7 +367,7 @@ class Deserializer:
                 # instantiate the object
                 obj = (self.get_class(breed))(**xchild.attrib)
                 # element reference
-                obj.element = self.find_element(xchild.attrib['bpmnElement'])
+                obj.element = self.find_element(xchild.get('bpmnElement', None))
                 # if object has a label
                 xlabel = xchild.find(bpmndi + 'BPMNLabel')
                 if xlabel != None: obj.label = BPMNLabel(bounds=get_bounds(xlabel))
@@ -374,6 +381,7 @@ class Deserializer:
                         obj.isHorizontal = True
                 # edge settings
                 if 'Edge' in xchild.tag:
+                    print ('setting up an edge')
                     # retrieve waypoints
                     xpoints = xchild.findall(di + 'waypoint')
                     # affecting points
