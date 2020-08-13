@@ -25,15 +25,17 @@
 - [X] Caching issue: wrong image sizes
 - [X] Screenshotting a modal
 - [X] Drawing Diagram: children aren't associated with their parents correctly
-- [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
 - [x] Serialization: weird object redundancy
 - [x] When drawing diagram from xml file, undo/redo doesn't work
-- [ ] The process's name doesn't appear when drawing
-- [x] Message Flows aren't displayed
-- [ ] Lanes aren't displayed
 - [x] Data Objects aren't displayed
-- [ ] Data Store References aren't displayed
 - [x] Can't link process instances!
+- [x] Message Flows aren't displayed
+- [x] Data Store References aren't displayed
+- [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
+- [ ] The process's name doesn't appear when drawing
+- [ ] Lanes aren't displayed
+- [ ] DI elements are duplicated each time saving happens
+- [ ] Data Associations aren't displayed
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events

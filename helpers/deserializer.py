@@ -213,6 +213,7 @@ class Deserializer:
                     # data object reference settings
                     if breed == 'dataobjectreference':
                         instance.dataObject = self.find_element(xe.attrib['dataObjectRef'])
+                        instance.dataObject.reference = instance
                     # text annotation settings
                     if breed == 'textannotation':
                         instance.name = xe.find(bpmn + 'text').text
@@ -221,8 +222,6 @@ class Deserializer:
                     # add it to the process container
                     process.add(breed, instance)
                     # add it to the major list
-                    if breed == 'datastorereference':
-                        print ('found a data store reference')
                     self.all_elements.append(instance)
             # set up flows & associations
             for breed in Deserializer.linkables:
@@ -352,15 +351,15 @@ class Deserializer:
         # find the diagram xelement
         xdiagram = self.root_element.find(bpmndi + 'BPMNDiagram')
         # create a container for bpmndi elements
-        diagram = BPMNDiagram(**xdiagram.attrib)
+        self.didiagram = BPMNDiagram(**xdiagram.attrib)
         # find plane
         xplane = xdiagram.find(bpmndi + 'BPMNPlane')
         # instantiate a plane object
-        plane = BPMNPlane(**xplane.attrib)
-        plane.element = self.find_element(xplane.attrib.get('bpmnElement', None))
+        self.diplane = BPMNPlane(**xplane.attrib)
+        self.diplane.element = self.find_element(xplane.attrib.get('bpmnElement', None))
         # save plane
-        if plane.element == None:
-            plane.element = str (xplane.attrib.get('bpmnElement', None))
+        if self.diplane.element == None:
+            self.diplane.element = str (xplane.attrib.get('bpmnElement', None))
         # fetch for di elements
         for breed in Deserializer.di_breeds:
             for xchild in xplane:
@@ -390,13 +389,13 @@ class Deserializer:
                     obj.start = (xpoints[0].attrib['x'], xpoints[0].attrib['y'])
                     obj.end = (xpoints[-1].attrib['x'], xpoints[-1].attrib['y'])
                 # add it to the plane container
-                plane.add((xchild.tag.split('}')[1] if '}' in xchild.tag else xchild.tag).lower() , obj)
+                self.diplane.add((xchild.tag.split('}')[1] if '}' in xchild.tag else xchild.tag).lower() , obj)
                 # save this di element by its element's id to facilitate retrieval later
                 self.delements[xchild.attrib['bpmnElement']] = obj
         # add the plane to diagram
-        diagram.add('plane', plane)
+        self.didiagram.add('plane', self.diplane)
         # add the di diagram to the definitions
-        self.definitions.add('di', diagram)
+        self.definitions.add('di', self.didiagram)
 
     def setup_activity(self, xelement, instance):
         # get tag

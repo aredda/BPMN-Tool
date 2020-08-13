@@ -116,7 +116,7 @@ class EditorWindow(SessionWindow):
                 # major collection
                 self.guielements.append(guie)
                 # definitions container
-                if isinstance(guie, GUIProcess) == True:
+                if isinstance(guie, GUIProcess):
                     self.definitions.add(guie.element.get_tag(), guie.element)
                 # di diagram container
                 self.diplane.add('dielement', guie.dielement)
@@ -612,6 +612,9 @@ class EditorWindow(SessionWindow):
         # if it's a process
         if isinstance (element, GUIProcess) == True:
             self.definitions.remove('process', element.element)
+        # if this element is inside a container
+        if element.parent != None:
+            element.parent.remove_child(element)
         # hide menu
         self.hide_component('frm_menu')
     
@@ -863,6 +866,8 @@ class EditorWindow(SessionWindow):
         deserializer = Deserializer(root_element)
         # retrieve a definitions instance
         self.definitions = deserializer.definitions
+        self.didiagram = deserializer.didiagram
+        self.diplane = deserializer.diplane
         # show the content
         # print ('----- After Deserializing:')
         # Thread (target=lambda: print (to_pretty_xml(self.definitions.serialize()))).start()
@@ -876,9 +881,12 @@ class EditorWindow(SessionWindow):
             # get di element
             de = deserializer.delements.get(e.id if _class != GUIProcess else e.participant, None)
             xPos, yPos = 0, 0
+            # check before proceeding
+            if de == None:
+                print ('Display Error: Failed to retrieve di element for', e.id)
+                continue
             # prepare position
-            if de != None:
-                xPos, yPos = int(float(de.bounds.x)), int(float(de.bounds.y))
+            xPos, yPos = int(float(de.bounds.x)), int(float(de.bounds.y))
             # instantiate
             prefab = _class (canvas=self.cnv_canvas, element=e, dielement=de)
             # change the size in case of containers
@@ -911,6 +919,7 @@ class EditorWindow(SessionWindow):
                 continue
             # elements to append
             children = []
+            toClear = []
             # loop through its element's children
             for key in guicontainer.element.elements.keys():
                 # skip flows
@@ -921,10 +930,17 @@ class EditorWindow(SessionWindow):
                     # find gui element of this element
                     guie = self.find_guielement_by_element(child_element)
                     # add it to the container
-                    children.append(guie)
+                    if guie != None:
+                        children.append(guie)
+                    else:
+                        print ('Display Error: Failed to find the GUI element for', child_element.id)
+                        toClear.append([key, child_element])
             # to avoid some runtime errors concerning dictionary size change
             for child in children:
                 guicontainer.append_child(child)
+            # clear the elements that are just extra hindrances
+            for pair in toClear:
+                guicontainer.element.remove(pair[0], pair[1])
             # redraw
             guicontainer.erase()
             guicontainer.draw()
@@ -937,6 +953,8 @@ class EditorWindow(SessionWindow):
         def runnable():
             # reset canvas position
             self.reset_view()
+            # hide help panel
+            self.hide_help_panel()
             # hide tools
             self.hide_tools()
             # change canvas background color
@@ -960,34 +978,6 @@ class EditorWindow(SessionWindow):
         # start screenshot thread
         Thread(target=runnable).start()
     
-    # saving as svg file
-    def save_as_svg(self):
-        # retrieve items to be drawn
-        items = []
-        priority = [GUIProcess, GUISubProcess]
-        # elements that need to be drawn first
-        for p in priority:
-            for e in self.guielements:
-                if e.__class__ == p:
-                    items += e.id
-        # elements that need to be drawn on top
-        for e in self.guielements:
-            # skip those who are already drawn
-            if e.__class__ in priority: continue
-            items += e.id
-            # draw their flows too
-            for f in e.flows:
-                for f_id in f.id:
-                    if f_id not in items: items.append(f_id)
-        # an empty svg document
-        doc = cnvsvg.SVGdocument()
-        # convert
-        for n in cnvsvg.convert(doc, self.cnv_canvas, items):
-            doc.documentElement.appendChild(n)
-        # save svg document
-        file = open('resources/temp/test.svg', 'w')
-        file.write(doc.toprettyxml())
-
     # get privilege
     def get_privilege(self):
         return 'edit' if self.subject.owner == EditorWindow.ACTIVE_USER else (Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()).privilege
