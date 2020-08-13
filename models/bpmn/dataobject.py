@@ -1,6 +1,6 @@
 from models.bpmn.artifact import Artifact
 from models.bpmn.dataobjectreference import DataObjectReference
-
+from resources.namespaces import bpmn
 
 class DataObject(Artifact):
 
@@ -12,6 +12,7 @@ class DataObject(Artifact):
 
     def serialize(self):
         original = Artifact.serialize(self)
+        original.tag = bpmn + 'dataObject'
         original.attrib.pop('reference')
         return original
 

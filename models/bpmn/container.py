@@ -2,7 +2,6 @@ import xml.etree.ElementTree as et
 from models.bpmn.bpmnelement import BPMNElement
 from helpers.stringhelper import camel_case, to_pretty_xml
 
-
 class Container(BPMNElement):
 
     def __init__(self, **args):
@@ -33,4 +32,6 @@ class Container(BPMNElement):
             if key not in ['lane', 'message']:
                 for i in self.elements[key]:
                     element.append(i.serialize())
+                    if i.__class__.__name__ == 'DataObject':
+                        element.append(i.reference.serialize())
         return element

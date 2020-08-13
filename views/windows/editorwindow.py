@@ -555,6 +555,7 @@ class EditorWindow(SessionWindow):
 
         # if the user has no right to edit
         if self.get_privilege() != 'edit':
+            self.hide_tools()
             self.show_help_panel('You don\'t have the right to edit this diagram!', danger)
             return
 
@@ -896,10 +897,7 @@ class EditorWindow(SessionWindow):
             if _class != GUIFlow:
                 continue
             # retrieve di element
-            de = deserializer.delements.get(f.id, 'hehe')
-            if de == 'hehe':
-                print (f.id, de)
-                continue
+            de = deserializer.delements.get(f.id, None)
             # find gui source & target
             guisrc = self.find_guielement_by_element(f.source)
             guitrg = self.find_guielement_by_element(f.target)
@@ -991,5 +989,5 @@ class EditorWindow(SessionWindow):
         file.write(doc.toprettyxml())
 
     # get privilege
-    def get_privilege():
-        return 'edit' if self.subject.owner == EditorWindow.ACTIVE_USER: else return (Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()).privilege
+    def get_privilege(self):
+        return 'edit' if self.subject.owner == EditorWindow.ACTIVE_USER else (Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()).privilege

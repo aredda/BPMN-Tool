@@ -74,8 +74,8 @@ class Deserializer:
         self.setup_message_flows()
         self.setup_lanes()
         self.setup_bpmndi()
-        self.clear_clutter()
         self.repair_failed()
+        # self.clear_clutter()
 
     # type router
     def get_class(self, tag):
@@ -221,6 +221,8 @@ class Deserializer:
                     # add it to the process container
                     process.add(breed, instance)
                     # add it to the major list
+                    if breed == 'datastorereference':
+                        print ('found a data store reference')
                     self.all_elements.append(instance)
             # set up flows & associations
             for breed in Deserializer.linkables:

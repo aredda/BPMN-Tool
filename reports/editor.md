@@ -21,7 +21,7 @@
 - [X] Re-Doing & Un-Doing Action 
 - [X] Keyboard Shortcuts
 - [X] Image Loading Optimizing
-- [ ] Prevent the visitor from editing if he doesn't have the privilige to
+- [x] Prevent the visitor from editing if he doesn't have the privilige to
 - [X] Caching issue: wrong image sizes
 - [X] Screenshotting a modal
 - [X] Drawing Diagram: children aren't associated with their parents correctly
@@ -29,8 +29,11 @@
 - [x] Serialization: weird object redundancy
 - [x] When drawing diagram from xml file, undo/redo doesn't work
 - [ ] The process's name doesn't appear when drawing
+- [x] Message Flows aren't displayed
+- [ ] Lanes aren't displayed
+- [x] Data Objects aren't displayed
+- [ ] Data Store References aren't displayed
 - [x] Can't link process instances!
-- [ ] Message Flows aren't displayed
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events
