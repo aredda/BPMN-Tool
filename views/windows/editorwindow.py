@@ -609,8 +609,6 @@ class EditorWindow(SessionWindow):
                     self.definitions.remove('message', flow.element)
                 elif flow.element.get_tag() == 'sequenceflow':
                     element.parent.element.remove('flow', flow.element)
-                else:
-                    print (flow.element.get_tag(), 'needs unlinking settings')
         # unlink target
         element.unlink()
 
@@ -931,6 +929,9 @@ class EditorWindow(SessionWindow):
             self.guielements.append(prefab)
         # draw their flows
         for f in deserializer.all_elements:
+            # if this is a data association just skip
+            if isinstance(f, DataAssociation):
+                continue
             # retrieve gui prefab class
             _class = self.get_gui_prefab(f)
             # if it's not a flow, skip it
@@ -944,6 +945,17 @@ class EditorWindow(SessionWindow):
             # instantiate prefab
             prefab = _class(guisource=guisrc, guitarget=guitrg, element=f, dielement=de, canvas=self.cnv_canvas)
             prefab.draw_at(0, 0)
+        # draw data associations
+        for e in deserializer.all_elements:
+            if hasattr(e, 'elements'):
+                # draw data associations if there are any
+                if 'dataAssociation' in e.elements:
+                    for da in e.elements['dataAssociation']:
+                        # find gui ends
+                        guisrc, guitrg = self.find_guielement_by_element(e), self.find_guielement_by_element(da.target)
+                        # draw flow
+                        daflow = GUIFlow(canvas=self.cnv_canvas, guisource=guisrc, guitarget=guitrg, element=da, dielement=deserializer.delements.get(da.id, None))
+                        daflow.draw_at(0, 0)
         # set up processes & subprocesses
         for guicontainer in self.guielements:
             # skip other gui elements

@@ -19,6 +19,7 @@ class DataAssociation(Association):
     def serialize(self):
         dataAssociationElement = et.Element(
             bpmn + 'data' + ('Input' if self.direction == DataAssocDirection.IN else 'Output') + 'Association')
+        dataAssociationElement.attrib['id'] = self.id
 
         # target serialization
         targetElement = et.Element(bpmn + 'targetRef')

@@ -35,7 +35,7 @@
 - [ ] The process's name doesn't appear when drawing
 - [ ] Lanes aren't displayed
 - [x] DI elements are duplicated each time saving happens
-- [ ] Data Associations aren't displayed
+- [x] Data Associations aren't displayed
 - [x] Unlinking an element
 
 ### 26th of June

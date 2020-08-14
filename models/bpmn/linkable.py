@@ -59,7 +59,7 @@ class Linkable(Container):
         """
         ref = data.reference if type(data) == data else data
         # an output assoc by default
-        assoc = DataAssociation(target=ref, direction=direction)
+        assoc = DataAssociation(id=f'dtAssoc_{data.id}_{self.id}', target=ref, direction=direction)
         # If the direction is in then
         if direction == DataAssocDirection.IN:
             pty = Property()
