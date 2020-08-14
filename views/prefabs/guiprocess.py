@@ -71,18 +71,19 @@ class GUIProcess(GUIContainer):
             # refresh
             lane.draw_at(self.x + self.POST_OFFSET, yCorrect)
 
-    def add_lane(self):
+    def add_lane(self, lane_model=None, autoFix=True):
         # create an empty lane
-        lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
+        lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self, element=lane_model)
         lane.parent = self
         # append it to
         self.append_child(lane)
         self.lanes.append(lane)
         # can't possibly add one lane
-        if len (self.lanes) == 1:
-            extra_lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
-            self.append_child(extra_lane)
-            self.lanes.append(extra_lane)
+        if autoFix:
+            if len (self.lanes) == 1:
+                extra_lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
+                self.append_child(extra_lane)
+                self.lanes.append(extra_lane)
         # draw 
         self.draw_lanes()
 

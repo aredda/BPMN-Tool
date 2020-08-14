@@ -319,7 +319,11 @@ class Deserializer:
                     slane.process = process
                     # retrieve all lane elements
                     for xNodeRef in xlane:
-                        slane.add('node', self.find_element(xNodeRef.text), False)
+                        # referenced element
+                        refElement = self.find_element(xNodeRef.text)
+                        # check before adding
+                        if refElement != None:
+                            slane.add('node', refElement, False)
                     # add the lane to process
                     process.add('lane', slane)
 

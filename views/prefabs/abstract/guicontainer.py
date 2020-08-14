@@ -25,7 +25,7 @@ class GUIContainer(Prefab):
             # remove it from collection
             self.children.remove(child)
             # remove it from model collection
-            self.element.remove(child.element.get_tag(), child.element)
+            self.element.nokey_remove(child.element)
             # remove its flows
             self.unregister_flows(child)
     

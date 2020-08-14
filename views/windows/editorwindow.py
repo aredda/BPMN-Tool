@@ -13,6 +13,7 @@ from helpers.deserializer import Deserializer
 from helpers.xmlutility import elementtobytes, bytestoelement
 from helpers.filehelper import filetobytes
 from models.bpmn.definitions import Definitions
+from models.bpmn.lane import Lane
 from models.bpmn.sequenceflow import SequenceFlow
 from models.bpmn.messageflow import MessageFlow
 from models.bpmn.dataassociation import DataAssociation, DataAssocDirection
@@ -374,6 +375,8 @@ class EditorWindow(SessionWindow):
                         if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
                             # save undo checkpoint
                             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+                            # emphasize that all elements have canvas
+                            self.assign_canvas_all()
                             # generating a flow model
                             flowmodel = self.get_link_model(previous_selected, self.SELECTED_ELEMENT)
                             # creating a flow
@@ -569,7 +572,6 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Control-0>', lambda e: self.reset_zoom())
         self.cnv_canvas.bind_all('<Control-v>', lambda e: self.reset_view())
         self.cnv_canvas.bind_all('<Control-s>', lambda e: self.save_work())
-
 
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
@@ -874,6 +876,8 @@ class EditorWindow(SessionWindow):
             return GUIProcess
         elif tag == 'subprocess':
             return GUISubProcess
+        elif tag == 'lane':
+            return GUILane
         elif tag == 'datastore':
             return GUIDataStore
         elif tag == 'dataobject':
@@ -957,21 +961,36 @@ class EditorWindow(SessionWindow):
             # elements to append
             children = []
             toClear = []
+            # setting up lanes
+            if isinstance(guicontainer, GUIProcess):
+                if 'lane' in guicontainer.element.elements:
+                    for lane in guicontainer.element.elements['lane']:
+                        guicontainer.add_lane(lane, False)
             # loop through its element's children
-            for key in guicontainer.element.elements.keys():
-                # skip flows
-                if key == 'flow':
-                    continue
-                # loop through this collection
-                for child_element in guicontainer.element.elements[key]:
-                    # find gui element of this element
-                    guie = self.find_guielement_by_element(child_element)
-                    # add it to the container
-                    if guie != None:
-                        children.append(guie)
-                    else:
-                        print ('Display Error: Failed to find the GUI element for', child_element.id)
-                        toClear.append([key, child_element])
+            if isinstance(guicontainer, GUISubProcess) or (isinstance (guicontainer, GUIProcess) and len (guicontainer.lanes) == 0):
+                for key in guicontainer.element.elements.keys():
+                    # skip flows
+                    if key in ['flow', 'lane']:
+                        continue
+                    # loop through this collection
+                    for child_element in guicontainer.element.elements[key]:
+                        # find gui element of this element
+                        guie = self.find_guielement_by_element(child_element)
+                        # add it to the container
+                        if guie != None:
+                            children.append(guie)
+                        else:
+                            print ('Display Error: Failed to find the GUI element for', child_element.id)
+                            toClear.append([key, child_element])
+            else:
+                for guilane in guicontainer.lanes:
+                    for key in guilane.element.elements:
+                        for node in guilane.element.elements[key]:
+                            # find the element 
+                            guinode = self.find_guielement_by_element(node)
+                            # establish child-parent relationship
+                            guilane.children.append(guinode)
+                            guinode.parent = guilane
             # to avoid some runtime errors concerning dictionary size change
             for child in children:
                 guicontainer.append_child(child)

@@ -33,7 +33,7 @@
 - [x] Data Store References aren't displayed
 - [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
 - [ ] The process's name doesn't appear when drawing
-- [ ] Lanes aren't displayed
+- [x] Lanes aren't displayed
 - [x] DI elements are duplicated each time saving happens
 - [x] Data Associations aren't displayed
 - [x] Unlinking an element

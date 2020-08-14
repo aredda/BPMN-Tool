@@ -12,6 +12,9 @@ class GUILane(GUIContainer):
         self.element = args.get('element', Lane())
         self.dielement = args.get('dielement', BPMNShape())
 
+        if self.element == None:
+            self.element = Lane()
+
         self.guiprocess = args.get('guiprocess', None)
 
         self.parent = self.guiprocess
