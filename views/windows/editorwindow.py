@@ -164,7 +164,7 @@ class EditorWindow(SessionWindow):
         if subject != None:
             # retrieve file
             f = subject.file if isinstance(subject, Project) else subject.project.file
-            # check
+            # check if there's a valid file
             if f != None:
                 self.draw_diagram(f)
 
@@ -421,6 +421,11 @@ class EditorWindow(SessionWindow):
                         'text': 'Associate',
                         'icon': 'associate.png',
                         'cmnd': self.close_menu_after(lambda e: self.set_mode(self.LINK_MODE))
+                    },
+                    {
+                        'text': 'Unlink',
+                        'icon': 'cut.png',
+                        'cmnd': self.close_menu_after(lambda e: self.unlink_element(self.SELECTED_ELEMENT))
                     }
                 ]
                 # if the element is a container
@@ -506,7 +511,7 @@ class EditorWindow(SessionWindow):
                     for flow in self.DRAG_ELEMENT.flows:
                         if flow.element.get_tag() == 'messageflow':
                             self.definitions.remove('message', flow.element)
-                            self.diplane.remove('dielement', flow.dielement)
+                            self.diplane.nokey_remove(flow.dielement)
                     # proceed to unlink element
                     self.DRAG_ELEMENT.unlink()
                     self.DRAG_ELEMENT.erase()
@@ -587,28 +592,43 @@ class EditorWindow(SessionWindow):
                 return guie
         return None
 
+    # unlink an element
+    def unlink_element(self, element):
+        # save undo checkpoint
+        self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+        # re assign canvas
+        self.assign_canvas_all()
+        # remove from parent and di container
+        for flow in element.flows:
+            # remove from di plane
+            self.diplane.nokey_remove(flow.dielement)
+            # remove from container
+            if element.parent != None:
+                # if this is a message flow then remove it from collaboration
+                if flow.element.get_tag() == 'messageflow':
+                    self.definitions.remove('message', flow.element)
+                elif flow.element.get_tag() == 'sequenceflow':
+                    element.parent.element.remove('flow', flow.element)
+                else:
+                    print (flow.element.get_tag(), 'needs unlinking settings')
+        # unlink target
+        element.unlink()
+
     # delete an element
     def remove_element(self, element):
         # save undo checkpoint
         self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
         # emphasize that this element has a canvas
-        element.canvas = self.cnv_canvas
+        self.assign_canvas_all()
         # remove flow links
-        for flow in element.flows:
-            self.diplane.remove('dielement', flow.dielement)
-            # if this is a message flow then remove it from collaboration
-            if flow.element.get_tag() == 'messageflow':
-                self.definitions.remove('message', flow.element)
+        self.unlink_element(element)
         # remove the drawn element
         element.destroy()
-        # unlink all flows
-        element.unlink()
         # remove from list
         if element in self.guielements:
             self.guielements.remove(element)
-        # remove from
-        if element.dielement in self.diplane.elements['dielement']:
-            self.diplane.remove('dielement', element.dielement)
+        # remove from plane
+        self.diplane.nokey_remove(element.dielement)
         # if it's a process
         if isinstance (element, GUIProcess) == True:
             self.definitions.remove('process', element.element)
@@ -688,9 +708,23 @@ class EditorWindow(SessionWindow):
 
         self.diplane.element = self.definitions.collaboration
 
+        from pprint import pprint
+
+        logfile = open('resources/temp/log.txt', 'w')
+        savefile = open('resources/temp/savelog.xml', 'w')
+
+        pprint(self.definitions.elements, logfile)
+        logfile.write('\n')
+        
+        for process in self.definitions.elements['process']:
+            pprint(process.elements, logfile)
+            logfile.write('\n')
+        
+        pprint(self.diplane.elements, logfile)
+
         # print the content of the new file  
-        print ('----- Saving')
-        Thread(target=lambda: print(to_pretty_xml(self.definitions.serialize()))).start()
+        Thread(target=lambda: savefile.write(to_pretty_xml(self.definitions.serialize()))).start()
+        print ('Saved')
 
         # BOOKMARK_TOCHANGE: uncomment those
         if self.get_privilege() == 'read':
@@ -860,8 +894,6 @@ class EditorWindow(SessionWindow):
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         root_element = bytestoelement(byte_data)
-        # print ('----- Before Deserializing:')
-        Thread (target=lambda: print (to_pretty_xml(root_element))).start()
         # instantiate a deserializer
         deserializer = Deserializer(root_element)
         # retrieve a definitions instance
@@ -870,7 +902,8 @@ class EditorWindow(SessionWindow):
         self.diplane = deserializer.diplane
         # show the content
         # print ('----- After Deserializing:')
-        # Thread (target=lambda: print (to_pretty_xml(self.definitions.serialize()))).start()
+        loadfile = open('resources/temp/loadlog.xml', 'w')
+        loadfile.write (to_pretty_xml(self.definitions.serialize()))
         # draw all elements
         for e in deserializer.all_elements:
             # retrieve gui prefab class
@@ -896,7 +929,6 @@ class EditorWindow(SessionWindow):
             prefab.draw_at (xPos, yPos)
             # save instance
             self.guielements.append(prefab)
-            self.diplane.add('dielement', de)
         # draw their flows
         for f in deserializer.all_elements:
             # retrieve gui prefab class

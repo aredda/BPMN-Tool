@@ -32,11 +32,6 @@ class Prefab:
     def add_flow(self, flow):
         self.flows.append(flow) 
 
-    # remove flow 
-    def remove_flow(self, flow):
-        if flow in self.flows:    
-            flow.destroy()
-
     # draw all contained flows
     def draw_flows(self):
         for flow in self.flows:
@@ -45,8 +40,12 @@ class Prefab:
 
     # clear all flows and erase them
     def unlink(self):
+        # destruction
         for flow in self.flows:
-            self.remove_flow(flow)
+            flow.destroy()
+        # unlink
+        for flow in self.flows:
+            flow.unlink()
 
     # select action
     def select(self):

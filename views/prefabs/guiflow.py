@@ -62,10 +62,6 @@ class GUIFlow(Prefab):
         self.update_diprops()
 
     def destroy(self):
-        # unlinking
-        # remove from gui elements
-        self.guisource.flows.remove(self)
-        self.guitarget.flows.remove(self)
         # removing from models
         if isinstance(self.element, DataAssociation) == True:
             linkable = self.guisource.element if isinstance (self.guisource, GUILinkable) == True else self.guitarget.element 
@@ -74,6 +70,12 @@ class GUIFlow(Prefab):
             self.element.separate()
         # destroy anyway
         super().destroy()
+
+    def unlink(self):
+        # unlinking
+        # remove from gui elements
+        self.guisource.flows.remove(self)
+        self.guitarget.flows.remove(self)
 
     def update_diprops(self):
         self.dielement.element = self.element

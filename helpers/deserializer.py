@@ -204,7 +204,7 @@ class Deserializer:
                         # if linking is failed.. save it for later
                         if instance.source == None or instance.target == None:
                             # save the id of the targeted elements
-                            instance.source, instance.target = xe.attrib['sourceRef'],xe.attrib['targetRef']
+                            instance.source, instance.target = xe.attrib['sourceRef'], xe.attrib['targetRef']
                             # mark as failed link/flow instance
                             self.failed_links.append(instance)
                         # check if it's a conditional flow
@@ -382,7 +382,6 @@ class Deserializer:
                         obj.isHorizontal = True
                 # edge settings
                 if 'Edge' in xchild.tag:
-                    print ('setting up an edge')
                     # retrieve waypoints
                     xpoints = xchild.findall(di + 'waypoint')
                     # affecting points

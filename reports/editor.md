@@ -34,8 +34,9 @@
 - [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
 - [ ] The process's name doesn't appear when drawing
 - [ ] Lanes aren't displayed
-- [ ] DI elements are duplicated each time saving happens
+- [x] DI elements are duplicated each time saving happens
 - [ ] Data Associations aren't displayed
+- [x] Unlinking an element
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events
