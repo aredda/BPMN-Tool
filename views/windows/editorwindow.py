@@ -508,14 +508,7 @@ class EditorWindow(SessionWindow):
                 # if this container is not the parent, then erase all flows
                 if self.DRAG_ELEMENT.parent != container:
                     # before disposing of flows, make sure that message flows get erased
-                    for flow in self.DRAG_ELEMENT.flows:
-                        if flow.element.get_tag() == 'messageflow':
-                            self.definitions.remove('message', flow.element)
-                            self.diplane.nokey_remove(flow.dielement)
-                    # proceed to unlink element
-                    self.DRAG_ELEMENT.unlink()
-                    self.DRAG_ELEMENT.erase()
-                    self.DRAG_ELEMENT.draw()
+                    self.unlink_element(self.DRAG_ELEMENT)
                 # if the element already had a parent, 
                 if self.DRAG_ELEMENT.parent != None:
                     self.DRAG_ELEMENT.parent.remove_child(self.DRAG_ELEMENT)
