@@ -37,6 +37,7 @@
 - [x] DI elements are duplicated each time saving happens
 - [x] Data Associations aren't displayed
 - [x] Unlinking an element
+- [ ] Deleting Lane bugs
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events

@@ -37,6 +37,6 @@ class Lane(Container):
     def remove(self, tag, child):
         super().remove(tag, child)
         # remove from the process as well
-        self.process.remove(tag, child)
+        self.process.nokey_remove(child)
 
     def get_tag(self): return 'lane'

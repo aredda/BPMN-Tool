@@ -94,9 +94,8 @@ class GUIProcess(GUIContainer):
         self.remove_child(lane)
         # if there's only one lane left.. just delete it
         if len(self.lanes) == 1:
-            last_lane = self.lanes[0]
+            last_lane = self.lanes.pop()
             last_lane.erase()
-            self.lanes.clear()
             self.remove_child(last_lane)
         # redraw
         self.draw_lanes()
@@ -116,7 +115,7 @@ class GUIProcess(GUIContainer):
         self.draw_lanes()
 
     def get_options(self):
-        return [{
+        return [] if len (self.children) > len (self.lanes) else [{
             'text': 'Add Lane',
             'icon': 'add.png',
             'cmnd': lambda e: self.add_lane()
@@ -124,5 +123,8 @@ class GUIProcess(GUIContainer):
     
     def memento_setup(self):
         super().memento_setup()
+        # revoke canvas
+        self.canvas = None
         # lanes
-        for lane in self.lanes: lane.canvas = None
+        for lane in self.lanes: 
+            lane.memento_setup()

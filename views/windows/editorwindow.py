@@ -426,18 +426,25 @@ class EditorWindow(SessionWindow):
                         'cmnd': self.close_menu_after(lambda e: self.set_mode(self.LINK_MODE))
                     },
                     {
-                        'text': 'Unlink',
+                        'text': 'Dissociate',
                         'icon': 'cut.png',
                         'cmnd': self.close_menu_after(lambda e: self.unlink_element(self.SELECTED_ELEMENT))
                     }
                 ]
+                # adjust options, if this is a lane, remove 'associate' options
+                if isinstance(self.SELECTED_ELEMENT, GUILane):
+                    opts.pop(2)
+                # if the element has no flows, remove 'dissociate'
+                if len (self.SELECTED_ELEMENT.flows) == 0:
+                    opts.pop()
                 # if the element is a container
                 if isinstance(self.SELECTED_ELEMENT, GUIContainer) == True:
-                    opts.append({
-                        'text': 'Resize',
-                        'icon': 'resize.png',
-                        'cmnd': self.close_menu_after(lambda e: self.set_mode(self.RESIZE_MODE))
-                    })
+                    if not isinstance(self.SELECTED_ELEMENT, GUILane):
+                        opts.append({
+                            'text': 'Resize',
+                            'icon': 'resize.png',
+                            'cmnd': self.close_menu_after(lambda e: self.set_mode(self.RESIZE_MODE))
+                        })
                 # if the element has options
                 if self.SELECTED_ELEMENT.get_options() != None:
                     # retrieve element options
@@ -625,6 +632,10 @@ class EditorWindow(SessionWindow):
         # if it's a process
         if isinstance (element, GUIProcess) == True:
             self.definitions.remove('process', element.element)
+        # if this is a lane
+        # if isinstance (element, GUILane):
+        #     for child in element.children:
+        #         self.remove_element(child)
         # if this element is inside a container
         if element.parent != None:
             element.parent.remove_child(element)
@@ -699,25 +710,14 @@ class EditorWindow(SessionWindow):
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
 
+        # plane adjustment
         self.diplane.element = self.definitions.collaboration
 
+        # logging save changes
         from pprint import pprint
-
-        logfile = open('resources/temp/log.txt', 'w')
         savefile = open('resources/temp/savelog.xml', 'w')
-
-        pprint(self.definitions.elements, logfile)
-        logfile.write('\n')
-        
-        for process in self.definitions.elements['process']:
-            pprint(process.elements, logfile)
-            logfile.write('\n')
-        
-        pprint(self.diplane.elements, logfile)
-
         # print the content of the new file  
         Thread(target=lambda: savefile.write(to_pretty_xml(self.definitions.serialize()))).start()
-        print ('Saved')
 
         # BOOKMARK_TOCHANGE: uncomment those
         if self.get_privilege() == 'read':
@@ -840,6 +840,8 @@ class EditorWindow(SessionWindow):
         if isinstance(element, GUIProcess):
             for lane in element.lanes:
                 lane.canvas = self.cnv_canvas
+                for child in lane.children:
+                    self.assign_canvas(child)
     
     def assign_canvas_all(self):
         for e in self.guielements:

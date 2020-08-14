@@ -51,3 +51,13 @@ class GUILane(GUIContainer):
     # disable di props update
     def update_diprops(self): pass
         
+    def memento_setup(self):
+        super().memento_setup()
+        # revoke canvas from itself
+        self.canvas = None
+        # revoke canvas from children
+        for child in self.children:
+            child.canvas = None
+            # flows
+            for flow in child.flows:
+                flow.canvas = None
