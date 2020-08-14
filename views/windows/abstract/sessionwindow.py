@@ -81,7 +81,7 @@ class SessionWindow(Window):
                         noNewNotifs = False
                         break
                 # check for new unseen messages
-                for msg in Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all():
+                for msg in self.getLastMessages():
                     if msg.user != SessionWindow.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id).first() == None:
                         self.icn_discussion.set_image('resources/icons/ui/discussion.png')
                         noNewMessages = False
@@ -169,6 +169,12 @@ class SessionWindow(Window):
 
         self.vBarButtons['btn_quit'].bind_click(lambda e: quit() )
 
+    def getLastMessages(self):
+            msgs = []
+            for i in Container.filter(Session):
+                if i.owner == SessionWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == SessionWindow.ACTIVE_USER.id, Collaboration.sessionId == i.id).first() != None:
+                    msgs.append(Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first())
+            return msgs
 
     def config_hBar(self):
         # Creation of elements
@@ -184,13 +190,17 @@ class SessionWindow(Window):
                 self.configure_notif_listitem
             )
         )
+
+        
+
         self.icn_discussion = IconFrame(
             self.frm_hBar, 'resources/icons/ui/discussion_outline.png', 0, None, 32,
             lambda e: self.show_popup(
                 self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
                 self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
                 # BOOKMARK_DONE: discussion data list
-                Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
+                # Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
+                self.getLastMessages(),
                 self.configure_msg_listitem
             )
         )
