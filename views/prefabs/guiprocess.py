@@ -48,6 +48,8 @@ class GUIProcess(GUIContainer):
         self.id.append (vBorder)
         # mark the vertical border as unselected element
         self.unselected.append (vBorder)
+        # update di props
+        self.update_diprops()
 
     def set_text(self, text):
         self.element.name = text
@@ -87,13 +89,13 @@ class GUIProcess(GUIContainer):
         # draw 
         self.draw_lanes()
 
-    def remove_lane(self, lane):
+    def remove_lane(self, lane, autoFix=True):
         # remove from containers
         lane.erase()
         self.lanes.remove(lane)
         self.remove_child(lane)
         # if there's only one lane left.. just delete it
-        if len(self.lanes) == 1:
+        if autoFix and len(self.lanes) == 1:
             last_lane = self.lanes.pop()
             last_lane.erase()
             self.remove_child(last_lane)

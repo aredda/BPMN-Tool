@@ -168,6 +168,22 @@ class EditorWindow(SessionWindow):
             # check if there's a valid file
             if f != None:
                 self.draw_diagram(f)
+            else:
+                self.create_default_process()
+        else:
+            self.create_default_process()
+    
+    def create_default_process(self):
+        self.cnv_canvas.update()
+        # instantiate a gui process
+        guiprocess = GUIProcess(canvas=self.cnv_canvas)
+        guiprocess.draw_at(int(self.cnv_canvas.winfo_width() / 2) - guiprocess.WIDTH / 2, int(self.cnv_canvas.winfo_height() / 2) - guiprocess.HEIGHT / 2)
+        # adjustments
+        guiprocess.dielement.element = guiprocess.element
+        # append it
+        self.guielements.append(guiprocess)    
+        self.definitions.add('process', guiprocess.element)
+        self.diplane.add('dielement', guiprocess.dielement)
 
     def setup_tools(self):
         # prepare an empty collection
@@ -362,6 +378,11 @@ class EditorWindow(SessionWindow):
                     self.assign_canvas(self.SELECTED_ELEMENT)
                 # if select mode is enabled
                 if self.SELECTED_MODE == self.SELECT_MODE:
+                    # cases when some elements can't be selected
+                    if isinstance(self.SELECTED_ELEMENT, GUIProcess):
+                        self.show_help_panel('Process elements cannot be selected', danger)
+                        return
+                    # proceed normally
                     if self.SELECTED_ELEMENT in self.SELECTED_ELEMENTS:
                         self.SELECTED_ELEMENT.deselect()
                         self.SELECTED_ELEMENTS.remove(self.SELECTED_ELEMENT)
@@ -431,6 +452,10 @@ class EditorWindow(SessionWindow):
                         'cmnd': self.close_menu_after(lambda e: self.unlink_element(self.SELECTED_ELEMENT))
                     }
                 ]
+                # if it's a process
+                if isinstance(self.SELECTED_ELEMENT, GUIProcess):
+                    if len (self.definitions.elements['process']) == 1:
+                        opts.pop(0)
                 # adjust options, if this is a lane, remove 'associate' options
                 if isinstance(self.SELECTED_ELEMENT, GUILane):
                     opts.pop(2)
@@ -620,6 +645,12 @@ class EditorWindow(SessionWindow):
         self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
         # emphasize that this element has a canvas
         self.assign_canvas_all()
+        # if this is a lane
+        guiprocess = None
+        if isinstance (element, GUILane):
+            guiprocess = element.guiprocess
+            for child in element.children:
+                self.remove_element(child)
         # remove flow links
         self.unlink_element(element)
         # remove the drawn element
@@ -632,13 +663,13 @@ class EditorWindow(SessionWindow):
         # if it's a process
         if isinstance (element, GUIProcess) == True:
             self.definitions.remove('process', element.element)
-        # if this is a lane
-        # if isinstance (element, GUILane):
-        #     for child in element.children:
-        #         self.remove_element(child)
         # if this element is inside a container
         if element.parent != None:
             element.parent.remove_child(element)
+        # if this was a lane, then guiprocess shouldn't be None
+        if guiprocess != None:
+            if len(guiprocess.lanes) == 1:
+                self.remove_element(guiprocess.lanes[0])
         # hide menu
         self.hide_component('frm_menu')
     

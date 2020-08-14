@@ -77,3 +77,7 @@ class GUIContainer(Prefab):
         # erase children
         for child in self.children:
             child.erase()
+
+    def update_diprops(self):
+        self.dielement.bounds.x, self.dielement.bounds.y = self.x, self.y
+        self.dielement.bounds.width, self.dielement.bounds.height = self.WIDTH, self.HEIGHT

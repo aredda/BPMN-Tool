@@ -39,7 +39,7 @@ class GUILane(GUIContainer):
 
     def destroy(self):
         # remove from parent
-        self.guiprocess.remove_lane(self)
+        self.guiprocess.remove_lane(self, False)
         # remove self
         super().destroy()
         # clear
