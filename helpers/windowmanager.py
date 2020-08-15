@@ -46,6 +46,17 @@ class WindowManager:
         if self.running() == None:
             self.root.destroy()
         else:
+            if self.running().__class__.__name__ in ['DiscussionWindow','HomeWindow']: 
+                window = self.running().__class__(self.running().master)
+                if self.running().__class__.__name__ == 'DiscussionWindow': 
+                    for item in window.msgItems:
+                        if item.dataObject.session == self.running().currentItem.dataObject.session:
+                            window.Configure_session(None, item)
+                self.windows.pop(len(self.windows)-1)
+                window.set_manager(self)
+                self.windows.append(window)
+            #     self.run(window)
+            # else:
             self.running().show()
             self.running().refresh()
 

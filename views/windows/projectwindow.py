@@ -91,6 +91,7 @@ class ProjectWindow(TabbedWindow):
             def revert_changes(msg,history):
                 history.project.file = history.file
                 history.project.lastEdited = history.editDate
+                history.project.image = history.image
                 Container.save(history.project)
                 msg.destroy()
 
@@ -98,6 +99,10 @@ class ProjectWindow(TabbedWindow):
                     if li.dataObject.editDate >= history.editDate: 
                         Container.deleteObject(li.dataObject)
                         li.destroy()
+
+                photo = getdisplayableimage(history.image,(self.frm_preview.winfo_width(),self.frm_preview.winfo_height()))
+                self.lbl_image.configure(image=photo)
+                self.lbl_image.image = photo
 
                 MessageModal(self,title=f'Success',message=f'Changes reverted to the following date:\n{history.editDate.strftime("%x - %X")}!',messageType='info')
                 getattr(self, 'lbl_'+ ProjectWindow.lblSettings[2]['prop'])['text'] = history.editDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != history.editDate.strftime("%x") else 'Today at - '+history.editDate.strftime("%X")

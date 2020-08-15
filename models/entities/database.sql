@@ -54,6 +54,7 @@ CREATE TABLE history(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     editDate DATETIME,
     file MEDIUMBLOB,
+    image MEDIUMBLOB,
     editorId INTEGER NOT NULL,
     projectId INTEGER NOT NULL,
     FOREIGN KEY(editorId) REFERENCES users(id) ON DELETE CASCADE,

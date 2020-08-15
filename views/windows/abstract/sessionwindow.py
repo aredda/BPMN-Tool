@@ -36,7 +36,7 @@ class SessionWindow(Window):
     }
 
     # BOOKMARK_TOCHANGE: make it None
-    ACTIVE_USER = Container.filter(User).get(2)
+    ACTIVE_USER = Container.filter(User).get(1)
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
@@ -81,7 +81,7 @@ class SessionWindow(Window):
                         noNewNotifs = False
                         break
                 # check for new unseen messages
-                for msg in Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all():
+                for msg in self.getLastMessages():
                     if msg.user != SessionWindow.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id).first() == None:
                         self.icn_discussion.set_image('resources/icons/ui/discussion.png')
                         noNewMessages = False
@@ -140,10 +140,12 @@ class SessionWindow(Window):
         for notif in notifs:
             if notif.nature == NotificationNature.INV.value and Container.filter(Invitation, Invitation.id == notif.invitationId).first() == None:
                 Container.deleteObject(notif)
-            elif notif.nature == NotificationNature.INVLINK.value and Container.filter(InvitationLink, InvitationLink.id == notif.invitationId).first() == None:
-                Container.deleteObject(notif)
+            elif notif.nature == NotificationNature.INVLINK.value:
+                invitationLink = Container.filter(InvitationLink, InvitationLink.id == notif.invitationId).first()
+                if invitationLink == None or Container.filter(Collaboration, Collaboration.sessionId == invitationLink.sessionId, Collaboration.userId == notif.actorId).first() == None: Container.deleteObject(notif)
             elif notif.nature == NotificationNature.SHARELINK.value and Container.filter(ShareLink, ShareLink.id == notif.invitationId).first() == None:
                 Container.deleteObject(notif)
+            
 
     def config_vBar(self):
         
@@ -169,10 +171,17 @@ class SessionWindow(Window):
 
         self.vBarButtons['btn_quit'].bind_click(lambda e: quit() )
 
+    def getLastMessages(self):
+            msgs = []
+            for i in Container.filter(Session):
+                if i.owner == SessionWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == SessionWindow.ACTIVE_USER.id, Collaboration.sessionId == i.id).first() != None:
+                    msgs.append(Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first())
+            return msgs
 
     def config_hBar(self):
         # Creation of elements
         # BOOKMARK_DONE: change user profile image
+        self.clean_notifications()
         self.btn_username = IconButton(self.frm_hBar, SessionWindow.ACTIVE_USER.userName, '-size 15', biege, 'resources/icons/ui/face.png' if SessionWindow.ACTIVE_USER.image == None else SessionWindow.ACTIVE_USER.image, 5, None, biege, 40, None, bg=white)
         self.icn_notification = IconFrame(
             self.frm_hBar, 'resources/icons/ui/bell_outline.png', 0, None, 32,
@@ -184,13 +193,15 @@ class SessionWindow(Window):
                 self.configure_notif_listitem
             )
         )
+
         self.icn_discussion = IconFrame(
             self.frm_hBar, 'resources/icons/ui/discussion_outline.png', 0, None, 32,
             lambda e: self.show_popup(
                 self.to_window_coords(e.x_root, e.y_root)[0] - 360, 
                 self.to_window_coords(e.x_root, e.y_root)[1] + 20, 
                 # BOOKMARK_DONE: discussion data list
-                Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
+                # Container.filter(Message,Message.sessionId == Collaboration.sessionId,or_(Collaboration.userId == SessionWindow.ACTIVE_USER.id, and_(Message.sessionId == Session.id, Session.ownerId == SessionWindow.ACTIVE_USER.id) ),Message.sentDate.in_(Container.filter(func.max(Message.sentDate)).group_by(Message.sessionId))).group_by(Message.sessionId).all(), 
+                self.getLastMessages(),
                 self.configure_msg_listitem
             )
         )

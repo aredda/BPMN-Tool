@@ -172,8 +172,11 @@ class DiscussionWindow(SessionWindow):
             self.currentItem = listItem
             self.change_session_item_style(self.currentItem, self.CHAT_ACTIVE)
 
-            if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == self.currentItem.dataObject.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
-                Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=self.currentItem.dataObject))
+            # lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id, Message.sentDate == Container.filter(func.max(Message.sentDate), Message.sessionId == self.currentItem.dataObject.session.id).group_by(Message.sessionId)).first()
+            lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id).order_by(Message.sentDate.desc()).first()
+        
+            if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == lastmsg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
+                Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=lastmsg))
         
         # except Exception:
         #     # Container.session.rollback()
