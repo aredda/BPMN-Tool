@@ -36,7 +36,7 @@ class SessionWindow(Window):
     }
 
     # BOOKMARK_TOCHANGE: make it None
-    ACTIVE_USER = Container.filter(User).get(2)
+    ACTIVE_USER = Container.filter(User).get(1)
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
@@ -140,10 +140,12 @@ class SessionWindow(Window):
         for notif in notifs:
             if notif.nature == NotificationNature.INV.value and Container.filter(Invitation, Invitation.id == notif.invitationId).first() == None:
                 Container.deleteObject(notif)
-            elif notif.nature == NotificationNature.INVLINK.value and Container.filter(InvitationLink, InvitationLink.id == notif.invitationId).first() == None:
-                Container.deleteObject(notif)
+            elif notif.nature == NotificationNature.INVLINK.value:
+                invitationLink = Container.filter(InvitationLink, InvitationLink.id == notif.invitationId).first()
+                if invitationLink == None or Container.filter(Collaboration, Collaboration.sessionId == invitationLink.sessionId, Collaboration.userId == notif.actorId).first() == None: Container.deleteObject(notif)
             elif notif.nature == NotificationNature.SHARELINK.value and Container.filter(ShareLink, ShareLink.id == notif.invitationId).first() == None:
                 Container.deleteObject(notif)
+            
 
     def config_vBar(self):
         
@@ -179,6 +181,7 @@ class SessionWindow(Window):
     def config_hBar(self):
         # Creation of elements
         # BOOKMARK_DONE: change user profile image
+        self.clean_notifications()
         self.btn_username = IconButton(self.frm_hBar, SessionWindow.ACTIVE_USER.userName, '-size 15', biege, 'resources/icons/ui/face.png' if SessionWindow.ACTIVE_USER.image == None else SessionWindow.ACTIVE_USER.image, 5, None, biege, 40, None, bg=white)
         self.icn_notification = IconFrame(
             self.frm_hBar, 'resources/icons/ui/bell_outline.png', 0, None, 32,
@@ -190,8 +193,6 @@ class SessionWindow(Window):
                 self.configure_notif_listitem
             )
         )
-
-        
 
         self.icn_discussion = IconFrame(
             self.frm_hBar, 'resources/icons/ui/discussion_outline.png', 0, None, 32,

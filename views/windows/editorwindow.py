@@ -702,10 +702,11 @@ class EditorWindow(SessionWindow):
             # update project
             project.file = elementtobytes(self.definitions.serialize())
             project.lastEdited = date
+            history = History(editDate=date, file=project.file, editor=EditorWindow.ACTIVE_USER, project=project)
             # get image and affect it
-            self.take_screenshot(project)
+            self.take_screenshot(project, history)
             # save entity
-            Container.save(project, History(editDate=date, file=project.file, editor=EditorWindow.ACTIVE_USER, project=project))
+            Container.save(project, history)
 
     def back_to_subject(self):
         def back(msg):
@@ -948,7 +949,7 @@ class EditorWindow(SessionWindow):
         self.assign_canvas_all()
 
     # saving a jpg/png image
-    def take_screenshot(self, subject=None):
+    def take_screenshot(self, *subjects):
         # this activity should be ran in another thread
         def runnable():
             # reset canvas position
@@ -967,8 +968,8 @@ class EditorWindow(SessionWindow):
             # save it
             ImgGrb.grab().crop((x0, y0, x1, y1)).save('resources/temp/shot.png')
             # BOOKMARK  affect it to its corresponding db record
-            if subject != None:
-                subject.image = filetobytes('resources/temp/shot.png')
+            for subject in subjects:
+                if subject != None: subject.image = filetobytes('resources/temp/shot.png')
             # show tools again
             self.show_tools()
             # change back the canvas bg
