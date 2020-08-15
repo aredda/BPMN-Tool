@@ -24,6 +24,9 @@ class GUIProcess(GUIContainer):
         if self.dielement != None:
             self.dielement.isHorizontal = True
 
+            if self.element != None:
+                self.dielement.element = self.element
+
             if self.dielement.bounds == None:
                 self.dielement.bounds = Bounds()
 

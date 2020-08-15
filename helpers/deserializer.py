@@ -343,8 +343,6 @@ class Deserializer:
             self.definitions.add('message', sflow)
             self.all_elements.append(sflow)
 
-            print ('found a message flow: ' + sflow.id)
-
     def setup_bpmndi(self):
         # utilities
         def get_bounds(xelement):
