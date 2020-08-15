@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as et
 
+from helpers.stringhelper import generate_code
 from models.bpmn.container import Container
 from resources.namespaces import bpmn
 
@@ -8,6 +9,7 @@ class Lane(Container):
     def __init__(self, **args):
         Container.__init__(self, **args)
 
+        self.id = args.get('id', 'lane_' + generate_code())
         self.process = self.expects(args, 'process', None)
 
         if self.process != None:
@@ -15,6 +17,7 @@ class Lane(Container):
 
     def serialize(self):
         laneElement = et.Element(bpmn + 'lane')
+        laneElement.attrib['id'] = self.id
 
         for key in self.elements:
             for element in self.elements[key]:
@@ -25,7 +28,8 @@ class Lane(Container):
         return laneElement
 
     def add(self, name, item, addToProcess=True):
-        Container.add(self, name, item)
+        if item.get_tag() not in ['sequenceflow']:
+            Container.add(self, name, item)
         
         if addToProcess == True and self.process != None:
             self.process.add(name, item)
@@ -33,4 +37,6 @@ class Lane(Container):
     def remove(self, tag, child):
         super().remove(tag, child)
         # remove from the process as well
-        self.process.remove(tag, child)
+        self.process.nokey_remove(child)
+
+    def get_tag(self): return 'lane'

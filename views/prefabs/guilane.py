@@ -12,6 +12,9 @@ class GUILane(GUIContainer):
         self.element = args.get('element', Lane())
         self.dielement = args.get('dielement', BPMNShape())
 
+        if self.element == None:
+            self.element = Lane()
+
         self.guiprocess = args.get('guiprocess', None)
 
         self.parent = self.guiprocess
@@ -36,7 +39,7 @@ class GUILane(GUIContainer):
 
     def destroy(self):
         # remove from parent
-        self.guiprocess.remove_lane(self)
+        self.guiprocess.remove_lane(self, False)
         # remove self
         super().destroy()
         # clear
@@ -48,3 +51,13 @@ class GUILane(GUIContainer):
     # disable di props update
     def update_diprops(self): pass
         
+    def memento_setup(self):
+        super().memento_setup()
+        # revoke canvas from itself
+        self.canvas = None
+        # revoke canvas from children
+        for child in self.children:
+            child.canvas = None
+            # flows
+            for flow in child.flows:
+                flow.canvas = None

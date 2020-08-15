@@ -25,6 +25,11 @@ class Container(BPMNElement):
             if item in self.elements[name]:
                 self.elements[name].remove(item)
 
+    def nokey_remove(self, item):
+        for key in self.elements:
+            if item in self.elements[key]:
+                self.remove(key, item)
+
     def serialize(self):
         element = BPMNElement.serialize(self)
         # For each element in the dictionary of lists..

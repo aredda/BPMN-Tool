@@ -204,7 +204,7 @@ class Deserializer:
                         # if linking is failed.. save it for later
                         if instance.source == None or instance.target == None:
                             # save the id of the targeted elements
-                            instance.source, instance.target = xe.attrib['sourceRef'],xe.attrib['targetRef']
+                            instance.source, instance.target = xe.attrib['sourceRef'], xe.attrib['targetRef']
                             # mark as failed link/flow instance
                             self.failed_links.append(instance)
                         # check if it's a conditional flow
@@ -319,7 +319,11 @@ class Deserializer:
                     slane.process = process
                     # retrieve all lane elements
                     for xNodeRef in xlane:
-                        slane.add('node', self.find_element(xNodeRef.text), False)
+                        # referenced element
+                        refElement = self.find_element(xNodeRef.text)
+                        # check before adding
+                        if refElement != None:
+                            slane.add('node', refElement, False)
                     # add the lane to process
                     process.add('lane', slane)
 
@@ -338,8 +342,6 @@ class Deserializer:
             # add flow
             self.definitions.add('message', sflow)
             self.all_elements.append(sflow)
-
-            print ('found a message flow: ' + sflow.id)
 
     def setup_bpmndi(self):
         # utilities
@@ -382,7 +384,6 @@ class Deserializer:
                         obj.isHorizontal = True
                 # edge settings
                 if 'Edge' in xchild.tag:
-                    print ('setting up an edge')
                     # retrieve waypoints
                     xpoints = xchild.findall(di + 'waypoint')
                     # affecting points

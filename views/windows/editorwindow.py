@@ -13,6 +13,7 @@ from helpers.deserializer import Deserializer
 from helpers.xmlutility import elementtobytes, bytestoelement
 from helpers.filehelper import filetobytes
 from models.bpmn.definitions import Definitions
+from models.bpmn.lane import Lane
 from models.bpmn.sequenceflow import SequenceFlow
 from models.bpmn.messageflow import MessageFlow
 from models.bpmn.dataassociation import DataAssociation, DataAssocDirection
@@ -164,9 +165,25 @@ class EditorWindow(SessionWindow):
         if subject != None:
             # retrieve file
             f = subject.file if isinstance(subject, Project) else subject.project.file
-            # check
+            # check if there's a valid file
             if f != None:
                 self.draw_diagram(f)
+            else:
+                self.create_default_process()
+        else:
+            self.create_default_process()
+    
+    def create_default_process(self):
+        self.cnv_canvas.update()
+        # instantiate a gui process
+        guiprocess = GUIProcess(canvas=self.cnv_canvas)
+        guiprocess.draw_at(int(self.cnv_canvas.winfo_width() / 2) - guiprocess.WIDTH / 2, int(self.cnv_canvas.winfo_height() / 2) - guiprocess.HEIGHT / 2)
+        # adjustments
+        guiprocess.dielement.element = guiprocess.element
+        # append it
+        self.guielements.append(guiprocess)    
+        self.definitions.add('process', guiprocess.element)
+        self.diplane.add('dielement', guiprocess.dielement)
 
     def setup_tools(self):
         # prepare an empty collection
@@ -361,6 +378,11 @@ class EditorWindow(SessionWindow):
                     self.assign_canvas(self.SELECTED_ELEMENT)
                 # if select mode is enabled
                 if self.SELECTED_MODE == self.SELECT_MODE:
+                    # cases when some elements can't be selected
+                    if isinstance(self.SELECTED_ELEMENT, GUIProcess):
+                        self.show_help_panel('Process elements cannot be selected', danger)
+                        return
+                    # proceed normally
                     if self.SELECTED_ELEMENT in self.SELECTED_ELEMENTS:
                         self.SELECTED_ELEMENT.deselect()
                         self.SELECTED_ELEMENTS.remove(self.SELECTED_ELEMENT)
@@ -374,6 +396,8 @@ class EditorWindow(SessionWindow):
                         if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
                             # save undo checkpoint
                             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+                            # emphasize that all elements have canvas
+                            self.assign_canvas_all()
                             # generating a flow model
                             flowmodel = self.get_link_model(previous_selected, self.SELECTED_ELEMENT)
                             # creating a flow
@@ -421,15 +445,31 @@ class EditorWindow(SessionWindow):
                         'text': 'Associate',
                         'icon': 'associate.png',
                         'cmnd': self.close_menu_after(lambda e: self.set_mode(self.LINK_MODE))
+                    },
+                    {
+                        'text': 'Dissociate',
+                        'icon': 'cut.png',
+                        'cmnd': self.close_menu_after(lambda e: self.unlink_element(self.SELECTED_ELEMENT))
                     }
                 ]
+                # if it's a process
+                if isinstance(self.SELECTED_ELEMENT, GUIProcess):
+                    if len (self.definitions.elements['process']) == 1:
+                        opts.pop(0)
+                # adjust options, if this is a lane, remove 'associate' options
+                if isinstance(self.SELECTED_ELEMENT, GUILane):
+                    opts.pop(2)
+                # if the element has no flows, remove 'dissociate'
+                if len (self.SELECTED_ELEMENT.flows) == 0:
+                    opts.pop()
                 # if the element is a container
                 if isinstance(self.SELECTED_ELEMENT, GUIContainer) == True:
-                    opts.append({
-                        'text': 'Resize',
-                        'icon': 'resize.png',
-                        'cmnd': self.close_menu_after(lambda e: self.set_mode(self.RESIZE_MODE))
-                    })
+                    if not isinstance(self.SELECTED_ELEMENT, GUILane):
+                        opts.append({
+                            'text': 'Resize',
+                            'icon': 'resize.png',
+                            'cmnd': self.close_menu_after(lambda e: self.set_mode(self.RESIZE_MODE))
+                        })
                 # if the element has options
                 if self.SELECTED_ELEMENT.get_options() != None:
                     # retrieve element options
@@ -503,14 +543,7 @@ class EditorWindow(SessionWindow):
                 # if this container is not the parent, then erase all flows
                 if self.DRAG_ELEMENT.parent != container:
                     # before disposing of flows, make sure that message flows get erased
-                    for flow in self.DRAG_ELEMENT.flows:
-                        if flow.element.get_tag() == 'messageflow':
-                            self.definitions.remove('message', flow.element)
-                            self.diplane.remove('dielement', flow.dielement)
-                    # proceed to unlink element
-                    self.DRAG_ELEMENT.unlink()
-                    self.DRAG_ELEMENT.erase()
-                    self.DRAG_ELEMENT.draw()
+                    self.unlink_element(self.DRAG_ELEMENT)
                 # if the element already had a parent, 
                 if self.DRAG_ELEMENT.parent != None:
                     self.DRAG_ELEMENT.parent.remove_child(self.DRAG_ELEMENT)
@@ -572,7 +605,6 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Control-v>', lambda e: self.reset_view())
         self.cnv_canvas.bind_all('<Control-s>', lambda e: self.save_work())
 
-
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
         for guie in self.guielements:
@@ -587,34 +619,57 @@ class EditorWindow(SessionWindow):
                 return guie
         return None
 
+    # unlink an element
+    def unlink_element(self, element):
+        # save undo checkpoint
+        self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+        # re assign canvas
+        self.assign_canvas_all()
+        # remove from parent and di container
+        for flow in element.flows:
+            # remove from di plane
+            self.diplane.nokey_remove(flow.dielement)
+            # remove from container
+            if element.parent != None:
+                # if this is a message flow then remove it from collaboration
+                if flow.element.get_tag() == 'messageflow':
+                    self.definitions.remove('message', flow.element)
+                elif flow.element.get_tag() == 'sequenceflow':
+                    element.parent.element.remove('flow', flow.element)
+        # unlink target
+        element.unlink()
+
     # delete an element
     def remove_element(self, element):
         # save undo checkpoint
         self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
         # emphasize that this element has a canvas
-        element.canvas = self.cnv_canvas
+        self.assign_canvas_all()
+        # if this is a lane
+        guiprocess = None
+        if isinstance (element, GUILane):
+            guiprocess = element.guiprocess
+            for child in element.children:
+                self.remove_element(child)
         # remove flow links
-        for flow in element.flows:
-            self.diplane.remove('dielement', flow.dielement)
-            # if this is a message flow then remove it from collaboration
-            if flow.element.get_tag() == 'messageflow':
-                self.definitions.remove('message', flow.element)
+        self.unlink_element(element)
         # remove the drawn element
         element.destroy()
-        # unlink all flows
-        element.unlink()
         # remove from list
         if element in self.guielements:
             self.guielements.remove(element)
-        # remove from
-        if element.dielement in self.diplane.elements['dielement']:
-            self.diplane.remove('dielement', element.dielement)
+        # remove from plane
+        self.diplane.nokey_remove(element.dielement)
         # if it's a process
         if isinstance (element, GUIProcess) == True:
             self.definitions.remove('process', element.element)
         # if this element is inside a container
         if element.parent != None:
             element.parent.remove_child(element)
+        # if this was a lane, then guiprocess shouldn't be None
+        if guiprocess != None:
+            if len(guiprocess.lanes) == 1:
+                self.remove_element(guiprocess.lanes[0])
         # hide menu
         self.hide_component('frm_menu')
     
@@ -686,11 +741,14 @@ class EditorWindow(SessionWindow):
     # BOOKMARK for kalai: saving functionality
     def save_work(self):
 
+        # plane adjustment
         self.diplane.element = self.definitions.collaboration
 
+        # logging save changes
+        from pprint import pprint
+        savefile = open('resources/temp/savelog.xml', 'w')
         # print the content of the new file  
-        print ('----- Saving')
-        Thread(target=lambda: print(to_pretty_xml(self.definitions.serialize()))).start()
+        Thread(target=lambda: savefile.write(to_pretty_xml(self.definitions.serialize()))).start()
 
         # BOOKMARK_TOCHANGE: uncomment those
         if self.get_privilege() == 'read':
@@ -813,6 +871,8 @@ class EditorWindow(SessionWindow):
         if isinstance(element, GUIProcess):
             for lane in element.lanes:
                 lane.canvas = self.cnv_canvas
+                for child in lane.children:
+                    self.assign_canvas(child)
     
     def assign_canvas_all(self):
         for e in self.guielements:
@@ -849,6 +909,8 @@ class EditorWindow(SessionWindow):
             return GUIProcess
         elif tag == 'subprocess':
             return GUISubProcess
+        elif tag == 'lane':
+            return GUILane
         elif tag == 'datastore':
             return GUIDataStore
         elif tag == 'dataobject':
@@ -860,8 +922,6 @@ class EditorWindow(SessionWindow):
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         root_element = bytestoelement(byte_data)
-        # print ('----- Before Deserializing:')
-        Thread (target=lambda: print (to_pretty_xml(root_element))).start()
         # instantiate a deserializer
         deserializer = Deserializer(root_element)
         # retrieve a definitions instance
@@ -870,7 +930,8 @@ class EditorWindow(SessionWindow):
         self.diplane = deserializer.diplane
         # show the content
         # print ('----- After Deserializing:')
-        # Thread (target=lambda: print (to_pretty_xml(self.definitions.serialize()))).start()
+        loadfile = open('resources/temp/loadlog.xml', 'w')
+        loadfile.write (to_pretty_xml(self.definitions.serialize()))
         # draw all elements
         for e in deserializer.all_elements:
             # retrieve gui prefab class
@@ -896,9 +957,11 @@ class EditorWindow(SessionWindow):
             prefab.draw_at (xPos, yPos)
             # save instance
             self.guielements.append(prefab)
-            self.diplane.add('dielement', de)
         # draw their flows
         for f in deserializer.all_elements:
+            # if this is a data association just skip
+            if isinstance(f, DataAssociation):
+                continue
             # retrieve gui prefab class
             _class = self.get_gui_prefab(f)
             # if it's not a flow, skip it
@@ -912,6 +975,17 @@ class EditorWindow(SessionWindow):
             # instantiate prefab
             prefab = _class(guisource=guisrc, guitarget=guitrg, element=f, dielement=de, canvas=self.cnv_canvas)
             prefab.draw_at(0, 0)
+        # draw data associations
+        for e in deserializer.all_elements:
+            if hasattr(e, 'elements'):
+                # draw data associations if there are any
+                if 'dataAssociation' in e.elements:
+                    for da in e.elements['dataAssociation']:
+                        # find gui ends
+                        guisrc, guitrg = self.find_guielement_by_element(e), self.find_guielement_by_element(da.target)
+                        # draw flow
+                        daflow = GUIFlow(canvas=self.cnv_canvas, guisource=guisrc, guitarget=guitrg, element=da, dielement=deserializer.delements.get(da.id, None))
+                        daflow.draw_at(0, 0)
         # set up processes & subprocesses
         for guicontainer in self.guielements:
             # skip other gui elements
@@ -920,21 +994,36 @@ class EditorWindow(SessionWindow):
             # elements to append
             children = []
             toClear = []
+            # setting up lanes
+            if isinstance(guicontainer, GUIProcess):
+                if 'lane' in guicontainer.element.elements:
+                    for lane in guicontainer.element.elements['lane']:
+                        guicontainer.add_lane(lane, False)
             # loop through its element's children
-            for key in guicontainer.element.elements.keys():
-                # skip flows
-                if key == 'flow':
-                    continue
-                # loop through this collection
-                for child_element in guicontainer.element.elements[key]:
-                    # find gui element of this element
-                    guie = self.find_guielement_by_element(child_element)
-                    # add it to the container
-                    if guie != None:
-                        children.append(guie)
-                    else:
-                        print ('Display Error: Failed to find the GUI element for', child_element.id)
-                        toClear.append([key, child_element])
+            if isinstance(guicontainer, GUISubProcess) or (isinstance (guicontainer, GUIProcess) and len (guicontainer.lanes) == 0):
+                for key in guicontainer.element.elements.keys():
+                    # skip flows
+                    if key in ['flow', 'lane']:
+                        continue
+                    # loop through this collection
+                    for child_element in guicontainer.element.elements[key]:
+                        # find gui element of this element
+                        guie = self.find_guielement_by_element(child_element)
+                        # add it to the container
+                        if guie != None:
+                            children.append(guie)
+                        else:
+                            print ('Display Error: Failed to find the GUI element for', child_element.id)
+                            toClear.append([key, child_element])
+            else:
+                for guilane in guicontainer.lanes:
+                    for key in guilane.element.elements:
+                        for node in guilane.element.elements[key]:
+                            # find the element 
+                            guinode = self.find_guielement_by_element(node)
+                            # establish child-parent relationship
+                            guilane.children.append(guinode)
+                            guinode.parent = guilane
             # to avoid some runtime errors concerning dictionary size change
             for child in children:
                 guicontainer.append_child(child)

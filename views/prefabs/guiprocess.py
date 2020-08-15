@@ -24,6 +24,9 @@ class GUIProcess(GUIContainer):
         if self.dielement != None:
             self.dielement.isHorizontal = True
 
+            if self.element != None:
+                self.dielement.element = self.element
+
             if self.dielement.bounds == None:
                 self.dielement.bounds = Bounds()
 
@@ -48,6 +51,8 @@ class GUIProcess(GUIContainer):
         self.id.append (vBorder)
         # mark the vertical border as unselected element
         self.unselected.append (vBorder)
+        # update di props
+        self.update_diprops()
 
     def set_text(self, text):
         self.element.name = text
@@ -71,31 +76,31 @@ class GUIProcess(GUIContainer):
             # refresh
             lane.draw_at(self.x + self.POST_OFFSET, yCorrect)
 
-    def add_lane(self):
+    def add_lane(self, lane_model=None, autoFix=True):
         # create an empty lane
-        lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
+        lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self, element=lane_model)
         lane.parent = self
         # append it to
         self.append_child(lane)
         self.lanes.append(lane)
         # can't possibly add one lane
-        if len (self.lanes) == 1:
-            extra_lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
-            self.append_child(extra_lane)
-            self.lanes.append(extra_lane)
+        if autoFix:
+            if len (self.lanes) == 1:
+                extra_lane = GUILane(width=self.WIDTH-self.POST_OFFSET, canvas=self.canvas, guiprocess=self)
+                self.append_child(extra_lane)
+                self.lanes.append(extra_lane)
         # draw 
         self.draw_lanes()
 
-    def remove_lane(self, lane):
+    def remove_lane(self, lane, autoFix=True):
         # remove from containers
         lane.erase()
         self.lanes.remove(lane)
         self.remove_child(lane)
         # if there's only one lane left.. just delete it
-        if len(self.lanes) == 1:
-            last_lane = self.lanes[0]
+        if autoFix and len(self.lanes) == 1:
+            last_lane = self.lanes.pop()
             last_lane.erase()
-            self.lanes.clear()
             self.remove_child(last_lane)
         # redraw
         self.draw_lanes()
@@ -115,7 +120,7 @@ class GUIProcess(GUIContainer):
         self.draw_lanes()
 
     def get_options(self):
-        return [{
+        return [] if len (self.children) > len (self.lanes) else [{
             'text': 'Add Lane',
             'icon': 'add.png',
             'cmnd': lambda e: self.add_lane()
@@ -123,5 +128,8 @@ class GUIProcess(GUIContainer):
     
     def memento_setup(self):
         super().memento_setup()
+        # revoke canvas
+        self.canvas = None
         # lanes
-        for lane in self.lanes: lane.canvas = None
+        for lane in self.lanes: 
+            lane.memento_setup()

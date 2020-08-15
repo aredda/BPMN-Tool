@@ -16,11 +16,7 @@ class GUIContainer(Prefab):
             # append in the list of model children
             self.element.add(child.element.get_tag(), child.element)
             # add those flows
-            for flow in child.flows:
-                # skip message flows
-                if flow.element.get_tag() == 'sequenceflow':
-                    # add this element to
-                    self.element.add('sequenceflow', flow.element)
+            self.register_flows(child)
 
     def remove_child(self, child):
         if child in self.children:
@@ -29,12 +25,24 @@ class GUIContainer(Prefab):
             # remove it from collection
             self.children.remove(child)
             # remove it from model collection
-            self.element.remove(child.element.get_tag(), child.element)
+            self.element.nokey_remove(child.element)
             # remove its flows
-            for flow in child.flows:
-                if flow.element.get_tag() == 'sequenceflow':
-                    self.element.remove('sequenceflow', flow.element)
+            self.unregister_flows(child)
     
+    # responsible for registering sequence flows in the container in order to serialize them
+    def register_flows(self, child):
+        for flow in child.flows:
+            # skip message flows
+            if flow.element.get_tag() == 'sequenceflow':
+                # add this element to
+                self.element.add('flow', flow.element)
+    
+    # unregister flows
+    def unregister_flows(self, child):
+        for flow in child.flows:
+            if flow.element.get_tag() == 'sequenceflow':
+                self.element.remove('flow', flow.element)
+
     def move(self, x, y):
         # save previous
         xPrev, yPrev = self.x, self.y
@@ -69,3 +77,7 @@ class GUIContainer(Prefab):
         # erase children
         for child in self.children:
             child.erase()
+
+    def update_diprops(self):
+        self.dielement.bounds.x, self.dielement.bounds.y = self.x, self.y
+        self.dielement.bounds.width, self.dielement.bounds.height = self.WIDTH, self.HEIGHT

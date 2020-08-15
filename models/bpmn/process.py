@@ -10,6 +10,7 @@ class Process(Container):
     def __init__(self, **args):
         Container.__init__(self, **args)
 
+        self.id = args.get('id', 'Process_' + generate_code())
         self.definitions = self.expects(args, 'definitions')
         self.participant = args.get('participant', 'Participant_' + generate_code())
 
