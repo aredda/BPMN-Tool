@@ -17,7 +17,10 @@ class GUIGateway(GUILinkable):
 
         self.element = args.get('element', Gateway())
         self.dielement = args.get('dielement', BPMNShape())
-        self.dielement.bounds = Bounds()
+
+        if self.dielement != None:
+            if self.dielement.bounds == None:
+                self.dielement.bounds = Bounds()
 
         # set up dimensions
         self.WIDTH = self.HEIGHT = 60

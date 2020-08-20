@@ -31,13 +31,13 @@
 - [x] Can't link process instances!
 - [x] Message Flows aren't displayed
 - [x] Data Store References aren't displayed
-- [ ] (A serious problem) Serialization & Deserialization Unexpected Bugs
+- [x] (A serious problem) Serialization & Deserialization Unexpected Bugs
 - [ ] The process's name doesn't appear when drawing
 - [x] Lanes aren't displayed
 - [x] DI elements are duplicated each time saving happens
 - [x] Data Associations aren't displayed
 - [x] Unlinking an element
-- [ ] Deleting Lane bugs
+- [x] Deleting Lane bugs
 
 ### 26th of June
 - [X] Finishing the setup of GUI Events
@@ -72,6 +72,6 @@
 - [X] Associating DI Elements
 
 ### 7th of August
-- [ ] Canvasvg can't convert images
-- [ ] Canvasvg can't convert rounded rects
+~~- [ ] Canvasvg can't convert images~~
+~~- [ ] Canvasvg can't convert rounded rects~~
 - [X] Message Flows linger on the Definitions even when you remove links
