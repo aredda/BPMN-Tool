@@ -9,7 +9,7 @@ from models.bpmndi.shape import BPMNShape
 
 class GUISubProcess(GUIActivity, GUIContainer):
 
-    TEXT_OFFSET_Y = 16
+    LABEL_OFFSET = 16
 
     def __init__(self, **args):
         GUIContainer.__init__(self, **args)
@@ -35,7 +35,7 @@ class GUISubProcess(GUIActivity, GUIContainer):
         cnv: Canvas = self.canvas
         self.id.append (cnv.create_image(x + (self.WIDTH / 2) + (self.ICON_MARGIN / 4) + (self.ICON_SIZE / 2), y + self.HEIGHT - self.ICON_MARGIN, image=self.type_icon))
         # draw text
-        self.draw_text(self.element.name, x + self.WIDTH/2, y - self.TEXT_OFFSET_Y)
+        self.draw_text(self.element.name, x + self.WIDTH/2, y - self.LABEL_OFFSET)
 
     def append_child(self, child):
         # prevention condition
