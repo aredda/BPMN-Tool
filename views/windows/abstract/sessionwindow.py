@@ -71,12 +71,13 @@ class SessionWindow(Window):
     def runnable(self):
         try:
             while self.time_to_kill != True:
-                Container.session.begin()
-                Container.session.commit()
+                # Container.session.begin()
+                # Container.session.commit()
+                Container.threadSession.flush()
                 noNewNotifs, noNewMessages = True, True
                 # check for new unseen notifications
-                for notif in Container.filter(Notification,Notification.recipient == SessionWindow.ACTIVE_USER, Notification.id.notin_(Container.filter(SeenNotification.notificationId.distinct()))).all():
-                    if Container.filter(SeenNotification, SeenNotification.notificationId == notif.id, SeenNotification.seerId == SessionWindow.ACTIVE_USER.id).first() == None: 
+                for notif in Container.threadSafeFilter(Notification,Notification.recipient == SessionWindow.ACTIVE_USER, Notification.id.notin_(Container.threadSafeFilter(SeenNotification.notificationId.distinct()))).all():
+                    if Container.threadSafeFilter(SeenNotification, SeenNotification.notificationId == notif.id, SeenNotification.seerId == SessionWindow.ACTIVE_USER.id).first() == None: 
                         self.icn_notification.set_image('resources/icons/ui/bell_ring.png')
                         noNewNotifs = False
                         break

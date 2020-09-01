@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.orm import sessionmaker, relationship, backref, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from helpers.stringhelper import connection_string, server_path, database_name
 from helpers.filehelper import filetobytes
@@ -9,11 +9,14 @@ from sqlalchemy.exc import InternalError
 class Container():
 
     metaData = None
+    scopedSession = None
     session = None
     Base = None
 
     configured = False
     relationshipsConfigured = False
+
+    threadSession = None
 
     @staticmethod
     def configure():
@@ -25,6 +28,8 @@ class Container():
         # Creating a session that holds all our objects and which takes care of communicating queries to our database
         Session = sessionmaker(bind=engine, autocommit=True, autoflush= False, expire_on_commit= False)
         Container.session = Session()
+        Container.threadSession = Session()
+        # Container.scopedSession = scoped_session(sessionmaker(bind=engine))
         Container.configured = True
 
     @staticmethod
@@ -77,19 +82,6 @@ class Container():
             # we use set useList = False in both parent and child to show that it's a O2O relationship
             childRelation.uselist = False
             childRelation.backref = backref(propName, uselist=False, cascade="all,delete")
-        # else:
-        #     # if it's not O2O then we add a relationship on the parent side , which will be a list of children
-        #     # we set up the parent's child's property according to the childModel name
-        #     if propName[-1] == 'y':
-        #         propName = propName.replace('y', 'ie')
-        #     propName += 's'
-        #     # check if the Model doesn't have a list of childModel given
-        #     if hasattr(parentModel, propName) == False:
-        #         # Create parent relationship
-        #         parentRelation = relationship(
-        #             childModelName, primaryjoin=f'{parentModelName}.id == {childModelName}.{foreignkey}')
-        #         # set the parentrelation to the parentModel
-        #         setattr(parentModel, propName, parentRelation)
 
         # set the childrelation to childModel
         setattr(childModel, propertyName, childRelation)
@@ -97,20 +89,39 @@ class Container():
     @staticmethod  # used for add and update
     def save(*objs):
         Container.session.add_all(objs)
+        # Container.threadSafeCommit()
         Container.session.begin()
         Container.session.commit()
 
     @staticmethod
     def deleteObject(obj):
         Container.session.delete(obj)
+        # Container.threadSafeCommit()
         Container.session.begin()
         Container.session.commit()
+
+    # @staticmethod
+    # def threadSafeCommit():
+    #     session = Container.scopedSession()
+    #     try:
+    #         yield session
+    #         # session.begin()
+    #         session.commit()
+    #         session.flush()
+    #     except Exception:
+    #         session.rollback()
+    #         raise
+    #     finally:
+    #         Container.scopedSession.remove()
 
     @staticmethod
     def filter(modelType, *conditions):
         return Container.session.query(modelType).filter(*conditions)
 
+    @staticmethod
+    def threadSafeFilter(modelType, *conditions):
+        Container.threadSession.flush()
+        return Container.threadSession.query(modelType).filter(*conditions)
 
 if Container.configured == False:
     Container.configure()
- 

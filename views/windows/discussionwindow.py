@@ -122,7 +122,7 @@ class DiscussionWindow(SessionWindow):
         frm_border_top.pack(side=BOTTOM, fill=X)
 
     def runnable2(self):
-        try:
+        # try:
             while self.time_to_kill != True:
                 time.sleep(2)
                 # Container.session.commit()
@@ -136,9 +136,9 @@ class DiscussionWindow(SessionWindow):
                         if self.currentItem != None and self.currentItem == li: 
                             self.currentItem = li
                             self.create_message(lastmsg)
-        except Exception:
-            # Container.session.rollback()
-            print('RUNNABLE2 ERROR')
+        # except Exception:
+        #     # Container.session.rollback()
+        #     print('RUNNABLE2 ERROR')
         
     def hide(self):
         # thread killer logic will be here

@@ -29,7 +29,8 @@ class ListItemFactory(Factory):
         # creation method of notification list item
         def create(item: ListItem):
             # we have three horizontal sections
-            img_icon = IconFrame(item, item.bindings.get('image','resources/icons/ui/face.png'), 2, teal, 48)
+            image = item.bindings.get('image')
+            img_icon = IconFrame(item, image if image!= None else 'resources/icons/ui/face.png', 2, teal, 48)
             img_icon.pack(side=LEFT, anchor=N+W)
 
             frm_body = Frame(item, bg=white)
@@ -124,7 +125,8 @@ class ListItemFactory(Factory):
             item.config(bg=white, pady=10, padx=10)
             item.pack(side=TOP, fill=X)
 
-            item.img_photo = IconFrame(item, item.bindings.get('image','resources/icons/ui/face.png'), 2, teal, 40)
+            image = item.bindings.get('image')
+            item.img_photo = IconFrame(item, image if image!= None else 'resources/icons/ui/face.png', 2, teal, 40)
             item.img_photo.pack(side=LEFT)
 
             item.frm_content = Frame(item, bg=white, padx=5)
