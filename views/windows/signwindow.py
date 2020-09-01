@@ -91,7 +91,7 @@ class SignWindow(Window):
         self.forms = []
         # sign up header
         self.lbl_title_signup = Label(self.frm_up, text='Sign Up', fg=teal, bg=background, font='-size 32 -weight bold')
-        self.lbl_title_signup.pack(side=TOP, pady=(100, 50))
+        self.lbl_title_signup.pack(side=TOP, pady=(100, 30))
         # step label
         self.lbl_step = Label(self.frm_up, text='Step X: Description', fg=black, bg=background, font='-size 12')
         self.lbl_step.pack(side=TOP)
@@ -138,6 +138,8 @@ class SignWindow(Window):
         # creating the veil
         self.frm_veil = Frame(self, bg=teal)
         self.frm_veil.place(x=0, y=0, relwidth=0.5, relheight=1)
+        # make it a non-resizable window
+        self.resizable(0, 0)
 
     def move_to(self, index: int):
         # event corrector

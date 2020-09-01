@@ -163,6 +163,8 @@ class EditorWindow(SessionWindow):
 
         # draw func test
         if subject != None:
+            # update the title of this window
+            self.title(f'Editing: {subject.title}')
             # retrieve file
             f = subject.file if isinstance(subject, Project) else subject.project.file
             # check if there's a valid file
@@ -550,6 +552,12 @@ class EditorWindow(SessionWindow):
                 # append the element to the new container
                 if container != None:
                     container.append_child(self.DRAG_ELEMENT)
+            # if the selected element has no parent; just dispose of it
+            if self.DRAG_ELEMENT != None:
+                if not isinstance(self.DRAG_ELEMENT, GUIProcess):
+                    if self.DRAG_ELEMENT.parent == None:
+                        self.show_help_panel('Elements must be placed inside a Process!', danger)
+                        self.remove_element(self.DRAG_ELEMENT)
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None

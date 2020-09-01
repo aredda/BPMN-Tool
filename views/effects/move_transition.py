@@ -19,9 +19,9 @@ class MoveTransition(Transition):
         self.exit_time = False
 
         # disable animations
-        self.setter(self.target_value)
+        # self.setter(self.target_value)
 
-        return
+        # return
 
         while abs(self.getter() - self.target_value) > self.dist:
             # Or check for exit time
