@@ -160,7 +160,7 @@ class CollaborationWindow(TabbedWindow):
         elif Container.filter(Invitation, Invitation.recipientId == user.id, Invitation.sessionId == self.session.id, Invitation.status == Status.PENDING.value).first() != None:
             MessageModal(self,title='User already invited',message=f'An invite is already sent to {username}!',messageType='info')
         else:
-            msg = MessageModal(self,title=f'Confirmation',message=f'Do you want to give {username} the right to make changes?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
+            msg = MessageModal(self,title=f'Confirmation',message=f'An invitation will be sent to [{username}], but do you want to give him the right to make changes?',messageType='prompt',actions={'yes' : lambda e: send_invite(msg,user,'edit'), 'no' : lambda e: send_invite(msg,user,'read')})
 
     def delete_session(self):
         Container.deleteObject(self.session.project)

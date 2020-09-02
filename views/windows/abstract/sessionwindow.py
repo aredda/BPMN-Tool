@@ -36,7 +36,7 @@ class SessionWindow(Window):
     }
 
     # BOOKMARK_TOCHANGE: make it None
-    ACTIVE_USER = Container.filter(User).get(1)
+    ACTIVE_USER = None
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)
@@ -183,7 +183,7 @@ class SessionWindow(Window):
         # Creation of elements
         # BOOKMARK_DONE: change user profile image
         self.clean_notifications()
-        self.btn_username = IconButton(self.frm_hBar, SessionWindow.ACTIVE_USER.userName, '-size 15', biege, 'resources/icons/ui/face.png' if SessionWindow.ACTIVE_USER.image == None else SessionWindow.ACTIVE_USER.image, 5, None, biege, 40, None, bg=white)
+        self.btn_username = IconButton(self.frm_hBar, SessionWindow.ACTIVE_USER.userName, '-size 15', biege, 'resources/icons/ui/face.png' if SessionWindow.ACTIVE_USER.image == None else SessionWindow.ACTIVE_USER.image, 6, None, biege, 40, lambda e: self.windowManager.run_tag('profile'), bg=white)
         self.icn_notification = IconFrame(
             self.frm_hBar, 'resources/icons/ui/bell_outline.png', 0, None, 32,
             lambda e: self.show_popup(

@@ -556,8 +556,10 @@ class EditorWindow(SessionWindow):
             if self.DRAG_ELEMENT != None:
                 if not isinstance(self.DRAG_ELEMENT, GUIProcess):
                     if self.DRAG_ELEMENT.parent == None:
-                        self.show_help_panel('Elements must be placed inside a Process!', danger)
                         self.remove_element(self.DRAG_ELEMENT)
+                        self.show_help_panel('Elements must be placed inside a Process!', danger)
+                        EditorWindow.ACTION_HIST['undo'].pop()
+                        EditorWindow.ACTION_HIST['undo'].pop()
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None

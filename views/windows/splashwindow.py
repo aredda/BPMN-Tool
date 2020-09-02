@@ -77,7 +77,7 @@ class SplashWindow(Window):
                 self.lbl_progress['text'] = f'{current_width}%'
                 self.frm_filler.config(width=int(current_width * bar_width / 100))
                 # sleep
-                sleep (0.075)
+                sleep (0.05)
             # go to sign window
             self.windowManager.run_tag('sign')
         # start thread
