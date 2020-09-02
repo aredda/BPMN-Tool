@@ -67,9 +67,11 @@ class SessionWindow(Window):
         self.config_vBar()
         self.config_hBar()
 
+        self.created_notif_items = []
+
 
     def runnable(self):
-        try:
+        # try:
             while self.time_to_kill != True:
                 # Container.session.begin()
                 # Container.session.commit()
@@ -81,18 +83,19 @@ class SessionWindow(Window):
                         self.icn_notification.set_image('resources/icons/ui/bell_ring.png')
                         noNewNotifs = False
                         break
+                # change the icon if there is no new notifications
+                if noNewNotifs: 
+                    self.icn_notification.set_image('resources/icons/ui/bell_outline.png')
                 # check for new unseen messages
                 for msg in self.getLastMessages():
-                    if msg.user != SessionWindow.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id).first() == None:
+                    if msg != None and msg.user != SessionWindow.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id).first() == None:
                         self.icn_discussion.set_image('resources/icons/ui/discussion.png')
                         noNewMessages = False
                         break
-                # change the icon if there is no new notifications
-                if noNewNotifs: self.icn_notification.set_image('resources/icons/ui/bell_outline.png')
                 # change the icon if there is no new messages
                 if noNewMessages: self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
                 time.sleep(2)
-        except: pass
+        # except: pass
         
     def hide(self):
         # thread killer logic will be here
@@ -129,11 +132,15 @@ class SessionWindow(Window):
 
     def configure_notif_listitem(self, root, item):
         li= ListItemFactory.NotificationListItem(root, item)
+        li.window = self
         # save notification that are not recieveInv as seen 
         if item.type != NotificationType.INVITED.value and Container.filter(SeenNotification, SeenNotification.notificationId == item.id, SeenNotification.seerId == SessionWindow.ACTIVE_USER.id).first() == None: 
                 Container.save(SeenNotification(date= datetime.datetime.now(), seer= SessionWindow.ACTIVE_USER, notification= item))
          # change notification icon's image on click
         self.icn_notification.set_image('resources/icons/ui/bell_outline.png')
+        # append this item to a list
+        self.created_notif_items.append (li)
+        # return 
         return li
 
     def clean_notifications(self):
@@ -176,12 +183,14 @@ class SessionWindow(Window):
             msgs = []
             for i in Container.filter(Session):
                 if i.owner == SessionWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == SessionWindow.ACTIVE_USER.id, Collaboration.sessionId == i.id).first() != None:
-                    msgs.append(Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first())
+                    msg = Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first()
+                    if msg != None: msgs.append(msg)
             return msgs
 
     def config_hBar(self):
         # Creation of elements
         # BOOKMARK_DONE: change user profile image
+        # hadii khsni darurii n bedla w dik intellisense , wait let me close vs code and start it agai nook
         self.clean_notifications()
         self.btn_username = IconButton(self.frm_hBar, SessionWindow.ACTIVE_USER.userName, '-size 15', biege, 'resources/icons/ui/face.png' if SessionWindow.ACTIVE_USER.image == None else SessionWindow.ACTIVE_USER.image, 6, None, biege, 40, lambda e: self.windowManager.run_tag('profile'), bg=white)
         self.icn_notification = IconFrame(

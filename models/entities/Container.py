@@ -89,16 +89,19 @@ class Container():
     @staticmethod  # used for add and update
     def save(*objs):
         Container.session.add_all(objs)
+        Container.session.flush()
         # Container.threadSafeCommit()
-        Container.session.begin()
-        Container.session.commit()
+        # Container.session.begin()
+        # Container.session.commit()
+
 
     @staticmethod
     def deleteObject(obj):
         Container.session.delete(obj)
+        Container.session.flush()
         # Container.threadSafeCommit() 
-        Container.session.begin()
-        Container.session.commit()
+        # Container.session.begin()
+        # Container.session.commit()
 
     # @staticmethod
     # def threadSafeCommit():

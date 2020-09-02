@@ -259,7 +259,10 @@ class HomeWindow(TabbedWindow):
         def create_session():
             project = Project(title= title+'Project', creationDate= date, lastEdited= date, owner= HomeWindow.ACTIVE_USER)
             session = Session(title= title, creationDate= date, owner= HomeWindow.ACTIVE_USER, project= project)
-            Container.save(project, session)
+            message = Message(content=f'welcome to the chat',user=HomeWindow.ACTIVE_USER, session=session, sentDate=session.creationDate)
+            Container.save(project, session, message)
+            seenmessage = SeenMessage(date=session.creationDate, seer=HomeWindow.ACTIVE_USER, messageId=message.id)
+            Container.save(seenmessage)
             self.lv_session.grid_item(session, {'title': session.title, 'creationDate': project.creationDate, 'lastEdited': project.lastEdited, 'memberCount': str(Container.filter(Collaboration,Collaboration.sessionId == session.id).count()+1)}, None, lambda i: self.create_list_item(i, HomeWindow.SESSION_LI), 15)
 
         def load_project():
