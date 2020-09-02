@@ -206,7 +206,7 @@ class DiscussionWindow(SessionWindow):
         for i in Container.filter(Session):
             if i.owner == DiscussionWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == DiscussionWindow.ACTIVE_USER.id, Collaboration.sessionId == i.id).first() != None:
                 msg = Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first()
-                if msg == None: msg = Message(content=f'welcome to the chat',user=i.owner, session=i, sentDate=i.creationDate)
+                # if msg == None: msg = Message(content=f'welcome to the chat',user=i.owner, session=i, sentDate=i.creationDate)
                 li = ListItemFactory.DiscussionListItem(self.lv_sessions.interior, msg)
                 self.msgItems.append(li)
                 if msg.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:

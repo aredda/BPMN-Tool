@@ -89,28 +89,32 @@ class ListItemFactory(Factory):
         return li
     
     def decision(li, accepted= True):
-        inv = Container.filter(Invitation).get(li.dataObject.invitationId)
-        date = datetime.datetime.now()
-        noti = None
-        # if invitation is accepted
-        if accepted:
-            # create relations if they don't exist
-            if Container.filter(Relation,Relation.userOne == inv.recipient, Relation.userTwo == inv.sender ).first() == None: Container.save(Relation(userOne= inv.recipient, userTwo= inv.sender))
-            if Container.filter(Relation,Relation.userTwo == inv.recipient, Relation.userOne == inv.sender ).first() == None: Container.save(Relation(userTwo= inv.recipient, userOne= inv.sender))
-            # create collaboration
-            Container.save(Collaboration(joiningDate= date, privilege= inv.privilege, user= inv.recipient, session= inv.session))
-            # add an acceptedInv type notification
-            noti = Notification(notificationTime= date, type= NotificationType.ACCEPTED.value, nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.recipient, recipient= inv.sender)
-            inv.status = Status.ACCEPTED.value
-        # if invitation is accepted
-        else:
-            # add a rejectedInv type notification
-            noti = Notification(notificationTime= date, type= NotificationType.DECLINED.value, nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.recipient, recipient= inv.sender)
-            inv.status = Status.REJECTED.value
-        
-        # save the recieved invitation as recieved
-        seenNoti = SeenNotification(date= date, seer= inv.recipient, notification= li.dataObject)
-        Container.save(seenNoti, noti, inv)
+        try:
+            inv = Container.filter(Invitation).get(li.dataObject.invitationId)
+            date = datetime.datetime.now()
+            noti = None
+            # if invitation is accepted
+            if accepted:
+                # create relations if they don't exist
+                if Container.filter(Relation,Relation.userOne == inv.recipient, Relation.userTwo == inv.sender ).first() == None: Container.save(Relation(userOne= inv.recipient, userTwo= inv.sender))
+                if Container.filter(Relation,Relation.userTwo == inv.recipient, Relation.userOne == inv.sender ).first() == None: Container.save(Relation(userTwo= inv.recipient, userOne= inv.sender))
+                # create collaboration
+                Container.save(Collaboration(joiningDate= date, privilege= inv.privilege, user= inv.recipient, session= inv.session))
+                # add an acceptedInv type notification
+                noti = Notification(notificationTime= date, type= NotificationType.ACCEPTED.value, nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.recipient, recipient= inv.sender)
+                inv.status = Status.ACCEPTED.value
+                if callable(getattr(li.window, "refresh_window", None)):
+                    li.window.refresh_window()
+            # if invitation is accepted
+            else:
+                # add a rejectedInv type notification
+                noti = Notification(notificationTime= date, type= NotificationType.DECLINED.value, nature= NotificationNature.INV.value, invitationId= inv.id, actor= inv.recipient, recipient= inv.sender)
+                inv.status = Status.REJECTED.value
+        except: pass
+        finally:
+            # save the recieved invitation as recieved
+            seenNoti = SeenNotification(date= date, seer= inv.recipient, notification= li.dataObject)
+            Container.save(seenNoti, noti, inv)
 
         # if it's a recievedInv kind of Notifications
         if hasattr(li,'frm_btn_container'):
@@ -118,7 +122,6 @@ class ListItemFactory(Factory):
             li.lbl_content['text'] = f'you have joined ({inv.session.title})' if inv.status == Status.ACCEPTED.value else f'invitation to ({inv.session.title}) declined'
             #  hide the buttons
             li.frm_btn_container.pack_forget()
-
 
     def DiscussionListItem(root, dataItem):
         def create(item: ListItem):
