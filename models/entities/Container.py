@@ -96,7 +96,7 @@ class Container():
     @staticmethod
     def deleteObject(obj):
         Container.session.delete(obj)
-        # Container.threadSafeCommit()
+        # Container.threadSafeCommit() 
         Container.session.begin()
         Container.session.commit()
 
