@@ -71,7 +71,7 @@ class SessionWindow(Window):
 
 
     def runnable(self):
-        # try:
+        try:
             while self.time_to_kill != True:
                 # Container.session.begin()
                 # Container.session.commit()
@@ -95,7 +95,7 @@ class SessionWindow(Window):
                 # change the icon if there is no new messages
                 if noNewMessages: self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
                 time.sleep(2)
-        # except: pass
+        except: pass
         
     def hide(self):
         # thread killer logic will be here

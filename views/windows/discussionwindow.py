@@ -121,6 +121,9 @@ class DiscussionWindow(SessionWindow):
         frm_border_top = Frame(frm_discussion, highlightthickness=1, highlightbackground=border)
         frm_border_top.pack(side=BOTTOM, fill=X)
 
+        self.frm_veil = Frame(frm_discussion, bg=background)
+        self.frm_veil.place(relwidth=1, relheight=1, x=0, y=0)
+
     def runnable2(self):
         # try:
             while self.time_to_kill != True:
@@ -152,35 +155,31 @@ class DiscussionWindow(SessionWindow):
         # start thread
         threading.Thread(target=self.runnable2).start()
 
-
     def open_session(self, event):
         if self.currentItem != None:
             self.windowManager.run(CollaborationWindow(self,self.currentItem.dataObject.session))
 
     def Configure_session(self, event, listItem):
-        # try:
-            self.fill_discussion(listItem.dataObject.session)
+        self.frm_veil.place_forget()
 
-            self.lbl_sessionName['text'] = listItem.dataObject.session.title
-            self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1} members'
-            
-            self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
+        self.fill_discussion(listItem.dataObject.session)
 
-            if self.currentItem != None:
-                self.change_session_item_style(self.currentItem, self.CHAT_NORMAL)
-
-            self.currentItem = listItem
-            self.change_session_item_style(self.currentItem, self.CHAT_ACTIVE)
-
-            # lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id, Message.sentDate == Container.filter(func.max(Message.sentDate), Message.sessionId == self.currentItem.dataObject.session.id).group_by(Message.sessionId)).first()
-            lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id).order_by(Message.sentDate.desc()).first()
+        self.lbl_sessionName['text'] = listItem.dataObject.session.title
+        self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1} members'
         
-            if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == lastmsg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
-                Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=lastmsg))
-        
-        # except Exception:
-        #     # Container.session.rollback()
-        #     print('CONFIGURE SESSION ERROR')
+        self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
+
+        if self.currentItem != None:
+            self.change_session_item_style(self.currentItem, self.CHAT_NORMAL)
+
+        self.currentItem = listItem
+        self.change_session_item_style(self.currentItem, self.CHAT_ACTIVE)
+
+        # lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id, Message.sentDate == Container.filter(func.max(Message.sentDate), Message.sessionId == self.currentItem.dataObject.session.id).group_by(Message.sessionId)).first()
+        lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id).order_by(Message.sentDate.desc()).first()
+    
+        if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == lastmsg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
+            Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=lastmsg))
 
     # Configure sessionlistitem click event
     def configure_session_click(self):

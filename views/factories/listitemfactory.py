@@ -151,7 +151,7 @@ class ListItemFactory(Factory):
         return ListItem(root, dataItem, {
             'session': dataItem.session.title if len(dataItem.session.title) < 20 else (dataItem.session.title[17] + '...'),
             'username': dataItem.user.userName,
-            'content': dataItem.content if len(dataItem.content) < 20 else (dataItem.content[:17] + '...'),
+            'content': dataItem.content if len(dataItem.content) < 10 else (dataItem.content[:7] + '...'),
             'time': dataItem.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.sentDate.strftime("%x") else dataItem.sentDate.strftime("%X"),
             'image': dataItem.user.image
         }, None, create)

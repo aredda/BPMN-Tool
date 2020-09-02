@@ -36,7 +36,7 @@ class MessageModal(Modal):
                 }
             ]
         
-        Modal.__init__(self, root, title, buttons, self.MODAL_WIDTH, 380, **args)
+        Modal.__init__(self, root, title, buttons, self.MODAL_WIDTH, 345, **args)
 
         color = black if messageType == self.PROMPT else (teal if messageType == self.INFO else danger)
 
