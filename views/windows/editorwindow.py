@@ -101,6 +101,7 @@ class EditorWindow(SessionWindow):
         if tag == 'create':
             # prepare create command
             def cmnd_create(e):
+                print ('saving from <select_event.cmnd_create>')
                 # save undo checkpoint
                 self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
                 # instantiate
@@ -138,6 +139,9 @@ class EditorWindow(SessionWindow):
     def __init__(self, root, subject=None, **args):
         SessionWindow.__init__(self, root, **args)
 
+        # clear action history
+        EditorWindow.ACTION_HIST = { 'undo': [], 'redo': [] }
+
         # data related attributes
         self.subject = subject
         self.guielements = []
@@ -152,6 +156,7 @@ class EditorWindow(SessionWindow):
         self.DRAG_ELEMENT = None
         self.IS_DRAGGING = False
         self.ZOOM_SCALE = 6
+        self.ZOOM_INDEX = 0
         self.MOVE_SCALE = [0, 0]
 
         # slight preparations
@@ -545,7 +550,7 @@ class EditorWindow(SessionWindow):
                 # if this container is not the parent, then erase all flows
                 if self.DRAG_ELEMENT.parent != container:
                     # before disposing of flows, make sure that message flows get erased
-                    self.unlink_element(self.DRAG_ELEMENT)
+                    self.unlink_element(self.DRAG_ELEMENT, (self.DRAG_ELEMENT.parent != None))
                 # if the element already had a parent, 
                 if self.DRAG_ELEMENT.parent != None:
                     self.DRAG_ELEMENT.parent.remove_child(self.DRAG_ELEMENT)
@@ -556,10 +561,11 @@ class EditorWindow(SessionWindow):
             if self.DRAG_ELEMENT != None:
                 if not isinstance(self.DRAG_ELEMENT, GUIProcess):
                     if self.DRAG_ELEMENT.parent == None:
-                        self.remove_element(self.DRAG_ELEMENT)
-                        self.show_help_panel('Elements must be placed inside a Process!', danger)
-                        EditorWindow.ACTION_HIST['undo'].pop()
-                        EditorWindow.ACTION_HIST['undo'].pop()
+                        # remove a save state
+                        if len(EditorWindow.ACTION_HIST['undo']) > 1:
+                            EditorWindow.ACTION_HIST['undo'].pop()
+                        # remove created element
+                        self.remove_element(self.DRAG_ELEMENT, False)
             # reset
             if self.SELECTED_MODE != self.CREATE_MODE:
                 self.DRAG_ELEMENT = None
@@ -591,7 +597,9 @@ class EditorWindow(SessionWindow):
             if e.keysym == 'Escape':
                 if self.SELECTED_MODE == self.CREATE_MODE:
                     # cancel creation
-                    self.remove_element(self.DRAG_ELEMENT)
+                    if len(EditorWindow.ACTION_HIST['undo']) > 1:
+                        EditorWindow.ACTION_HIST['undo'].pop()
+                    self.remove_element(self.DRAG_ELEMENT, False)
                     self.DRAG_ELEMENT = None
                 # reset mode
                 self.set_mode(self.DRAG_MODE)
@@ -611,7 +619,6 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Key>', action_key_press)
         self.cnv_canvas.bind_all('<Control-z>', lambda e: self.undo())
         self.cnv_canvas.bind_all('<Control-y>', lambda e: self.redo())
-        self.cnv_canvas.bind_all('<Control-0>', lambda e: self.reset_zoom())
         self.cnv_canvas.bind_all('<Control-v>', lambda e: self.reset_view())
         self.cnv_canvas.bind_all('<Control-s>', lambda e: self.save_work())
 
@@ -630,9 +637,11 @@ class EditorWindow(SessionWindow):
         return None
 
     # unlink an element
-    def unlink_element(self, element):
+    def unlink_element(self, element, save_cp=True):
         # save undo checkpoint
-        self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+        if save_cp:
+            print ('saving from <unlink_element>')
+            self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
         # re assign canvas
         self.assign_canvas_all()
         # remove from parent and di container
@@ -650,9 +659,10 @@ class EditorWindow(SessionWindow):
         element.unlink()
 
     # delete an element
-    def remove_element(self, element):
+    def remove_element(self, element, save_cp=True):
         # save undo checkpoint
-        self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
+        if save_cp:
+            self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
         # emphasize that this element has a canvas
         self.assign_canvas_all()
         # if this is a lane
@@ -662,7 +672,7 @@ class EditorWindow(SessionWindow):
             for child in element.children:
                 self.remove_element(child)
         # remove flow links
-        self.unlink_element(element)
+        self.unlink_element(element, False)
         # remove the drawn element
         element.destroy()
         # remove from list
@@ -733,12 +743,20 @@ class EditorWindow(SessionWindow):
 
     # zooming functionalities
     def zoom_in(self):
+        # zoom in limit
+        if self.ZOOM_INDEX == 4: return
+        # set zoom direction
         self.ZOOM_SCALE = abs (self.ZOOM_SCALE)
         self.zoom()
+        self.ZOOM_INDEX += 1
 
     def zoom_out(self):
+        # zoom out limit
+        if self.ZOOM_INDEX == -4: return
+        # set zoom direction
         self.ZOOM_SCALE = -1 * abs (self.ZOOM_SCALE)
         self.zoom()
+        self.ZOOM_INDEX -= 1
 
     def zoom(self):
         for guie in self.guielements:
@@ -798,6 +816,10 @@ class EditorWindow(SessionWindow):
             other = source.get_process() if isinstance(target, GUIProcess) == True else target.get_process()
             # compare processes
             if process == other:
+                return False
+        # you can't link an elemnt inside a sub process with an outsider
+        if isinstance(source.parent, GUISubProcess) or isinstance(target.parent, GUISubProcess):
+            if source.parent != target.parent:
                 return False
 
         return True
@@ -1062,6 +1084,7 @@ class EditorWindow(SessionWindow):
             # pause thread
             sleep(0.5)
             # take a screen shot
+            self.cnv_canvas.update()
             x0, y0 = self.cnv_canvas.winfo_rootx(), self.cnv_canvas.winfo_rooty()
             x1, y1 = x0 + self.cnv_canvas.winfo_width(), y0 + self.cnv_canvas.winfo_height()
             # save it

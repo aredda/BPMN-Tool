@@ -56,8 +56,8 @@ class GUIContainer(Prefab):
             child.move(child.x + xDiff + child.WIDTH/2, child.y + yDiff + child.HEIGHT/2)
             child.bring_front()
             if isinstance(child, GUIContainer) == True:
-                for c in child.children:
-                    c.bring_front()
+                child.erase()
+                child.draw()
 
     def draw(self):
         super().draw()

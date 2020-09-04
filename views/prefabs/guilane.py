@@ -6,6 +6,8 @@ from models.bpmndi.shape import BPMNShape
 
 class GUILane(GUIContainer):
 
+    TEXT_OFFSET = 16
+
     def __init__(self, **args):
         GUIContainer.__init__(self, **args)
 
@@ -32,6 +34,8 @@ class GUILane(GUIContainer):
         for c in self.children:
             c.erase()
             c.draw()
+        # draw text
+        self.draw_text(self.element.name, x + self.WIDTH/2, y + self.TEXT_OFFSET)
 
     def append_child(self, child):
         if child.__class__.__name__ not in ['GUIProcess', 'GUILane']:
