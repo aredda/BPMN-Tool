@@ -20,7 +20,7 @@ class TextBox(Frame, Animatable):
         Animatable.__init__(self)
 
     def get_text(self):
-        return self.entry.get()
+        return str(self.entry.get()).lstrip(' ').rstrip(' ')
 
     def clear(self):
         self.entry.delete(0, len(self.entry.get()))
