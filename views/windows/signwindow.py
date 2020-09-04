@@ -271,7 +271,7 @@ class SignWindow(Window):
         valid_fields = 0
         try:
             for i in self.up_congig[self.steptitles[self.current]]:
-                if getattr(self,i.get('name')).get_text() == '' and i.get('name') not in ['txt_confirm']:
+                if getattr(self,i.get('name')).get_text() == '' and i.get('name') not in ['txt_confirm']: 
                     raise Exception(camel_case(i.get("label")),f'{i.get("label")} Cannot be null!')
 
                 elif i.get('name') in ['txt_firstname','txt_lastname'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', getattr(self,i.get('name')).get_text()):
