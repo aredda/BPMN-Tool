@@ -310,7 +310,7 @@ class CollaborationWindow(TabbedWindow):
         # Remove all items
         self.lv_members.empty()
         # Append items
-        for i in Container.filter(User, Collaboration.sessionId == self.session.id,User.id != CollaborationWindow.ACTIVE_USER.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all():
+        for i in Container.filter(User, Collaboration.sessionId == self.session.id,or_(User.id == Collaboration.userId,User.id == self.session.ownerId)).all():
             li = ListItem(self.lv_members.interior, i, 
                 {
                     'username' : i.userName,
@@ -321,7 +321,7 @@ class CollaborationWindow(TabbedWindow):
                     'text': 'Kick',
                     'cmd' : lambda e, user= i: self.kick_user(user), 
 
-                }] if CollaborationWindow.ACTIVE_USER == self.session.owner else None
+                }] if i != self.session.owner else None
                 )
             li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10), fill=X)
             self.collaboratorItems.append(li)

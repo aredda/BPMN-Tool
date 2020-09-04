@@ -194,8 +194,8 @@ class ProfileWindow(TabbedWindow):
                 elif key in ['firstName','lastName'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):
                     raise Exception(camel_case(key),f'\n1.Can contain 2 words with 1 space in between\n2.Must be between 2 - 15 alphabets each')
                         
-                elif key in ['userName','password'] and not re.fullmatch('^(?=(?:[^a-z]*[a-z]))(?=[^A-Z]*[A-Z])(?=[^$@-]*[$@-])[a-zA-Z0-9$@-]{6,14}$', value):
-                    raise Exception(camel_case(key),f'\n1.Must be between 6 - 14 characters \n2.Must contain 1 Capital letter and 1 special character ($@-)')
+                elif key in ['userName','password'] and not re.fullmatch('^[a-zA-Z0-9_.-]+$', value):
+                    raise Exception(camel_case(key),f'can only be alphanumeric and contain (. _ -)')
                         
                 elif key == 'email' and not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
                     raise Exception(camel_case(key),f'Please enter a valid email!\nEX: emailName@email.com')
