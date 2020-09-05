@@ -67,7 +67,7 @@ class GUIProcess(GUIContainer):
             # erase
             lane.erase()
             # adjust height
-            lane.HEIGHT = correct_height
+            lane.HEIGHT, lane.WIDTH = correct_height, self.WIDTH
             # adjust where the lane is created
             yCorrect = self.y
             for l in self.lanes:

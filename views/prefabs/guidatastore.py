@@ -25,9 +25,9 @@ class GUIDataStore(Prefab):
     def draw_at(self, x, y):
         super().draw_at(x, y)
 
-        self.icon = CacheManager.get_cached_image('img_dtstore') 
+        self.icon = CacheManager.get_cached_image('img_dtstore_' + str(self.ICON_SIZE))
         if self.icon == None:
-            self.icon = CacheManager.get_or_add_if_absent ('img_dtstore', ImgTk.PhotoImage(Img.open('resources/icons/notation/guidatastore.png').resize((self.ICON_SIZE, self.ICON_SIZE))))
+            self.icon = CacheManager.get_or_add_if_absent ('img_dtstore_' + str(self.ICON_SIZE), ImgTk.PhotoImage(Img.open('resources/icons/notation/guidatastore.png').resize((self.ICON_SIZE, self.ICON_SIZE))))
         # draw select background
         self.id.append(self.canvas.create_oval(x, y, x + self.WIDTH, y + self.HEIGHT, width=0))
         # draw icon

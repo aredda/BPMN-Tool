@@ -26,9 +26,9 @@ class GUIDataObject(Prefab):
     def draw_at(self, x, y):
         super().draw_at(x, y)
 
-        self.icon = CacheManager.get_cached_image('img_dtobj')
+        self.icon = CacheManager.get_cached_image('img_dtobj_' + str(self.ICON_SIZE))
         if self.icon == None:
-            self.icon = CacheManager.get_or_add_if_absent('img_dtobj', ImgTk.PhotoImage(Img.open('resources/icons/notation/guidataobject.png').resize((self.ICON_SIZE, int (self.ICON_SIZE * self.RATIO)))))
+            self.icon = CacheManager.get_or_add_if_absent('img_dtobj_' + str(self.ICON_SIZE), ImgTk.PhotoImage(Img.open('resources/icons/notation/guidataobject.png').resize((self.ICON_SIZE, int (self.ICON_SIZE * self.RATIO)))))
         # draw select background
         self.id.append(self.canvas.create_oval(x, y, x + self.WIDTH, y + self.HEIGHT, width=0))
         # draw icon

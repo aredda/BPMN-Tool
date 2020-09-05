@@ -246,6 +246,9 @@ class EditorWindow(SessionWindow):
         self.setup_tools()
 
     def select_element(self, x, y):
+        # position correction
+        cx, cy = self.cnv_canvas.canvasx(x), self.cnv_canvas.canvasx(y)
+        x, y = cx, cy
         # retrieve the last element (top element) to be found in the canvas
         last_element = self.cnv_canvas.find_overlapping(x - 2, y - 2, x + 2, y + 2)
         if len (last_element) > 0: 
@@ -536,8 +539,10 @@ class EditorWindow(SessionWindow):
         def action_mouse_release(e):
             # check if there's a container behind
             container: GUIContainer = None
+            # adjust position
+            cx, cy = self.cnv_canvas.canvasx(e.x), self.cnv_canvas.canvasx(e.y)
             # find container in canvas
-            checkList = list(self.cnv_canvas.find_overlapping(e.x - 2, e.y - 2, e.x + 2, e.y + 2))
+            checkList = list(self.cnv_canvas.find_overlapping(cx - 2, cy - 2, cx + 2, cy + 2))
             checkList.reverse()
             for i in checkList:
                 # find the whole element
@@ -699,9 +704,7 @@ class EditorWindow(SessionWindow):
         self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
         # delete each selected element
         for element in self.SELECTED_ELEMENTS:
-            self.remove_element(element)
-            # delete unintentional checkpoint
-            EditorWindow.ACTION_HIST['undo'].pop()
+            self.remove_element(element, False)
 
     # auto close menu
     def close_menu_after(self, callable):
@@ -744,7 +747,7 @@ class EditorWindow(SessionWindow):
     # zooming functionalities
     def zoom_in(self):
         # zoom in limit
-        if self.ZOOM_INDEX == 4: return
+        if self.ZOOM_INDEX == 2: return
         # set zoom direction
         self.ZOOM_SCALE = abs (self.ZOOM_SCALE)
         self.zoom()
@@ -752,7 +755,7 @@ class EditorWindow(SessionWindow):
 
     def zoom_out(self):
         # zoom out limit
-        if self.ZOOM_INDEX == -4: return
+        if self.ZOOM_INDEX == -2: return
         # set zoom direction
         self.ZOOM_SCALE = -1 * abs (self.ZOOM_SCALE)
         self.zoom()
@@ -821,6 +824,12 @@ class EditorWindow(SessionWindow):
         if isinstance(source.parent, GUISubProcess) or isinstance(target.parent, GUISubProcess):
             if source.parent != target.parent:
                 return False
+        # artifacts can't be linked together
+        if isinstance(source, (GUIDataObject, GUIDataStore)) and isinstance(target, (GUIDataObject, GUIDataStore)):
+            return False
+        # check if elements have already a flow between them
+        if source.is_linked_to(target) != None:
+            return False
 
         return True
 

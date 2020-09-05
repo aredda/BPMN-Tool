@@ -22,7 +22,7 @@ class GUITask(GUIActivity):
         # draw type icon
         if tasktype != TaskType.Default:    
             # attempt to retrieve from cache
-            cachekey = 'img_' + str (self.element.type)
+            cachekey = 'img_' + str (self.element.type) + '_' + str(self.ICON_SIZE)
             iconpath = 'resources/icons/notation/' + str(tasktype).lower().split('.')[1] + '.png'
             self.type_icon = CacheManager.get_cached_image(cachekey)
             # cache image if not there

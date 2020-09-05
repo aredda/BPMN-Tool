@@ -43,7 +43,7 @@ class GUIGateway(GUILinkable):
         ))
         # draw icon
         if _type != GatewayType.Exclusive:
-            cachekey = 'gt_img_' + str(self.element.type)
+            cachekey = 'gt_img_' + str(self.element.type) + '_' + str(self.ICON_SIZE)
             # attempt to retrieve a cached image
             self.type_icon = CacheManager.get_cached_image(cachekey) 
             if self.type_icon == None:
@@ -81,3 +81,9 @@ class GUIGateway(GUILinkable):
         self.element.type = t
         self.erase()
         self.draw()
+
+    def scale(self, factor):
+        # change icon size
+        self.ICON_SIZE += factor
+        # call the super scale
+        super().scale(factor)

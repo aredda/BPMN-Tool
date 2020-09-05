@@ -50,7 +50,7 @@ class GUIEvent(GUILinkable):
             if eventdefinition == EventDefinition.Message:
                 pure_name = 'receive' if eventtype not in [EventType.Start, EventType.IntermediateThrow] else 'send'
             # display icon
-            cachekey = 'img_' + str(self.element.definition) + '_' + str(self.element.type)
+            cachekey = 'img_' + str(self.element.definition) + '_' + str(self.element.type) + '_' + str(self.ICON_SIZE)
             self.def_icon = CacheManager.get_cached_image(cachekey)
             if self.def_icon == None:
                 image = Img.open(folder + pure_name + '.png').resize((self.ICON_SIZE, self.ICON_SIZE))

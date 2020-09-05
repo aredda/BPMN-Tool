@@ -65,7 +65,7 @@ class GUIActivity(GUILinkable):
         if flag != ActivityFlag.Default:
             iconpath = str(flag).lower().split('.')[1]
             if 'multiple' in iconpath: iconpath = 'parallelinstance'
-            cachekey = 'act_flag_' + str(flag)
+            cachekey = 'act_flag_' + str(flag) + '_' + str(self.ICON_SIZE)
             self.flag_icon = CacheManager.get_cached_image(cachekey)
             if self.flag_icon == None:
                 self.flag_icon = CacheManager.get_or_add_if_absent(cachekey, imgTk.PhotoImage(img.open('resources/icons/notation/' + iconpath + '.png').resize((self.ICON_SIZE, self.ICON_SIZE))))
@@ -99,7 +99,7 @@ class GUIActivity(GUILinkable):
         
     def set_flag(self, flag):
         self.element.flag = flag
-        self.destroy()
+        self.erase()
         self.draw()
 
     def scale(self, factor):

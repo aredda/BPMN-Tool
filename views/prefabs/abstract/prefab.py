@@ -217,3 +217,12 @@ class Prefab:
         for f in self.flows: 
             f.canvas = None
         
+    # check if this element has a relationship with an element
+    def is_linked_to(self, guielement):
+        """
+        Returns the flow between the 2 elements if it exists
+        """
+        for flow in self.flows:
+            if flow.source == guielement or flow.target == guielement:
+                return flow
+        return None
