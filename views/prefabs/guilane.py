@@ -27,7 +27,7 @@ class GUILane(GUIContainer):
     def draw_at(self, x, y):
         super().draw_at(x, y)
         # retrieve canvas
-        cnv: Canvas = self.canvas
+        cnv: Canvas = self.getcanvas()
         # draw lane
         self.id.append(cnv.create_rectangle(x, y, x + self.WIDTH, y + self.HEIGHT, fill=background, width=2, outline=black))
         # refresh children

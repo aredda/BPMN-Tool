@@ -32,7 +32,7 @@ class GUIGateway(GUILinkable):
         # get information
         _type = self.element.type
         # get canvas
-        cnv: Canvas = self.canvas
+        cnv: Canvas = self.getcanvas()
         # draw border
         self.id.append (cnv.create_polygon(
             x + self.WIDTH/2, y,

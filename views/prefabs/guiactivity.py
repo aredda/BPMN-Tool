@@ -35,7 +35,7 @@ class GUIActivity(GUILinkable):
         # extract info
         flag = self.element.flag
         # get canvas
-        cnv: Canvas = self.canvas
+        cnv: Canvas = self.getcanvas()
         # border points
         points = [
             x+self.RADIUS, y,

@@ -10,6 +10,7 @@ gray = '#666666'
 gray1 = '#a8a8a8'
 gray2 = '#cccccc'
 selected = '#cef7cb'
+selected = '#c0ede7'
 
 # THEME Orange
 # background = '#fcf8ed'

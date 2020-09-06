@@ -28,7 +28,7 @@ class GUITask(GUIActivity):
             # cache image if not there
             if self.type_icon == None:
                 self.type_icon = CacheManager.get_or_add_if_absent(cachekey, imgTk.PhotoImage(img.open(iconpath).resize((self.ICON_SIZE, self.ICON_SIZE))))
-            cnv: Canvas = self.canvas
+            cnv: Canvas = self.getcanvas()
             self.id.append(cnv.create_image(x + self.ICON_MARGIN, y + self.ICON_MARGIN, image=self.type_icon))
         # draw text
         self.draw_text(self.element.name, x + self.WIDTH/2, y + self.HEIGHT/2, self.WIDTH)

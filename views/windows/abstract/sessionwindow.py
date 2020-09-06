@@ -36,7 +36,7 @@ class SessionWindow(Window):
     }
 
     # BOOKMARK_TOCHANGE: make it None
-    ACTIVE_USER = None
+    ACTIVE_USER = Container.filter(User).get(1)
 
     def __init__(self, root, title='Welcome', width=Window.DEFAULT_WIDTH, height=Window.DEFAULT_HEIGHT, **args):
         Window.__init__(self, root, title, width, height)

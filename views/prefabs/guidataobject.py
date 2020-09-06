@@ -30,9 +30,9 @@ class GUIDataObject(Prefab):
         if self.icon == None:
             self.icon = CacheManager.get_or_add_if_absent('img_dtobj_' + str(self.ICON_SIZE), ImgTk.PhotoImage(Img.open('resources/icons/notation/guidataobject.png').resize((self.ICON_SIZE, int (self.ICON_SIZE * self.RATIO)))))
         # draw select background
-        self.id.append(self.canvas.create_oval(x, y, x + self.WIDTH, y + self.HEIGHT, width=0))
+        self.id.append(self.getcanvas().create_oval(x, y, x + self.WIDTH, y + self.HEIGHT, width=0))
         # draw icon
-        self.id.append(self.canvas.create_image(x + self.WIDTH/2, y + self.HEIGHT/2, image=self.icon))
+        self.id.append(self.getcanvas().create_image(x + self.WIDTH/2, y + self.HEIGHT/2, image=self.icon))
         # draw text
         self.draw_text(self.element.name, x + self.WIDTH/2, y + self.HEIGHT/2 - (self.ICON_SIZE/2) - self.TEXT_OFFSET)
 

@@ -101,7 +101,6 @@ class EditorWindow(SessionWindow):
         if tag == 'create':
             # prepare create command
             def cmnd_create(e):
-                print ('saving from <select_event.cmnd_create>')
                 # save undo checkpoint
                 self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
                 # instantiate
@@ -145,6 +144,7 @@ class EditorWindow(SessionWindow):
         # data related attributes
         self.subject = subject
         self.guielements = []
+        self.guiflows = []
         self.definitions: Definitions = Definitions()
         self.didiagram: BPMNDiagram = BPMNDiagram()
         self.diplane: BPMNPlane = BPMNPlane()
@@ -258,6 +258,9 @@ class EditorWindow(SessionWindow):
 
     def set_mode(self, mode):
         self.SELECTED_MODE = mode
+        # deselect
+        if self.SELECTED_ELEMENT != None:
+            self.SELECTED_ELEMENT.deselect()
         # reset view
         if mode == self.CREATE_MODE:
             self.reset_view()
@@ -267,8 +270,6 @@ class EditorWindow(SessionWindow):
         elif mode in [self.RESIZE_MODE]:
             # save check point
             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
-            # reassign canvas
-            self.assign_canvas_all()
             # change cursor
             self.cnv_canvas.config(cursor='size_ne_sw')
             # help panel
@@ -361,6 +362,9 @@ class EditorWindow(SessionWindow):
         
         # single click
         def action_mouse_click(e):
+            # deselect
+            if self.SELECTED_MODE != self.SELECT_MODE and self.SELECTED_ELEMENT != None:
+                self.SELECTED_ELEMENT.deselect()
             # finish creation
             justCreated = False
             if self.SELECTED_MODE == self.CREATE_MODE:
@@ -406,8 +410,6 @@ class EditorWindow(SessionWindow):
                         if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
                             # save undo checkpoint
                             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
-                            # emphasize that all elements have canvas
-                            self.assign_canvas_all()
                             # generating a flow model
                             flowmodel = self.get_link_model(previous_selected, self.SELECTED_ELEMENT)
                             # creating a flow
@@ -420,6 +422,8 @@ class EditorWindow(SessionWindow):
                             self.diplane.add('dielement', flow.dielement)
                             # hide help panel
                             self.hide_help_panel()
+                            # add flow to gui flows collection
+                            self.guiflows.append (flow)
                         else:
                             # name getter
                             getname = lambda guielement: guielement.element.__class__.__name__
@@ -432,8 +436,12 @@ class EditorWindow(SessionWindow):
 
         # single right click
         def action_mouse_rclick(e):
+            # deselect previous element
+            if self.SELECTED_ELEMENT != None:
+                self.SELECTED_ELEMENT.deselect()
             # select element
             self.SELECTED_ELEMENT = self.find_element(self.select_element(e.x, e.y))
+            self.SELECTED_ELEMENT.select()
             # prepare menu command
             def showmenu():  
                 # adjust menu coords
@@ -480,6 +488,9 @@ class EditorWindow(SessionWindow):
                             'icon': 'resize.png',
                             'cmnd': self.close_menu_after(lambda e: self.set_mode(self.RESIZE_MODE))
                         })
+                # if it's a flow
+                if isinstance(self.SELECTED_ELEMENT, GUIFlow):
+                    opts.pop()
                 # if the element has options
                 if self.SELECTED_ELEMENT.get_options() != None:
                     # retrieve element options
@@ -488,8 +499,6 @@ class EditorWindow(SessionWindow):
                         def save_before(command):
                             # save undo checkpoint
                             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
-                            # reassign canvas
-                            self.assign_canvas_all()
                             # call command
                             command(None)
                         # adjust
@@ -517,8 +526,6 @@ class EditorWindow(SessionWindow):
                             self.IS_DRAGGING = True
                             # save check point
                             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
-                            # re assign canvas
-                            self.assign_canvas_all()
                     # if the drag element is a lane, switch to its process instead
                     if isinstance(self.DRAG_ELEMENT, GUILane) == True:
                         self.DRAG_ELEMENT = self.DRAG_ELEMENT.guiprocess
@@ -632,6 +639,9 @@ class EditorWindow(SessionWindow):
         for guie in self.guielements:
             if guie.match(id) != None:
                 return guie.match(id)
+        for guif in self.guiflows:
+            if guif.match(id) != None:
+                return guif.match(id)
         return None
     
     # a searching method; it uses the model element as criteria
@@ -645,31 +655,22 @@ class EditorWindow(SessionWindow):
     def unlink_element(self, element, save_cp=True):
         # save undo checkpoint
         if save_cp:
-            print ('saving from <unlink_element>')
             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
-        # re assign canvas
-        self.assign_canvas_all()
         # remove from parent and di container
         for flow in element.flows:
-            # remove from di plane
-            self.diplane.nokey_remove(flow.dielement)
-            # remove from container
-            if element.parent != None:
-                # if this is a message flow then remove it from collaboration
-                if flow.element.get_tag() == 'messageflow':
-                    self.definitions.remove('message', flow.element)
-                elif flow.element.get_tag() == 'sequenceflow':
-                    element.parent.element.remove('flow', flow.element)
-        # unlink target
-        element.unlink()
+            self.remove_flow(flow)
 
     # delete an element
     def remove_element(self, element, save_cp=True):
         # save undo checkpoint
         if save_cp:
             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
-        # emphasize that this element has a canvas
-        self.assign_canvas_all()
+        # hide menu
+        self.hide_component('frm_menu')
+        # if this is a flow
+        if isinstance(element, GUIFlow):
+            self.remove_flow(element)
+            return
         # if this is a lane
         guiprocess = None
         if isinstance (element, GUILane):
@@ -695,9 +696,25 @@ class EditorWindow(SessionWindow):
         if guiprocess != None:
             if len(guiprocess.lanes) == 1:
                 self.remove_element(guiprocess.lanes[0])
-        # hide menu
-        self.hide_component('frm_menu')
     
+    # delete a single flow
+    def remove_flow(self, guiflow):
+        # remove di model
+        self.diplane.nokey_remove(guiflow.dielement)
+        # if this is a message flow
+        if guiflow.element.get_tag() == 'messageflow':
+            self.definitions.remove('message', guiflow.element)
+        elif guiflow.element.get_tag() == 'sequenceflow':
+            guiflow.guisource.parent.element.remove('flow', guiflow.element)
+        # remove this flow from elements
+        guiflow.unlink()
+        # re-draw elements
+        for element in [guiflow.guisource, guiflow.guitarget]:
+            element.erase()
+            element.draw()
+        # destroy guiflow
+        guiflow.destroy()
+
     # delete selected elements button
     def btn_delete_selected_click(self):
         # save undo checkpoint
@@ -730,8 +747,6 @@ class EditorWindow(SessionWindow):
         def inputReturn(e):
             # save undo checkpoint
             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
-            # re assign canvas
-            self.assign_canvas_all()
             # change gui element's text
             onReturn(self.txt_input.get_text())
             # hide input
@@ -868,13 +883,33 @@ class EditorWindow(SessionWindow):
             diplane=self.diplane
         )
 
+    def debug_elements(self):
+        # open debug file
+        debugfile = open('resources/temp/debugger.txt', 'w')
+        # loop through elements
+        for e in self.guielements:
+            # write element
+            debugfile.write(str(e) + ': ' + str(e.canvas) + '\n')
+            # debug its flows
+            for f in e.flows:
+                debugfile.write('\t' + str(f) + ': ' + str(f.canvas) + '\n')
+
     def save_checkpoint(self, collection: list):
-        # revoke canvas from all elements
-        self.revoke_canvas()
-        # serializing the whole editor object
-        serialized_data = pk.dumps(self.get_memento())
-        # append
-        collection.append(serialized_data)
+        try:
+            # revoke canvas from all elements
+            self.revoke_canvas()
+            # debug elements
+            self.debug_elements()
+            # serializing the whole editor object
+            serialized_data = pk.dumps(self.get_memento())
+            # append
+            collection.append(serialized_data)
+        except: 
+            # information
+            print ('Fatal Error: Failed to save a checkpoint!')
+        finally:
+            # re assign canvas
+            self.assign_canvas_all()
 
     def load_checkpoint(self, memento):
         # update properties
@@ -896,6 +931,8 @@ class EditorWindow(SessionWindow):
         self.save_checkpoint(_to)
         # deserialize checkpoint & load retrieved checkpoint
         self.load_checkpoint(pk.loads(_from.pop()))
+        # assign canvas
+        self.assign_canvas_all()
         
     def undo(self):
         self.do(EditorWindow.ACTION_HIST['undo'], EditorWindow.ACTION_HIST['redo'])
@@ -964,6 +1001,9 @@ class EditorWindow(SessionWindow):
     # drawing diagram based on xml file
     def draw_diagram(self, byte_data):
         root_element = bytestoelement(byte_data)
+        # log file before proceeding to deserialize it
+        beforeloadfile = open('resources/temp/beforeloadlog.xml', 'w')
+        beforeloadfile.write (to_pretty_xml(root_element))
         # instantiate a deserializer
         deserializer = Deserializer(root_element)
         # retrieve a definitions instance
@@ -1017,6 +1057,8 @@ class EditorWindow(SessionWindow):
             # instantiate prefab
             prefab = _class(guisource=guisrc, guitarget=guitrg, element=f, dielement=de, canvas=self.cnv_canvas)
             prefab.draw_at(0, 0)
+            # add flow to gui flows collection
+            self.guiflows.append (prefab)
         # draw data associations
         for e in deserializer.all_elements:
             if hasattr(e, 'elements'):
@@ -1075,8 +1117,6 @@ class EditorWindow(SessionWindow):
             # redraw
             guicontainer.erase()
             guicontainer.draw()
-        # assign canvas
-        self.assign_canvas_all()
 
     # saving a jpg/png image
     def take_screenshot(self, *subjects):

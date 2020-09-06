@@ -10,6 +10,9 @@ class Prefab:
     RIGHT_PORT = 3
     TOP_PORT = 4
 
+    SELECT_COLOR = selected
+    DESELECT_COLOR = background
+
     def __init__(self, **args):
         self.id = args.get('id', [])
         self.text_id = -1
@@ -51,14 +54,14 @@ class Prefab:
     def select(self):
         for item in self.id:
             if item not in self.unselected:
-                try: self.canvas.itemconfig(item, fill=selected)
+                try: self.getcanvas().itemconfig(item, fill=self.SELECT_COLOR)
                 except: pass
 
     # deselect
     def deselect(self):
         for item in self.id:
             if item not in self.unselected:
-                try: self.canvas.itemconfig(item, fill=background)
+                try: self.getcanvas().itemconfig(item, fill=self.DESELECT_COLOR)
                 except: pass
 
     # move to another position
@@ -68,13 +71,13 @@ class Prefab:
         xDiff, yDiff = (x - self.x), (y - self.y)
         # move all the elements
         for id in self.id:
-            oldcoords = self.canvas.coords(id)
+            oldcoords = self.getcanvas().coords(id)
             newcoords = []
             isX = True
             for c in oldcoords:
                 newcoords.append(c + (xDiff if isX == True else yDiff))
                 isX = not isX
-            self.canvas.coords(id, *newcoords)
+            self.getcanvas().coords(id, *newcoords)
         # update the current position
         self.x, self.y = x, y
         # re draw flows
@@ -109,9 +112,9 @@ class Prefab:
     def draw_text(self, text, x, y, width=0):
         # remove text
         if self.text_id != -1:
-            self.canvas.delete(self.text_id)
+            self.getcanvas().delete(self.text_id)
         # text id
-        self.text_id = self.canvas.create_text(x, y, text=text, width=width)
+        self.text_id = self.getcanvas().create_text(x, y, text=text, width=width)
         # mark as unselected item
         self.unselected.append(self.text_id)
         # append it to the general item list
@@ -127,11 +130,11 @@ class Prefab:
     # to control the z index
     def bring_front(self):
         for id in self.id:
-            self.canvas.tag_raise(id)
+            self.getcanvas().tag_raise(id)
     
     def bring_back(self):
         for id in self.id:
-            self.canvas.tag_lower(id)
+            self.getcanvas().tag_lower(id)
 
     # removing & erasing the gui element from the canvas
     def destroy(self):
@@ -152,7 +155,7 @@ class Prefab:
             return
         # erase all drawn elements
         for id in self.id:
-            self.canvas.delete(id)
+            self.getcanvas().delete(id)
         self.id.clear()
         # clear unselected list
         self.unselected.clear()
@@ -223,6 +226,12 @@ class Prefab:
         Returns the flow between the 2 elements if it exists
         """
         for flow in self.flows:
-            if flow.source == guielement or flow.target == guielement:
+            if flow.guisource == guielement or flow.guitarget == guielement:
                 return flow
         return None
+
+    # canvas getter
+    def getcanvas(self):
+        if self.canvas == None:
+            print ('Fatal Error: Canvas is missing from ' + str(self))
+        return self.canvas

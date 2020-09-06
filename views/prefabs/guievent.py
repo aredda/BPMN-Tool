@@ -34,7 +34,7 @@ class GUIEvent(GUILinkable):
         eventdefinition = self.element.definition
         text = self.element.name
         # cast
-        cnv: Canvas = self.canvas
+        cnv: Canvas = self.getcanvas()
         # figure out the border width of the circle
         borderwidth = (6 if eventtype == EventType.End else 2)
         # draw borders

@@ -43,7 +43,7 @@ class GUIProcess(GUIContainer):
     def draw_at(self, x, y):
         GUIContainer.draw_at(self, x, y)
         # retrieve canvas
-        cnv: Canvas = self.canvas
+        cnv: Canvas = self.getcanvas()
         # draw process borders
         self.id.append (cnv.create_rectangle(x, y, x + self.WIDTH, y + self.HEIGHT, fill=cnv['bg'], outline=black, width=2))
         # vertical border

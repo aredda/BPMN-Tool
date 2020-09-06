@@ -333,15 +333,16 @@ class Deserializer:
         # check if there's a collaboration
         if xcollaboration == None: return
         # find message flows
-        for xflow in xcollaboration.findall(bpmn + 'messageflow'):
-            # instantiate flow
-            sflow = MessageFlow(**xflow.attrib)
-            # configure flow
-            sflow.source = self.find_element(xflow.attrib['sourceRef'])
-            sflow.target = self.find_element(xflow.attrib['targetRef'])
-            # add flow
-            self.definitions.add('message', sflow)
-            self.all_elements.append(sflow)
+        for mftag in ['messageflow', 'messageFlow']:
+            for xflow in xcollaboration.findall(bpmn + mftag):
+                # instantiate flow
+                sflow = MessageFlow(**xflow.attrib)
+                # configure flow
+                sflow.source = self.find_element(xflow.attrib['sourceRef'])
+                sflow.target = self.find_element(xflow.attrib['targetRef'])
+                # add flow
+                self.definitions.add('message', sflow)
+                self.all_elements.append(sflow)
 
     def setup_bpmndi(self):
         # utilities
@@ -369,6 +370,9 @@ class Deserializer:
                     continue
                 # instantiate the object
                 obj = (self.get_class(breed))(**xchild.attrib)
+                # if this has no reference
+                if 'bpmnElement' not in xchild.attrib:
+                    continue
                 # element reference
                 obj.element = self.find_element(xchild.get('bpmnElement', None))
                 # if object has a label

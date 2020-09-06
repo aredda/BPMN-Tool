@@ -8,6 +8,10 @@ from models.bpmndi.edge import BPMNEdge
 
 class GUIFlow(Prefab):
 
+    SELECT_COLOR = teal
+    DESELECT_COLOR = black
+    TEXT_OFFSET = 16
+
     def __init__(self, **args):
         super().__init__(**args)
 
@@ -24,10 +28,23 @@ class GUIFlow(Prefab):
 
     def draw_at(self, x, y):
         super().draw_at(x, y)
-        cnv: Canvas = self.canvas
+        cnv: Canvas = self.getcanvas()
         # figure out which ports to use
         sourceport = self.guisource.get_port_to(self.guitarget)
         targetport = self.guitarget.get_port_to(self.guisource)
+        # find the text position
+        ts = [
+            (targetport[1][0] - sourceport[1][0]) / 2,
+            (targetport[1][1] - sourceport[1][1]) / 2
+        ]
+        direction = [
+            1 if ts[0] > 0 else -1,
+            1 if ts[1] > 0 else -1
+        ]
+        text_pos = [
+            sourceport[1][0] + direction[0] * abs(ts[0]),
+            sourceport[1][1] + direction[1] * abs(ts[1])
+        ]
         # draw the pointing arrow
         points = []
         for i in range(0, 3): points.append(list(targetport[1]))
@@ -58,6 +75,14 @@ class GUIFlow(Prefab):
         self.id.append(cnv.create_line(sourceport[1], vTargetPort, **lineOpts))
         # draw arrow
         self.id.append(cnv.create_polygon(points, fill=black))
+        # draw text
+        self.draw_text(self.element.name, int(text_pos[0]), int(text_pos[1]), 50)
+        # draw text bg
+        text_bg = self.getcanvas().create_rectangle(self.getcanvas().bbox(self.text_id), fill=background, width=0)
+        self.id.append(text_bg)
+        self.unselected.append(text_bg)
+        # draw text
+        self.draw_text(self.element.name, int(text_pos[0]), int(text_pos[1]), 50)
         # update di props
         self.update_diprops()
 
@@ -72,7 +97,6 @@ class GUIFlow(Prefab):
         super().destroy()
 
     def unlink(self):
-        # unlinking
         # remove from gui elements
         self.guisource.flows.remove(self)
         self.guitarget.flows.remove(self)
