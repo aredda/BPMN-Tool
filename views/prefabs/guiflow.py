@@ -77,12 +77,6 @@ class GUIFlow(Prefab):
         self.id.append(cnv.create_polygon(points, fill=black))
         # draw text
         self.draw_text(self.element.name, int(text_pos[0]), int(text_pos[1]), 50)
-        # draw text bg
-        text_bg = self.getcanvas().create_rectangle(self.getcanvas().bbox(self.text_id), fill=background, width=0)
-        self.id.append(text_bg)
-        self.unselected.append(text_bg)
-        # draw text
-        self.draw_text(self.element.name, int(text_pos[0]), int(text_pos[1]), 50)
         # update di props
         self.update_diprops()
 

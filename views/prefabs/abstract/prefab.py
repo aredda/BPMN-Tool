@@ -16,6 +16,7 @@ class Prefab:
     def __init__(self, **args):
         self.id = args.get('id', [])
         self.text_id = -1
+        self.text_bg_id = -1
         self.canvas = args.get('canvas', None)
         self.element = args.get('element', None)
         self.dielement = args.get('dielement', None)
@@ -113,14 +114,26 @@ class Prefab:
         # remove text
         if self.text_id != -1:
             self.getcanvas().delete(self.text_id)
+            self.getcanvas().delete(self.text_bg_id)
+        # check if text is empty
+        if text == None or text == '':
+            return
         # text id
         self.text_id = self.getcanvas().create_text(x, y, text=text, width=width)
+        # draw text bg
+        self.text_bg_id = self.getcanvas().create_rectangle(self.getcanvas().bbox(self.text_id), fill=background, width=0)
+        # add to general collection
+        self.id.append(self.text_bg_id)
+        # mark as unselected
+        self.unselected.append(self.text_bg_id)
         # mark as unselected item
         self.unselected.append(self.text_id)
         # append it to the general item list
         self.id.append(self.text_id)
         # redraw flows
         self.draw_flows()
+        # bring text forward
+        self.getcanvas().tag_raise(self.text_id)
 
     def set_text(self, text):
         self.element.name = text

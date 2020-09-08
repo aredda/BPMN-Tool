@@ -158,6 +158,7 @@ class EditorWindow(SessionWindow):
         self.ZOOM_SCALE = 6
         self.ZOOM_INDEX = 0
         self.MOVE_SCALE = [0, 0]
+        self.SCROLL_REGION = [2000, 2000]
 
         # slight preparations
         self.design()
@@ -240,15 +241,14 @@ class EditorWindow(SessionWindow):
     def design(self):
         # prepare canvas
         self.frm_body.config(padx=0, pady=0)
-        self.cnv_canvas = Canvas(self.frm_body, bg=background, highlightthickness=0, scrollregion=(0, 0, 2000, 2000))
+        self.cnv_canvas = Canvas(self.frm_body, bg=background, highlightthickness=0, scrollregion=(0, 0, self.SCROLL_REGION[0], self.SCROLL_REGION[1]))
         self.cnv_canvas.pack(fill=BOTH, expand=1)
         # prepare control frames
         self.setup_tools()
 
     def select_element(self, x, y):
         # position correction
-        cx, cy = self.cnv_canvas.canvasx(x), self.cnv_canvas.canvasx(y)
-        x, y = cx, cy
+        x, y = self.correct_position(x, y) [0], self.correct_position(x, y) [1]
         # retrieve the last element (top element) to be found in the canvas
         last_element = self.cnv_canvas.find_overlapping(x - 2, y - 2, x + 2, y + 2)
         if len (last_element) > 0: 
@@ -256,14 +256,17 @@ class EditorWindow(SessionWindow):
         # return 
         return last_element
 
+    def correct_position(self, x, y):
+        # calculate offset
+        ox, oy = self.cnv_canvas.xview()[0] * self.SCROLL_REGION[0], self.cnv_canvas.yview()[0] * self.SCROLL_REGION[1]
+        # return
+        return [x + ox, y + oy]
+
     def set_mode(self, mode):
         self.SELECTED_MODE = mode
         # deselect
         if self.SELECTED_ELEMENT != None:
             self.SELECTED_ELEMENT.deselect()
-        # reset view
-        if mode == self.CREATE_MODE:
-            self.reset_view()
         # change cursor
         if mode in [self.CREATE_MODE, self.MOVE_MODE]:
             self.cnv_canvas.config(cursor='hand2')
@@ -309,6 +312,7 @@ class EditorWindow(SessionWindow):
         self.btn_delete_selected.pack(side=TOP)
         # activate effect
         self.btn_select_mode.defaultBgColor = teal
+        self.btn_select_mode.set_bgColor(teal)
         # show information
         self.show_help_panel('Selection mode is enabled')
 
@@ -318,6 +322,7 @@ class EditorWindow(SessionWindow):
         self.set_mode(self.MOVE_MODE)
         # activate effect
         self.btn_move_mode.defaultBgColor = teal
+        self.btn_move_mode.set_bgColor(teal)
         # show information
         self.show_help_panel('Move mode is enabled, press arrows to move around the canvas')
 
@@ -518,8 +523,14 @@ class EditorWindow(SessionWindow):
 
         # mouse moving
         def action_mouse_move(e):
+            # correct position
+            correct_pos = self.correct_position(e.x, e.y)
+            # proceed
             if self.SELECTED_MODE in [self.DRAG_MODE, self.CREATE_MODE]:
                 if self.DRAG_ELEMENT != None:
+                    # if the element is a flow, skip
+                    if isinstance(self.DRAG_ELEMENT, GUIFlow):
+                        return
                     # if the mode is specifically drag mode
                     if self.SELECTED_MODE == self.DRAG_MODE:
                         if not self.IS_DRAGGING:
@@ -533,12 +544,12 @@ class EditorWindow(SessionWindow):
                     self.hide_component('frm_menu')
                     # drag element
                     self.DRAG_ELEMENT.bring_front()
-                    self.DRAG_ELEMENT.move(e.x, e.y)
+                    self.DRAG_ELEMENT.move(correct_pos[0], correct_pos[1])
                     # change cursor
                     self.cnv_canvas.config(cursor='hand2')
             if self.SELECTED_MODE == self.RESIZE_MODE:
                 # calculate width & height
-                w, h = abs(e.x - self.SELECTED_ELEMENT.x), abs(e.y - self.SELECTED_ELEMENT.y)
+                w, h = abs(correct_pos[0] - self.SELECTED_ELEMENT.x), abs(correct_pos[1] - self.SELECTED_ELEMENT.y)
                 # update element's size
                 self.SELECTED_ELEMENT.resize(w, h)
 
@@ -547,7 +558,8 @@ class EditorWindow(SessionWindow):
             # check if there's a container behind
             container: GUIContainer = None
             # adjust position
-            cx, cy = self.cnv_canvas.canvasx(e.x), self.cnv_canvas.canvasx(e.y)
+            corrected_pos = self.correct_position(e.x, e.y)
+            cx, cy = corrected_pos[0], corrected_pos[1]
             # find container in canvas
             checkList = list(self.cnv_canvas.find_overlapping(cx - 2, cy - 2, cx + 2, cy + 2))
             checkList.reverse()
@@ -633,6 +645,10 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Control-y>', lambda e: self.redo())
         self.cnv_canvas.bind_all('<Control-v>', lambda e: self.reset_view())
         self.cnv_canvas.bind_all('<Control-s>', lambda e: self.save_work())
+        self.cnv_canvas.bind_all('<Control-i>', lambda e: self.zoom_in())
+        self.cnv_canvas.bind_all('<Control-o>', lambda e: self.zoom_out())
+        self.cnv_canvas.bind_all('<Control-m>', lambda e: self.enable_move_mode())
+        self.cnv_canvas.bind_all('<Control-l>', lambda e: self.enable_select_mode())
 
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
@@ -705,7 +721,8 @@ class EditorWindow(SessionWindow):
         if guiflow.element.get_tag() == 'messageflow':
             self.definitions.remove('message', guiflow.element)
         elif guiflow.element.get_tag() == 'sequenceflow':
-            guiflow.guisource.parent.element.remove('flow', guiflow.element)
+            for process in self.definitions.elements['process']:
+                process.nokey_remove(guiflow.element)
         # remove this flow from elements
         guiflow.unlink()
         # re-draw elements
