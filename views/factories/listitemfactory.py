@@ -155,3 +155,18 @@ class ListItemFactory(Factory):
             'time': dataItem.sentDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != dataItem.sentDate.strftime("%x") else dataItem.sentDate.strftime("%X"),
             'image': dataItem.user.image
         }, None, create)
+
+    def GuideItem(root, dataDict, descriptionWidth):
+        # specify creation method
+        def create(item):
+            # term
+            item.lbl_term = Label(item, anchor=W, width=15, font='-size 14 -weight bold', text=dataDict.get('term', '(term) not found'), fg=teal, bg=background)
+            item.lbl_term.pack(side=LEFT, fill=X, expand=1, pady=7)
+            # description
+            item.lbl_description = Label(item, anchor=W, font='-size 12 -weight bold', text=dataDict.get('description', '(description) not found'), fg=gray, bg=background, wraplength=descriptionWidth, width=descriptionWidth)
+            item.lbl_description.pack(side=RIGHT, fill=X, expand=1, pady=7)
+            # item settings
+            item.config(bg=background)
+        # return item
+        return ListItem(root, None, None, None, create)
+

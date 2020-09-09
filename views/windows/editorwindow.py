@@ -54,6 +54,7 @@ class EditorWindow(SessionWindow):
             'size': 35,
             'path': 'resources/icons/ui/',
             'tools': [
+                { 'icon': 'prompt.png', 'cmnd': 'show_guide' },
                 { 'icon': 'save.png', 'cmnd': 'save_work' },
                 { 'icon': 'open.png', 'bg': danger, 'cmnd': 'back_to_subject' },
                 { 'name': 'btn_delete_selected', 'icon': 'delete.png', 'bg': danger, 'cmnd': 'btn_delete_selected_click' }
@@ -649,6 +650,7 @@ class EditorWindow(SessionWindow):
         self.cnv_canvas.bind_all('<Control-o>', lambda e: self.zoom_out())
         self.cnv_canvas.bind_all('<Control-m>', lambda e: self.enable_move_mode())
         self.cnv_canvas.bind_all('<Control-l>', lambda e: self.enable_select_mode())
+        self.cnv_canvas.bind_all('<Control-h>', lambda e: self.show_guide())
 
     # a searching method to find the corresponding gui element from the given id
     def find_element(self, id):
@@ -1170,3 +1172,7 @@ class EditorWindow(SessionWindow):
     # get privilege
     def get_privilege(self):
         return 'edit' if self.subject.owner == EditorWindow.ACTIVE_USER else (Container.filter(ShareLink, ShareLink.projectId == self.subject.id).first() if self.subject.__class__ == Project else Container.filter(Collaboration, Collaboration.sessionId == self.subject.id, Collaboration.userId == EditorWindow.ACTIVE_USER.id).first()).privilege
+    
+    # show guide modal
+    def show_guide(self):
+        (self.windowManager.get_module('guidemodal')) (self)
