@@ -78,9 +78,9 @@ class SplashWindow(Window):
                 self.frm_filler.config(width=int(current_width * bar_width / 100))
                 # sleep
                 sleep (0.05)
-            # remove splash screen from window stack
-            self.windowManager.windows.clear()
             # go to sign window
             self.windowManager.run_tag('sign')
+            # remove splash screen from window stack
+            self.windowManager.windows.pop(0)
         # start thread
         Thread(target=transition_thread).start()
