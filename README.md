@@ -10,4 +10,4 @@ with essential editing functionalities.
 # Installation
 In order to be able to run this application:
 1. You must install all specified libraries in [requirements.txt](https://github.com/The-Deadly-Sins/BPMN-Tool/blob/master/requirements.txt) using **PIP (Python Package Installer)**
-2. You must run the database SQL script that is located at [resources/database.sql](https://github.com/The-Deadly-Sins/BPMN-Tool/blob/master/resources/database.sql)
+2. You must run the database creation script that is located at [resources/database.sql](https://github.com/The-Deadly-Sins/BPMN-Tool/blob/master/resources/database.sql)
