@@ -28,11 +28,11 @@ class SessionWindow(Window):
         'lbl_time': gray 
     }
     CHAT_UNREAD = {
-        'bg': background,
-        'lbl_username': teal,
-        'lbl_user': black,
-        'lbl_content': black,
-        'lbl_time': gray 
+        'bg': teal,
+        'lbl_username': white,
+        'lbl_user': background,
+        'lbl_content': background,
+        'lbl_time': background 
     }
 
     # BOOKMARK_TOCHANGE: make it None
@@ -73,28 +73,36 @@ class SessionWindow(Window):
     def runnable(self):
         try:
             while self.time_to_kill != True:
-                # Container.session.begin()
-                # Container.session.commit()
                 Container.threadSession.flush()
+                # declaration of 
                 noNewNotifs, noNewMessages = True, True
                 # check for new unseen notifications
-                for notif in Container.threadSafeFilter(Notification,Notification.recipient == SessionWindow.ACTIVE_USER, Notification.id.notin_(Container.threadSafeFilter(SeenNotification.notificationId.distinct()))).all():
+                unseen_notifs = Container.threadSafeFilter(Notification,Notification.recipient == SessionWindow.ACTIVE_USER, Notification.id.notin_(Container.threadSafeFilter(SeenNotification.notificationId.distinct()))).all()
+                for notif in unseen_notifs:
                     if Container.threadSafeFilter(SeenNotification, SeenNotification.notificationId == notif.id, SeenNotification.seerId == SessionWindow.ACTIVE_USER.id).first() == None: 
                         self.icn_notification.set_image('resources/icons/ui/bell_ring.png')
+                        self.lbl_notif_counter['fg'] = teal
+                        self.lbl_notif_counter['text'] = str(len(unseen_notifs))
                         noNewNotifs = False
                         break
                 # change the icon if there is no new notifications
                 if noNewNotifs: 
                     self.icn_notification.set_image('resources/icons/ui/bell_outline.png')
+                    self.lbl_notif_counter['text'] = '0'
+                    self.lbl_notif_counter['fg'] = black
                 # check for new unseen messages
-                for msg in self.getLastMessages():
-                    if msg != None and msg.user != SessionWindow.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == msg.id).first() == None:
-                        self.icn_discussion.set_image('resources/icons/ui/discussion.png')
-                        noNewMessages = False
-                        break
+                if len (self.getUnreadMessages()) > 0:
+                    self.icn_discussion.set_image('resources/icons/ui/discussion.png')
+                    self.lbl_discus_counter['fg'] = teal
+                    self.lbl_discus_counter['text'] = str (len (self.getUnreadMessages()))
+                    noNewMessages = False
                 # change the icon if there is no new messages
-                if noNewMessages: self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
-                time.sleep(2)
+                if noNewMessages: 
+                    self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
+                    self.lbl_discus_counter['text'] = '0'
+                    self.lbl_discus_counter['fg'] = black
+                # wait for the next frame
+                time.sleep(5)
         except: pass
         
     def hide(self):
@@ -107,7 +115,6 @@ class SessionWindow(Window):
         self.time_to_kill = False
         # start thread
         threading.Thread(target=self.runnable).start()
-        # print ('gotta be refreshed')
 
     def change_session_item_style(self, item, style=CHAT_UNREAD):
         # Change background
@@ -126,8 +133,7 @@ class SessionWindow(Window):
         # change style for unread messages
         if item.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == item.id,SeenMessage.seerId == SessionWindow.ACTIVE_USER.id).first() == None:
             self.change_session_item_style(li,self.CHAT_UNREAD)
-        # change message icon's image on click
-        self.icn_discussion.set_image('resources/icons/ui/discussion_outline.png')
+        # return list item
         return li
 
     def configure_notif_listitem(self, root, item):
@@ -136,8 +142,6 @@ class SessionWindow(Window):
         # save notification that are not recieveInv as seen 
         if item.type != NotificationType.INVITED.value and Container.filter(SeenNotification, SeenNotification.notificationId == item.id, SeenNotification.seerId == SessionWindow.ACTIVE_USER.id).first() == None: 
                 Container.save(SeenNotification(date= datetime.datetime.now(), seer= SessionWindow.ACTIVE_USER, notification= item))
-         # change notification icon's image on click
-        self.icn_notification.set_image('resources/icons/ui/bell_outline.png')
         # append this item to a list
         self.created_notif_items.append (li)
         # return 
@@ -154,7 +158,6 @@ class SessionWindow(Window):
             elif notif.nature == NotificationNature.SHARELINK.value and Container.filter(ShareLink, ShareLink.id == notif.invitationId).first() == None:
                 Container.deleteObject(notif)
             
-
     def config_vBar(self):
         
         def callback(tag):
@@ -180,19 +183,56 @@ class SessionWindow(Window):
         self.vBarButtons['btn_quit'].bind_click(lambda e: quit() )
 
     def getLastMessages(self):
-            msgs = []
-            for i in Container.filter(Session):
-                if i.owner == SessionWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == SessionWindow.ACTIVE_USER.id, Collaboration.sessionId == i.id).first() != None:
-                    msg = Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first()
-                    if msg != None: msgs.append(msg)
-            return msgs
+        msgs = []
+        for i in Container.filter(Session):
+            if i.owner == SessionWindow.ACTIVE_USER or Container.filter(Collaboration, Collaboration.userId == SessionWindow.ACTIVE_USER.id, Collaboration.sessionId == i.id).first() != None:
+                msg = Container.filter(Message, Message.sessionId == i.id).order_by(Message.sentDate.desc()).first()
+                if msg != None: msgs.append(msg)
+        # make the order key
+        def orderKey (e): return e.sentDate
+        # sort
+        msgs.sort(key=orderKey, reverse=True)
+        # return
+        return msgs
+
+    def getUnreadMessages(self):
+        # first we will get the sessions that this user
+        # has collaborated in
+        sessions = [] 
+        # search for collaborations
+        for c in Container.filter(Collaboration, Collaboration.userId == SessionWindow.ACTIVE_USER.id):
+            sessions.append(c.sessionId)
+        # search for owned sessions
+        for s in Container.filter(Session, Session.ownerId == SessionWindow.ACTIVE_USER.id):
+            sessions.append(s.id)
+        # retrieve all received messages
+        allmsgs = []
+        for s in sessions:
+            for m in Container.filter(Message, Message.sessionId == s):
+                if m not in allmsgs and m != None:
+                    allmsgs.append(m)
+        # retrieve seen messages
+        seenmsgs = []
+        for m in allmsgs:
+            if m.userId == SessionWindow.ACTIVE_USER.id:
+                seenmsgs.append(m)
+            elif len(Container.filter(SeenMessage, SeenMessage.messageId == m.id, SeenMessage.seerId == SessionWindow.ACTIVE_USER.id).all()) > 0:
+                seenmsgs.append(m)
+        # retrieve unseen messages
+        unseenmsgs = []
+        for m in allmsgs:
+            if m not in seenmsgs:
+                unseenmsgs.append(m)
+        # return
+        return unseenmsgs
 
     def config_hBar(self):
         # Creation of elements
         # BOOKMARK_DONE: change user profile image
-        # hadii khsni darurii n bedla w dik intellisense , wait let me close vs code and start it agai nook
         self.clean_notifications()
+        # username
         self.btn_username = IconButton(self.frm_hBar, SessionWindow.ACTIVE_USER.userName, '-size 15', biege, 'resources/icons/ui/face.png' if SessionWindow.ACTIVE_USER.image == None else SessionWindow.ACTIVE_USER.image, 6, None, biege, 40, lambda e: self.windowManager.run_tag('profile'), bg=white)
+        # bell icon
         self.icn_notification = IconFrame(
             self.frm_hBar, 'resources/icons/ui/bell_outline.png', 0, None, 32,
             lambda e: self.show_popup(
@@ -203,7 +243,7 @@ class SessionWindow(Window):
                 self.configure_notif_listitem
             )
         )
-
+        # discussion icon
         self.icn_discussion = IconFrame(
             self.frm_hBar, 'resources/icons/ui/discussion_outline.png', 0, None, 32,
             lambda e: self.show_popup(
@@ -215,9 +255,14 @@ class SessionWindow(Window):
                 self.configure_msg_listitem
             )
         )
+        # notification counter label
+        self.lbl_notif_counter = Label(self.frm_hBar, fg=black, bg=white, text='0', font='-weight bold -size 9')
+        self.lbl_discus_counter = Label(self.frm_hBar, fg=black, bg=white, text='0', font='-weight bold -size 9')
         # Positioning elements
         self.btn_username.pack(side=LEFT)
+        self.lbl_notif_counter.pack(side=RIGHT)
         self.icn_notification.pack(side=RIGHT)
+        self.lbl_discus_counter.pack(side=RIGHT)
         self.icn_discussion.pack(side=RIGHT, padx=(0, 5))
 
     # Vertical Bar Settings

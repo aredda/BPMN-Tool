@@ -175,11 +175,17 @@ class DiscussionWindow(SessionWindow):
         self.currentItem = listItem
         self.change_session_item_style(self.currentItem, self.CHAT_ACTIVE)
 
-        # lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id, Message.sentDate == Container.filter(func.max(Message.sentDate), Message.sessionId == self.currentItem.dataObject.session.id).group_by(Message.sessionId)).first()
-        lastmsg = Container.filter(Message, Message.sessionId == self.currentItem.dataObject.session.id).order_by(Message.sentDate.desc()).first()
-    
-        if self.currentItem.dataObject.user != self.ACTIVE_USER and Container.filter(SeenMessage, SeenMessage.messageId == lastmsg.id,SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).first() == None:
-            Container.save(SeenMessage(date=datetime.datetime.now(),seer=DiscussionWindow.ACTIVE_USER,message=lastmsg))
+        currentSession = self.currentItem.dataObject.session
+
+        # mark previous messages as seen
+        prevmsgs = Container.filter(Message, Message.sessionId == currentSession.id, Message.userId != DiscussionWindow.ACTIVE_USER.id)
+        # mark them as seen
+        for m in prevmsgs:
+            # check if already marked
+            if len(Container.filter(SeenMessage, SeenMessage.messageId == m.id, SeenMessage.seerId == DiscussionWindow.ACTIVE_USER.id).all()) > 0:
+                continue
+            # mark as read
+            Container.save(SeenMessage(date=datetime.datetime.now(), seer=DiscussionWindow.ACTIVE_USER, message=m))
 
     # Configure sessionlistitem click event
     def configure_session_click(self):
