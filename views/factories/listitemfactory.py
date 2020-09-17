@@ -74,12 +74,12 @@ class ListItemFactory(Factory):
         # (check if notification is invite , if not send None as a param and add command when the user accept/decline cmnd)
         [
             {
-                'text': 'Accept',
+                'text': translate('Accept'),
                 'icon': 'yes.png',
                 'cmnd': lambda e: ListItemFactory.decision(li)
             },
             {
-                'text': 'Decline',
+                'text': translate('Decline'),
                 'icon': 'no.png',
                 'mode': 'danger',
                 'cmnd': lambda e: ListItemFactory.decision(li, accepted= False)

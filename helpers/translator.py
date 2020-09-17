@@ -43,6 +43,7 @@ dictionary = {
     'Open Editor': 'Ouvrir l\'éditeur',
     'Share Project': 'Partager Projet',
     'Export as XML': 'Exporter au XML',
+    'Export to XML': 'Exporter au XML',
     'Revert': 'Revenir',
     'Session\'s Title:': 'Titre:',
     'End Session': 'Supprimer la Session',
@@ -66,7 +67,10 @@ dictionary = {
     'Are you sure you want to leave this window?': 'Voulez-vous vraiment quitter cette fenêtre?',
     'A screenshot was taken before saving': 'Une capture d\'écran a été prise avant l\'enregistrement',
     'Sorry, a connection cannot be made between': 'Désolé, aucune connexion ne peut être établie entre',
-    'and': 'et'
+    'and': 'et',
+    'Accept': 'Accepter',
+    'Decline': 'Refuser',
+    'Open Session': 'Ouvrir la Session'
 }
 
 def translate(content, lang='fr'):
