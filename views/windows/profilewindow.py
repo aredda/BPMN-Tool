@@ -135,14 +135,13 @@ class ProfileWindow(TabbedWindow):
         frm_tip = IconButton(self.tb_collabs, 'Saved Collaborators are all the users who have participated in a collaboration session with you.', '-size 12 -weight bold', white, 'resources/icons/ui/info.png', 10, None, black, bg=black, pady=10, padx=5)
         frm_tip.pack(side=TOP, fill=X)
 
-        self.lv_collabs = Scrollable(self.tb_collabs, bg=background, pady=20)
+        self.lv_collabs = Scrollable(self.tb_collabs, bg=background, pady=5)
         self.lv_collabs.set_gridcols(2)
-        self.lv_collabs.pack(expand=1, fill=BOTH)
+        self.lv_collabs.pack(expand=1, fill=BOTH, pady=(15, 0))
 
     # select a ne image
     def open_image(self, event):
         self.set_image(filetobytes(filedialog.askopenfilename(initialdir="/", title="Select file", filetypes=(("jpeg/jpg files", "*.jpg"), ("png files", "*.png"), ("all files", "*.*")))))
-
 
     # display current image
     def set_image(self, img):
@@ -192,22 +191,22 @@ class ProfileWindow(TabbedWindow):
                     raise Exception(camel_case(key),f'{key} Cannot be null!')
 
                 elif key in ['firstName','lastName'] and not re.fullmatch('[A-Za-z]{2,15}( [A-Za-z]{2,15})?', value):
-                    raise Exception(camel_case(key),f'\n1.Can contain 2 words with 1 space in between\n2.Must be between 2 - 15 alphabets each')
+                    raise Exception(camel_case(key),f'\n1. Can contain 2 words with 1 space in between\n2.Must be between 2 - 15 alphabets each')
                         
                 elif key in ['userName','password'] and not re.fullmatch('^[a-zA-Z0-9_.-]+$', value):
                     raise Exception(camel_case(key),f'can only be alphanumeric and contain (. _ -)')
                         
                 elif key == 'email' and not re.fullmatch('[^@]+@[^@]+\.[^@]+', value):
-                    raise Exception(camel_case(key),f'Please enter a valid email!\nEX: emailName@email.com')
+                    raise Exception(camel_case(key),f'Please enter a valid email!\nExample: emailName@email.com')
                         
                 elif key == 'company' and value != None and not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', value):
-                    raise Exception(camel_case(key),f'\n1.Must be between 4 - 20 characters\n2.should not contain any special character')
+                    raise Exception(camel_case(key),f'\n1. Must be between 4 - 20 characters\n2. Should not contain any special characters')
                         
                 elif key == 'gender' and value != None and value.lower() not in ['female','male']:
                     raise Exception(camel_case(key),f'Gender must be either male or female!')
                         
                 elif key == 'confirmPwd' and value != data['password']:
-                    raise Exception('password confirmation',f'Password doesn\'t match.\nPlease confirm your password!')
+                    raise Exception('password confirmation',f'Passwords don\'t match, please confirm your password!')
 
             return True
 

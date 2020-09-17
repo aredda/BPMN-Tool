@@ -6,7 +6,7 @@ from views.components.icon import IconFrame
 from models.entities.enums.notificationtype import NotificationType
 from views.factories.iconbuttonfactory import *
 import datetime
-
+from helpers.translator import translate
 from helpers.backhelper import getNotificationContent
 from helpers.imageutility import getdisplayableimage
 from models.entities.enums.notificationtype import NotificationType

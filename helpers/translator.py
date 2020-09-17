@@ -1,3 +1,5 @@
+default_lang = 'fr'
+
 dictionary = {
     'Username:': 'Nom Utilisateur:',
     'Password:': 'Mot De Passe:',
@@ -73,9 +75,10 @@ dictionary = {
     'Open Session': 'Ouvrir la Session'
 }
 
-def translate(content, lang='fr'):
+def translate(content):
+    global default_lang
     # if it's english no need
-    if lang != 'fr':
+    if default_lang != 'fr':
         return content
     # if there's no translation
     if content not in dictionary:

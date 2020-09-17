@@ -116,7 +116,6 @@ class CollaborationWindow(TabbedWindow):
             modal.form[0]['input'].entry.delete(0,END)
             modal.form[0]['input'].entry.insert(0,link)
 
-
         def check_privilege(msg, modal, inv):
             def generate_link(msg2, modal, inv, privilege):
                 msg2.destroy()
@@ -125,7 +124,6 @@ class CollaborationWindow(TabbedWindow):
                 Container.save(InvitationLink(link=link, expirationDate=datetime.datetime.now()+datetime.timedelta(days=1), privilege= privilege, sender=CollaborationWindow.ACTIVE_USER, session=self.session))
                 self.clean_notifications()
                 set_link(link)
-            
             
             if msg != None: msg.destroy()
             msg2 = MessageModal(self,title=f'Confirmation',message=f'Do you want to grant this link the "edit" privilege?',messageType='prompt',actions={'yes' : lambda e: generate_link(msg2, modal, inv, 'edit'), 'no' : lambda e: generate_link(msg2, modal, inv, 'read')})
@@ -172,7 +170,7 @@ class CollaborationWindow(TabbedWindow):
         # 
         get_label = lambda prop: getattr(self, f'lbl_{prop}')
         # change label
-        get_label(CollaborationWindow.lblSettings[0]['prop'])['text'] = self.session.project.title
+        get_label(CollaborationWindow.lblSettings[0]['prop'])['text'] = self.session.title
         get_label(CollaborationWindow.lblSettings[1]['prop'])['text'] = self.session.creationDate.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.creationDate.strftime("%x") else 'Today at - '+self.session.creationDate.strftime("%X")
         get_label(CollaborationWindow.lblSettings[2]['prop'])['text'] = self.session.project.lastEdited.strftime("%d/%m/%Y") if datetime.datetime.now().strftime("%x") != self.session.project.lastEdited.strftime("%x") else 'Today at - '+self.session.project.lastEdited.strftime("%X")
         get_label(CollaborationWindow.lblSettings[3]['prop'])['text'] = str(Container.filter(Collaboration,Collaboration.sessionId == self.session.id).count()+1)
@@ -236,7 +234,7 @@ class CollaborationWindow(TabbedWindow):
 
         # filling member tab
         self.lv_members = Scrollable(self.tb_member, bg=background)
-        self.lv_members.pack(fill=BOTH, expand=1)
+        self.lv_members.pack(fill=BOTH, expand=1, pady=(0, 15))
 
         self.fill_collaboration()
 
@@ -323,7 +321,7 @@ class CollaborationWindow(TabbedWindow):
 
                 }] if i != self.session.owner else None
                 )
-            li.pack(anchor=N+W, pady=(0, 10), padx=(0, 10), fill=X)
+            li.pack(anchor=N+W, pady=(0, 10), padx=(10, 10), fill=X)
             self.collaboratorItems.append(li)
 
     def kick_user(self, user):

@@ -833,14 +833,7 @@ class EditorWindow(SessionWindow):
             Container.save(project, history)
 
     def back_to_subject(self):
-        def back(msg):
-            msg.destroy()
-            if self.subject.__class__ == Session: 
-                self.windowManager.run_tag('collaboration', session=self.subject)
-            else: 
-                self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
-
-        self.show_prompt(translate('Are you sure you want to leave this window?'), lambda e: back(msg), 'Quit Prompt')
+        self.show_prompt(translate('Are you sure you want to leave this window?'), lambda e: self.windowManager.close(), 'Quit Prompt')
 
     # linking funcs
     def can_link(self, source, target):
