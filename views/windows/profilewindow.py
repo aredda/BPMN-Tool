@@ -9,7 +9,7 @@ from views.components.textbox import TextBox
 
 from models.entities.Container import Container
 from models.entities.Entities import User,Relation
-
+from helpers.translator import translate
 from helpers.imageutility import getdisplayableimage
 from helpers.filehelper import filetobytes
 from helpers.stringhelper import camel_case
@@ -21,13 +21,13 @@ class ProfileWindow(TabbedWindow):
 
     tabSettings = [
         {
-            'tag': 'tb_info',
+            'tag': translate('tb_info'),
             'text': 'Profile',
             'icon': 'account.png'
         },
         {
-            'tag': 'tb_collabs',
-            'text': 'Saved Collaborators',
+            'tag': translate('tb_collabs'),
+            'text': translate('Saved Collaborators'),
             'icon': 'session.png'
         }
     ]
@@ -35,44 +35,44 @@ class ProfileWindow(TabbedWindow):
     formSettings = [
         [
             {
-                'label': 'First Name:',
+                'label': translate('First Name:'),
                 'icon': 'account.png',
                 'tag': 'firstName'
             },
             {
-                'label': 'Last Name:',
+                'label': translate('Last Name:'),
                 'icon': 'account.png',
                 'tag': 'lastName'
             },
             {
-                'label': 'Username:',
+                'label': translate('Username:'),
                 'icon': 'account.png',
                 'tag': 'userName'
             },
             {
-                'label': 'Email:',
+                'label': translate('Email:'),
                 'icon': 'mail.png',
                 'tag': 'email'
             }
         ],
         [
             {
-                'label': 'Company:',
+                'label': translate('Company:'),
                 'icon': 'business.png',
                 'tag': 'company'
             },
             {
-                'label': 'Gender:',
+                'label': translate('Gender:'),
                 'icon': 'wc.png',
                 'tag': 'gender'
             },
             {
-                'label': 'Password:',
+                'label': translate('Password:'),
                 'icon': 'key.png',
                 'tag': 'password'
             },
             {
-                'label': 'Confirm Password:',
+                'label': translate('Confirm Password:'),
                 'icon': 'key.png',
                 'tag': 'confirmPwd'
             }
@@ -101,13 +101,13 @@ class ProfileWindow(TabbedWindow):
         frm_image_column = Frame(frm_form, bg=background)
         frm_image_column.grid(row=0, column=0, padx=(0, 20))
 
-        Label(frm_image_column, pady=10, bg=background, font='-size 10 -weight bold', fg=black, text='Profile Photo:', anchor=N+W).pack(side=TOP, fill=X)
+        Label(frm_image_column, pady=10, bg=background, font='-size 10 -weight bold', fg=black, text=translate('Profile Photo:'), anchor=N+W).pack(side=TOP, fill=X)
         frm_image = Frame(frm_image_column, bg=black, height=150)
         frm_image.pack(side=TOP, fill=X, pady=(0, 10))
 
         self.lbl_image = Label(frm_image)
 
-        SecondaryButton(frm_image_column, 'Upload Image', 'upload.png',btnCmd=lambda event: self.open_image(event)).pack (side=TOP, fill=X)
+        SecondaryButton(frm_image_column, translate('Upload Image'), 'upload.png',btnCmd=lambda event: self.open_image(event)).pack (side=TOP, fill=X)
 
         for column in ProfileWindow.formSettings:
             # Prepare a form column
@@ -129,7 +129,7 @@ class ProfileWindow(TabbedWindow):
         frm_footer = Frame(self.tb_info, bg=background)
         frm_footer.pack(side=BOTTOM, fill=X)
 
-        MainButton(frm_footer, 'Save Changes', 'save.png',btnCmd= lambda event: self.save_changes(event)).pack(side=LEFT)
+        MainButton(frm_footer, translate('Save Changes'), 'save.png',btnCmd= lambda event: self.save_changes(event)).pack(side=LEFT)
 
         # Setup the tab of saved collabs
         frm_tip = IconButton(self.tb_collabs, 'Saved Collaborators are all the users who have participated in a collaboration session with you.', '-size 12 -weight bold', white, 'resources/icons/ui/info.png', 10, None, black, bg=black, pady=10, padx=5)

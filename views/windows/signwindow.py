@@ -5,19 +5,16 @@ from views.effects.move_transition import MoveTransition
 from views.factories.iconbuttonfactory import MainButton, SecondaryButton, DangerButton
 from views.components.textbox import TextBox
 from views.windows.abstract.window import Window
-
+from helpers.translator import translate
 from models.entities.Container import Container
 from models.entities.Entities import User, SparePwd
 from views.windows.modals.messagemodal import MessageModal
 from views.windows.profilewindow import ProfileWindow
 from views.windows.homewindow import HomeWindow
-import re
 from datetime import datetime, timedelta
 from helpers.stringhelper import generate_code, camel_case
 from helpers.sendemail import send_email
-
-
-
+import re
 
 class SignWindow(Window):
 
@@ -35,11 +32,11 @@ class SignWindow(Window):
         self.frm_in.pack_propagate(0)
         self.frm_up.pack_propagate(0)
         # design the sign in side
-        self.lbl_title_signin = Label(self.frm_in, text='Sign in', fg=teal, bg=background, font='-size 32 -weight bold')
+        self.lbl_title_signin = Label(self.frm_in, text=translate('Sign in'), fg=teal, bg=background, font='-size 32 -weight bold')
         self.lbl_title_signin.pack(side=TOP, pady=(150, 50))
         signin_config = [
-            { 'name': 'txt_in_username', 'label': 'Username:', 'icon': 'account.png' },
-            { 'name': 'txt_in_password', 'label': 'Password:', 'icon': 'key.png' }
+            { 'name': 'txt_in_username', 'label': translate('Username:'), 'icon': 'account.png' },
+            { 'name': 'txt_in_password', 'label': translate('Password:'), 'icon': 'key.png' }
         ]
         # put the form in place
         for config in signin_config:
@@ -51,9 +48,9 @@ class SignWindow(Window):
         # buttons
         frm_in_btns = Frame(self.frm_in, bg=background)
         frm_in_btns.pack(side=TOP, fill=X, pady=(5, 0))
-        self.btn_signin = MainButton(frm_in_btns, 'Sign in', 'login.png', self.btn_signin_click)
+        self.btn_signin = MainButton(frm_in_btns, translate('Sign In'), 'login.png', self.btn_signin_click)
         self.btn_signin.pack(side=LEFT)
-        self.btn_viewpwd = SecondaryButton(frm_in_btns, 'View Password', 'eye.png', self.btn_viewpassword_click)
+        self.btn_viewpwd = SecondaryButton(frm_in_btns, translate('View Password'), 'eye.png', self.btn_viewpassword_click)
         self.btn_viewpwd.pack(side=RIGHT)
         # divider
         frm_in_divider = Frame(self.frm_in, bg=border)
@@ -61,27 +58,27 @@ class SignWindow(Window):
         # extra options frame
         frm_in_xtra = Frame(self.frm_in, bg=background)
         frm_in_xtra.pack(side=TOP, fill=X)
-        self.lbl_signup = Label(frm_in_xtra, fg=teal, font='-size 9', text='Sign up', bg=background)
+        self.lbl_signup = Label(frm_in_xtra, fg=teal, font='-size 9', text=translate('Sign up'), bg=background)
         self.lbl_signup.pack(side=RIGHT)
         self.lbl_signup.bind('<Button-1>', self.lbl_signup_click)
-        self.lbl_forgotpwd = Label(frm_in_xtra, fg=black, font='-size 9 -underline 1', text='Forgot your password?', bg=background)
+        self.lbl_forgotpwd = Label(frm_in_xtra, fg=black, font='-size 9 -underline 1', text=translate('Forgot your password?'), bg=background)
         self.lbl_forgotpwd.pack(side=LEFT)
         self.lbl_forgotpwd.bind('<Button-1>', self.lbl_forgotpwd_click)
         # designing the sign up side
         self.up_congig = {
-            'Step 1: Authentication Settings': [
-                { 'name': 'txt_email', 'label': 'Email:', 'icon': 'mail.png' },
-                { 'name': 'txt_up_pwd', 'label': 'Password:', 'icon': 'key.png' },
-                { 'name': 'txt_confirm', 'label': 'Confirm Password:', 'icon': 'key.png' }
+            translate('Step 1: Authentication Settings'): [
+                { 'name': 'txt_email', 'label': translate('Email:'), 'icon': 'mail.png' },
+                { 'name': 'txt_up_pwd', 'label': translate('Password:'), 'icon': 'key.png' },
+                { 'name': 'txt_confirm', 'label': translate('Confirm Password:'), 'icon': 'key.png' }
             ],
-            'Step 2: Identity Information': [
-                { 'name': 'txt_up_username', 'label': 'Username:', 'icon': 'account.png' },
-                { 'name': 'txt_firstname', 'label': 'First Name:', 'icon': 'account.png' },
-                { 'name': 'txt_lastname', 'label': 'Last Name:', 'icon': 'account.png' }
+            translate('Step 2: Identity Information'): [
+                { 'name': 'txt_up_username', 'label': translate('Username:'), 'icon': 'account.png' },
+                { 'name': 'txt_firstname', 'label': translate('First Name:'), 'icon': 'account.png' },
+                { 'name': 'txt_lastname', 'label': translate('Last Name:'), 'icon': 'account.png' }
             ],
-            'Step 3: Personal Information': [
-                { 'name': 'txt_gender', 'label': 'Gender:', 'icon': 'wc.png' },
-                { 'name': 'txt_company', 'label': 'Company:', 'icon': 'business.png' }
+            translate('Step 3: Personal Information'): [
+                { 'name': 'txt_gender', 'label': translate('Gender:'), 'icon': 'wc.png' },
+                { 'name': 'txt_company', 'label': translate('Company:'), 'icon': 'business.png' }
             ]
         }
         # preparations
@@ -90,7 +87,7 @@ class SignWindow(Window):
         self.checkpoints = []
         self.forms = []
         # sign up header
-        self.lbl_title_signup = Label(self.frm_up, text='Sign Up', fg=teal, bg=background, font='-size 32 -weight bold')
+        self.lbl_title_signup = Label(self.frm_up, text=translate('Sign Up'), fg=teal, bg=background, font='-size 32 -weight bold')
         self.lbl_title_signup.pack(side=TOP, pady=(100, 30))
         # step label
         self.lbl_step = Label(self.frm_up, text='Step X: Description', fg=black, bg=background, font='-size 12')
@@ -120,7 +117,7 @@ class SignWindow(Window):
         # extra sign up options
         frm_in_xtra = Frame(self.frm_up, bg=background)
         frm_in_xtra.pack(side=BOTTOM, fill=X, pady=(5, 75))
-        self.lbl_signin = Label(frm_in_xtra, fg=teal, font='-size 9', text='Sign in', bg=background)
+        self.lbl_signin = Label(frm_in_xtra, fg=teal, font='-size 9', text=translate('Sign in'), bg=background)
         self.lbl_signin.pack(side=RIGHT)
         self.lbl_signin.bind('<Button-1>', self.lbl_signin_click)
         # divider
@@ -129,9 +126,9 @@ class SignWindow(Window):
         # buttons
         frm_up_btns = Frame(self.frm_up, bg=background)
         frm_up_btns.pack(side=BOTTOM, fill=X, pady=(0, 60))
-        self.btn_prev = DangerButton(frm_up_btns, 'Go Back', 'revert_history.png', self.btn_prev_click)
+        self.btn_prev = DangerButton(frm_up_btns, translate('Go Back'), 'revert_history.png', self.btn_prev_click)
         self.btn_prev.pack(side=LEFT)
-        self.btn_next = SecondaryButton(frm_up_btns, 'Next Step', 'yes.png', self.btn_next_click)
+        self.btn_next = SecondaryButton(frm_up_btns, translate('Next Step'), 'yes.png', self.btn_next_click)
         self.btn_next.pack(side=RIGHT)
         # display the first step
         self.move_to(self.current)
@@ -183,13 +180,10 @@ class SignWindow(Window):
                 else: 
                     self.windowManager.run(HomeWindow(self.master, user= user))
 
-
-
     # BOOKMARK: View Password Logic
     def btn_viewpassword_click(self, event):
         getattr(self, 'txt_in_password').entry.config(show= '' if getattr(self, 'txt_in_password').entry.cget('show') == '*' else '*')
-        self.btn_viewpwd.label['text'] = 'View Password' if getattr(self, 'txt_in_password').entry.cget('show') == '*' else 'Hide Password'
-
+        self.btn_viewpwd.label['text'] = translate('View Password') if getattr(self, 'txt_in_password').entry.cget('show') == '*' else translate('Hide Password')
 
     # BOOKMARK: Sign Up Next
     def btn_signup_next(self, event):
@@ -258,7 +252,7 @@ class SignWindow(Window):
     
     # 
     def btn_next_step_config(self):
-        self.btn_next.label.config(text=('Sign Up' if self.current == len(self.forms) - 1 else 'Next Step'))
+        self.btn_next.label.config(text=(translate('Sign Up') if self.current == len(self.forms) - 1 else translate('Next Step')))
 
     # Veil Properties
     def frm_veil_set_x(self, x):
@@ -284,7 +278,7 @@ class SignWindow(Window):
                     raise Exception(camel_case(i.get("label")),f'Please enter a valid email!\nEX: emailName@email.com')
                         
                 elif i.get('name') == 'txt_company' and getattr(self,i.get('name')).get_text() != '' and not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', getattr(self,i.get('name')).get_text()):
-                    raise Exception(camel_case(i.get("label")),f'\n1.Must be between 4 - 20 characters\n2.should not contain any special character')
+                    raise Exception(camel_case(i.get("label")),f'\n1. Must be between 4 - 20 characters\n2. It should not contain any special characters')
                         
                 elif i.get('name') == 'txt_gender' and getattr(self,i.get('name')).get_text() != '' and getattr(self,i.get('name')).get_text().lower() not in ['female','male']:
                     raise Exception(camel_case(i.get("label")),f'Gender must be either male or female!')

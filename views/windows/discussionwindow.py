@@ -6,7 +6,7 @@ from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.factories.listitemfactory import ListItemFactory
-
+from helpers.translator import translate
 from models.entities.Entities import Collaboration,Session,Message,SeenMessage
 from models.entities.Container import Container
 from sqlalchemy import and_,or_,func
@@ -18,19 +18,6 @@ import threading
 
 class DiscussionWindow(SessionWindow):
 
-    # # Chat Session Item Styles
-    # CHAT_NORMAL = {
-    #     'bg': white,
-    #     'lbl_username': teal,
-    #     'lbl_content': black,
-    #     'lbl_time': gray 
-    # }
-    # CHAT_UNREAD = {
-    #     'bg': background,
-    #     'lbl_username': teal,
-    #     'lbl_content': black,
-    #     'lbl_time': gray 
-    # }
     CHAT_ACTIVE = {
         'bg': teal,
         'lbl_username': background,
@@ -85,13 +72,13 @@ class DiscussionWindow(SessionWindow):
         frm_group = Frame(frm_head, bg=white)
         frm_group.pack(side=LEFT, fill=X)
 
-        self.lbl_sessionName = Label(frm_group, bg=white, fg=teal, text='Session\'s Name', font='-size 18 -weight bold')
+        self.lbl_sessionName = Label(frm_group, bg=white, fg=teal, text=translate('Session\'s Title'), font='-size 18 -weight bold')
         self.lbl_sessionName.pack(anchor=N+W)
 
         self.lbl_memberCount = Label (frm_group, bg=white, fg=black, text='X members')
         self.lbl_memberCount.pack(anchor=N+W)
 
-        self.btn_open_session = MainButton(frm_head, 'Open Session', 'open.png',btnCmd=lambda event:self.open_session(event))
+        self.btn_open_session = MainButton(frm_head, translate('Open Session'), 'open.png',btnCmd=lambda event:self.open_session(event))
         self.btn_open_session.config(pady=5)
         self.btn_open_session.pack(side=RIGHT)
 
@@ -107,7 +94,7 @@ class DiscussionWindow(SessionWindow):
 
         self.is_hint_deleted = False
         self.txt_message = Entry(frm_footer, highlightthickness=0, relief=FLAT, font='-size 12', fg=black)
-        self.txt_message.insert(0, 'Type your message here...')
+        self.txt_message.insert(0, translate('Type your message here...'))
         self.txt_message.pack(side=LEFT, fill=BOTH, expand=1)
 
         def txt_message_focus(e):
@@ -165,7 +152,7 @@ class DiscussionWindow(SessionWindow):
         self.fill_discussion(listItem.dataObject.session)
 
         self.lbl_sessionName['text'] = listItem.dataObject.session.title
-        self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1} members'
+        self.lbl_memberCount['text'] = f'{Container.filter(Collaboration,Collaboration.sessionId == listItem.dataObject.session.id).count()+1}' + translate('Members')
         
         self.txt_message.bind('<Return>', lambda event, listItem= listItem: self.send_message(event,listItem))
 

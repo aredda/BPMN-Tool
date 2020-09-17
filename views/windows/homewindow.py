@@ -7,7 +7,7 @@ from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
 from models.entities.Entities import *
 from datetime import datetime, timedelta
-
+from helpers.translator import translate
 from models.entities.Container import Container
 from models.entities.Entities import Project, Session, User
 from models.entities.enums.notificationtype import NotificationType
@@ -28,12 +28,12 @@ class HomeWindow(TabbedWindow):
     tabSettings = [
         {   
             'icon': 'folder.png',
-            'text': 'My Projects',
+            'text': translate('My Projects'),
             'tag': 'tb_projects'
         },
         {   
             'icon': 'session.png',
-            'text': 'My Sessions',
+            'text': translate('My Sessions'),
             'tag': 'tb_sessions'
         }
     ]
@@ -80,13 +80,13 @@ class HomeWindow(TabbedWindow):
             lambda formModal: self.join_project(formModal)
         )
 
-        self.btn_create_project = MainButton(self.btn_container1, 'Create New Project', 'new_project.png', createProjectModalCmnd)
+        self.btn_create_project = MainButton(self.btn_container1, translate('Create New Project'), 'new_project.png', createProjectModalCmnd)
         self.btn_create_project.pack(side=LEFT, padx=(0, 10))
         
-        self.btn_open = SecondaryButton(self.btn_container1, 'Load From Device', 'upload.png', loadProjectModalCmnd)
+        self.btn_open = SecondaryButton(self.btn_container1, translate('Load From Device'), 'upload.png', loadProjectModalCmnd)
         self.btn_open.pack(side=LEFT, padx=(0, 10))
         
-        self.btn_open = SecondaryButton(self.btn_container1, 'Access Project', 'login.png', joinProjectModalCmnd)
+        self.btn_open = SecondaryButton(self.btn_container1, translate('Access Project'), 'login.png', joinProjectModalCmnd)
         self.btn_open.pack(side=RIGHT)
 
         self.lv_project = Scrollable(self.tb_projects, bg=background, pady=15)
@@ -97,10 +97,10 @@ class HomeWindow(TabbedWindow):
         self.btn_container2 = Frame(self.tb_sessions, bg=background, pady=10, padx=1)
         self.btn_container2.pack (side=TOP, fill=X)
 
-        self.btn_create_session = MainButton(self.btn_container2, 'Create New Session', 'new_session.png', createSessionModalCmnd)
+        self.btn_create_session = MainButton(self.btn_container2, translate('Create New Session'), 'new_session.png', createSessionModalCmnd)
         self.btn_create_session.pack(side=LEFT, padx=(0, 10))
         
-        self.btn_join_session = SecondaryButton(self.btn_container2, 'Join Session', 'login.png', joinSessionModalCmnd)
+        self.btn_join_session = SecondaryButton(self.btn_container2, translate('Join Session'), 'login.png', joinSessionModalCmnd)
         self.btn_join_session.pack(side=RIGHT)
 
         self.lv_session = Scrollable(self.tb_sessions, bg=background, pady=15)
@@ -162,18 +162,18 @@ class HomeWindow(TabbedWindow):
 
         panel_settings = [
             {
-                'label': 'Created In:',
+                'label': translate('Created In:'),
                 'text': item.bindings.get('creationDate').strftime('%a, %d %b') if 'creationDate' in item.bindings else '{creationDate}'
             },
             {
-                'label': 'Edited In:',
+                'label': translate('Edited In:'),
                 'text':  item.bindings.get('lastEdited').strftime('%a, %d %b') if 'lastEdited' in item.bindings else '{lastEdited}'
             }
         ]
 
         if liType == HomeWindow.SESSION_LI:
             panel_settings.append({
-                'label': 'Members:',
+                'label': translate('Members:'),
                 'text': item.bindings.get('memberCount', '{memberCount}')
             })
 
@@ -202,28 +202,28 @@ class HomeWindow(TabbedWindow):
             win_coords = self.to_window_coords(e.x_root, e.y_root)
             menu_buttons = [
                 {
-                    'text': 'Open',
+                    'text': translate('Open'),
                     'icon': 'open.png',
                     'cmnd': lambda e: self.windowManager.run(ProjectWindow(self, item.dataObject)) if liType == HomeWindow.PROJECT_LI else self.windowManager.run(CollaborationWindow(self, item.dataObject))
                 },
                 {
-                    'text': 'Edit',
+                    'text': translate('Edit'),
                     'icon': 'edit.png',
                     'cmnd': lambda e: self.windowManager.run_tag('editor', item.dataObject)
                 },
                 {
-                    'text': 'Share',
+                    'text': translate('Share'),
                     'icon': 'share.png',
                     'cmnd': lambda e: (self.windowManager.get_module('ShareModal'))(self, lambda modal: self.generate_share_link(item.dataObject, modal))
                 },
                 {
-                    'text': 'Delete',
+                    'text': translate('Delete'),
                     'icon': 'delete.png',
                     'fg': danger,
                     'cmnd': lambda e: self.delete_project(item.dataObject) if liType == self.PROJECT_LI else self.delete_session(item.dataObject) 
                 },
                 {
-                    'text': 'Leave',
+                    'text': translate('Leave'),
                     'icon': 'logout.png',
                     'fg': danger,
                     'cmnd': lambda e: self.quit_session(item.dataObject)
@@ -272,7 +272,7 @@ class HomeWindow(TabbedWindow):
                 create_project(filetobytes(filename))
 
         if not re.fullmatch('^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$', title):
-            MessageModal(self,title=f'Title error',message=f'\n1. Must be between 4 - 20 characters \n2. should not contain any special character',messageType='error')
+            MessageModal(self,title=f'Title error',message=f'\n1. Must be between 4 - 20 characters \n2. It should not contain any special character',messageType='error')
         else:
             create_session() if nature == HomeWindow.SESSION_LI else ( create_project() if load == False else load_project())
             modal.destroy()
@@ -283,13 +283,13 @@ class HomeWindow(TabbedWindow):
         self.refresh_window()
 
     def delete_project(self, dataObject):
-        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete {dataObject.title} project?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete [{dataObject.title}] project?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject)})
 
     def delete_session(self, dataObject):
-        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete {dataObject.title} session?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to delete [{dataObject.title}] session?',messageType='prompt',actions={'yes' : lambda e: self.delete(dataObject.project)})
 
     def quit_session(self, dataObject):
-        MessageModal(self,title=f'Confirmation',message=f'Do you want to quit {dataObject.title} session?',messageType='prompt',actions={'yes' : lambda e: self.delete(Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == dataObject.id).first())})
+        MessageModal(self,title=f'Confirmation',message=f'Do you want to quit [{dataObject.title}] session?',messageType='prompt',actions={'yes' : lambda e: self.delete(Container.filter(Collaboration, Collaboration.userId == HomeWindow.ACTIVE_USER.id, Collaboration.sessionId == dataObject.id).first())})
 
     # BOOKMARK: this should redirect to the editor window
     def join_project(self, modal):

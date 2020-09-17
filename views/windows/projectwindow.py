@@ -5,7 +5,7 @@ from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
-
+from helpers.translator import translate
 from models.entities.Container import Container
 from models.entities.Entities import User, Project, History, ShareLink
 
@@ -24,27 +24,27 @@ class ProjectWindow(TabbedWindow):
     tabSettings = [
         {   
             'icon': 'info.png',
-            'text': 'General Info',
+            'text': translate('General Info'),
             'tag': 'tb_info'
         },
         {   
             'icon': 'history.png',
-            'text': 'History',
+            'text': translate('History'),
             'tag': 'tb_hist'
         }
     ]
 
     lblSettings = [
         {
-            'label': 'Project\'s Title:',
+            'label': translate('Project\'s Title:'),
             'prop': 'title'
         },
         {
-            'label': 'Creation Date:',
+            'label': translate('Creation Date:'),
             'prop': 'creationDate'
         },
         {
-            'label': 'Last Edit:',
+            'label': translate('Last Edit:'),
             'prop': 'lastEdit'
         }
     ]
@@ -59,14 +59,14 @@ class ProjectWindow(TabbedWindow):
         # Button settings
         self.btnSettings = [
             {
-                'icon': 'open.png',
-                'text': 'Open Editor',
+                'icon': 'edit.png',
+                'text': translate('Open Editor'),
                 'dock': LEFT,
                 'cmnd': lambda e: self.windowManager.run(EditorWindow(self.master, self.project))
             },
             {
                 'icon': 'share.png',
-                'text': 'Share Project',
+                'text': translate('Share Project'),
                 'type': SecondaryButton,
                 'cmnd': lambda e: (self.windowManager.get_module('ShareModal'))(
                     self,
@@ -76,7 +76,7 @@ class ProjectWindow(TabbedWindow):
             },
             {
                 'icon': 'save.png',
-                'text': 'Export as XML',
+                'text': translate('Export as XML'),
                 'cmnd': lambda e: self.export_project('current_'+self.project.title, self.project.lastEdited, self.project.file)
             }
         ]
@@ -112,12 +112,12 @@ class ProjectWindow(TabbedWindow):
         btns = [
                 {
                     'icon': 'save.png',
-                    'text': 'Export to XML',
+                    'text': translate('Export as XML'),
                     'cmd': lambda e: self.export_project(history.project.title, history.editDate, history.file)
                 },
                 {
                     'icon': 'revert_history.png',
-                    'text': 'Revert',
+                    'text': translate('Revert'),
                     'cmd': lambda e: ask_revert_changes(history)
                 }
             ] 

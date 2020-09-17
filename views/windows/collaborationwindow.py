@@ -5,7 +5,7 @@ from views.components.listitem import ListItem
 from views.components.icon import IconFrame
 from views.factories.iconbuttonfactory import *
 from views.components.scrollable import Scrollable
-
+from helpers.translator import translate
 from models.entities.Container import Container
 from models.entities.Entities import Collaboration,User,History,Invitation,InvitationLink,Notification
 from models.entities.enums.notificationnature import NotificationNature
@@ -25,36 +25,36 @@ class CollaborationWindow(TabbedWindow):
     tabSettings = [
         {   
             'icon': 'info.png',
-            'text': 'General Info',
+            'text': translate('General Info'),
             'tag': 'tb_info'
         },
         {   
             'icon': 'history.png',
-            'text': 'History',
+            'text': translate('History'),
             'tag': 'tb_hist'
         },
         {
             'icon': 'session.png',
-            'text': 'Members',
+            'text': translate('Members'),
             'tag': 'tb_member'
         }
     ]
 
     lblSettings = [
         {
-            'label': 'Project\'s Title:',
+            'label': translate('Session\'s Title:'),
             'prop': 'title'
         },
         {
-            'label': 'Creation Date:',
+            'label': translate('Creation Date:'),
             'prop': 'creationDate'
         },
         {
-            'label': 'Last Edit:',
+            'label': translate('Last Edit:'),
             'prop': 'lastEdit'
         },
         {
-            'label': 'Members:',
+            'label': translate('Members:'),
             'prop': 'memberCount'
         }
     ]
@@ -70,21 +70,21 @@ class CollaborationWindow(TabbedWindow):
         # configure button settings
         self.btnSettings = [
             {
-                'icon': 'open.png',
-                'text': 'Open Editor',
+                'icon': 'edit.png',
+                'text': translate('Open Editor'),
                 'dock': LEFT,
                 'cmnd': lambda e: self.windowManager.run(EditorWindow(self.master, self.session))
             },
             {
                 'icon': 'delete.png',
-                'text': 'End Session',
+                'text': translate('End Session'),
                 'type': DangerButton,
                 # BOOKARK: Ending Session Command
                 'cmnd': lambda e: self.show_prompt('Are you sure you want to terminate the session?', lambda e: self.delete_session(), 'Terminating the session')
             },
             {
                 'icon': 'invite.png',
-                'text': 'Invite',
+                'text': translate('Invite'),
                 'type': SecondaryButton,
                 'cmnd': lambda e: (self.windowManager.get_module('InviteModal'))(
                     self,
@@ -96,7 +96,7 @@ class CollaborationWindow(TabbedWindow):
             },
             {
                 'icon': 'save.png',
-                'text': 'Export as XML',
+                'text': translate('Export to XML'),
                 'dock': LEFT,
                 'cmnd': lambda e: self.export_project(f'current_{self.session.project.title}',self.session.project.lastEdited,self.session.project.file)
             }
@@ -291,12 +291,12 @@ class CollaborationWindow(TabbedWindow):
 
         btn_list = [{
                     'icon': 'save.png',
-                    'text': 'Export to XML',
+                    'text': translate('Export to XML'),
                     'cmd': lambda e: self.export_project(history.project.title, history.editDate,history.file)
                 },
                 {
                     'icon': 'revert_history.png',
-                    'text': 'Revert',
+                    'text': translate('Revert'),
                     'cmd': lambda e: ask_revert_changes(history)
                 }]
 
@@ -318,7 +318,7 @@ class CollaborationWindow(TabbedWindow):
                 },
                 [{
                     'icon': 'cancel.png',
-                    'text': 'Kick',
+                    'text': translate('Kick'),
                     'cmd' : lambda e, user= i: self.kick_user(user), 
 
                 }] if i != self.session.owner else None

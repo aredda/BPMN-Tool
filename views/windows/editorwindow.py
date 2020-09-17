@@ -39,6 +39,7 @@ from views.prefabs.guidataobject import GUIDataObject
 from views.prefabs.guiflow import GUIFlow
 from views.prefabs.guilane import GUILane
 from views.windows.modals.messagemodal import MessageModal
+from helpers.translator import translate
 
 # this class represents the checkpoint made each time an action is done
 # in order for the user to be able to cancel or redo actions
@@ -109,7 +110,7 @@ class EditorWindow(SessionWindow):
                 # draw
                 guie.draw_at(0, 0)
                 # show help information
-                self.show_help_panel('Hover over the position you want to instantiate on, then left-click to drop; Press <Escape> if you want to cancel.')
+                self.show_help_panel(translate('Hover over the position you want, then left-click to drop; Press <Escape> if you want to cancel.'))
                 # change mode
                 self.set_mode(self.CREATE_MODE)
                 # set as the drag element
@@ -277,7 +278,7 @@ class EditorWindow(SessionWindow):
             # change cursor
             self.cnv_canvas.config(cursor='size_ne_sw')
             # help panel
-            self.show_help_panel('Left-click in order to cancel resize mode')
+            self.show_help_panel(translate('Left-click in order to cancel resize mode'))
         else:
             self.cnv_canvas.config(cursor='')
         # if there are selected elements, deselect them
@@ -295,7 +296,7 @@ class EditorWindow(SessionWindow):
             self.btn_select_mode.set_bgColor(black)
         # show link mode help info
         if mode == self.LINK_MODE:
-            self.show_help_panel('Select an element in order to make a connection; Press <Escape> to cancel')            
+            self.show_help_panel(translate('Select an element in order to make a connection; Press <Escape> to cancel'))
         # move mode
         if mode != self.MOVE_MODE:
             # disable effect
@@ -315,7 +316,7 @@ class EditorWindow(SessionWindow):
         self.btn_select_mode.defaultBgColor = teal
         self.btn_select_mode.set_bgColor(teal)
         # show information
-        self.show_help_panel('Selection mode is enabled')
+        self.show_help_panel(translate('Selection mode is enabled'))
 
     # activating move mode
     def enable_move_mode(self):
@@ -325,7 +326,7 @@ class EditorWindow(SessionWindow):
         self.btn_move_mode.defaultBgColor = teal
         self.btn_move_mode.set_bgColor(teal)
         # show information
-        self.show_help_panel('Move mode is enabled, press arrows to move around the canvas')
+        self.show_help_panel(translate('Move mode is enabled, press arrows to move around the canvas'))
 
     # responsible for refreshing all gui elements
     def reset(self):
@@ -400,7 +401,7 @@ class EditorWindow(SessionWindow):
                 if self.SELECTED_MODE == self.SELECT_MODE:
                     # cases when some elements can't be selected
                     if isinstance(self.SELECTED_ELEMENT, GUIProcess):
-                        self.show_help_panel('Process elements cannot be selected', danger)
+                        self.show_help_panel(translate('Process elements cannot be selected'), danger)
                         return
                     # proceed normally
                     if self.SELECTED_ELEMENT in self.SELECTED_ELEMENTS:
@@ -412,6 +413,8 @@ class EditorWindow(SessionWindow):
                 # if an element is selected
                 if self.SELECTED_MODE == self.LINK_MODE:
                     if self.SELECTED_ELEMENT != previous_selected:
+                        # finish linking
+                        self.set_mode(self.DRAG_MODE)
                         # check if we can link
                         if self.can_link(previous_selected, self.SELECTED_ELEMENT) == True:
                             # save undo checkpoint
@@ -436,9 +439,7 @@ class EditorWindow(SessionWindow):
                             # retrieve names
                             e1name, e2name = getname(self.SELECTED_ELEMENT), getname(previous_selected)
                             # show message error
-                            self.show_help_panel(f'Sorry, a connection cannot be made between <{e1name}> and <{e2name}>', danger)
-                        # finish linking
-                        self.set_mode(self.DRAG_MODE)
+                            self.show_help_panel(translate('Sorry, a connection cannot be made between') + f' <{e1name}> ' + translate('and') + f' <{e2name}> ', danger)
 
         # single right click
         def action_mouse_rclick(e):
@@ -455,23 +456,23 @@ class EditorWindow(SessionWindow):
                 # prepare options
                 opts = [
                     {
-                        'text': 'Delete',
+                        'text': translate('Delete'),
                         'icon': 'delete.png',
                         'fg': danger,
                         'cmnd': lambda e: self.remove_element(self.SELECTED_ELEMENT)
                     },
                     {
-                        'text': 'Change Name',
+                        'text': translate('Change Name'),
                         'icon': 'text.png',
                         'cmnd': lambda e: self.show_input(e.x_root, e.y_root, self.SELECTED_ELEMENT.set_text)
                     },
                     {
-                        'text': 'Associate',
+                        'text': translate('Associate'),
                         'icon': 'associate.png',
                         'cmnd': self.close_menu_after(lambda e: self.set_mode(self.LINK_MODE))
                     },
                     {
-                        'text': 'Dissociate',
+                        'text': translate('Dissociate'),
                         'icon': 'cut.png',
                         'cmnd': self.close_menu_after(lambda e: self.unlink_element(self.SELECTED_ELEMENT))
                     }
@@ -490,7 +491,7 @@ class EditorWindow(SessionWindow):
                 if isinstance(self.SELECTED_ELEMENT, GUIContainer) == True:
                     if not isinstance(self.SELECTED_ELEMENT, GUILane):
                         opts.append({
-                            'text': 'Resize',
+                            'text': translate('Resize'),
                             'icon': 'resize.png',
                             'cmnd': self.close_menu_after(lambda e: self.set_mode(self.RESIZE_MODE))
                         })
@@ -632,7 +633,7 @@ class EditorWindow(SessionWindow):
         # if the user has no right to edit
         if self.get_privilege() != 'edit':
             self.hide_tools()
-            self.show_help_panel('You don\'t have the right to edit this diagram!', danger)
+            self.show_help_panel(translate('You don\'t have the right to edit this diagram!'), danger)
             return
 
         # bind events
@@ -839,7 +840,7 @@ class EditorWindow(SessionWindow):
             else: 
                 self.windowManager.run_tag('project', project=self.subject) if self.subject.owner == EditorWindow.ACTIVE_USER else self.windowManager.run_tag('home')
 
-        self.show_prompt('Are you sure you want to leave this window?', lambda e: back(msg), 'Quit Prompt')
+        self.show_prompt(translate('Are you sure you want to leave this window?'), lambda e: back(msg), 'Quit Prompt')
 
     # linking funcs
     def can_link(self, source, target):
@@ -1165,7 +1166,7 @@ class EditorWindow(SessionWindow):
             # change back the canvas bg
             self.cnv_canvas.config(bg=background)
             # inform the user
-            self.show_help_panel('A screenshot was taken before saving', teal)
+            self.show_help_panel(translate('A screenshot was taken before saving'), teal)
         # start screenshot thread
         Thread(target=runnable).start()
     
