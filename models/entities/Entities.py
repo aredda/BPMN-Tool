@@ -6,71 +6,57 @@ metaData = Container.metaData
 
 # USER SECTION
 
-
 class User(Base):
     __table__ = Table('users', metaData, autoload=True)
-
 
 class Relation(Base):
     __table__ = Table('relations', metaData, autoload=True)
 
 # COLLABORATION SECTION
 
-
 class Project(Base):
     __table__ = Table('projects', metaData, autoload=True)
-
 
 class Session(Base):
     __table__ = Table('sessions', metaData, autoload=True)
 
-
 class Collaboration(Base):
     __table__ = Table('collaborations', metaData, autoload=True)
-
 
 class History(Base):
     __table__ = Table('history', metaData, autoload=True)
 
 # MESSAGE SECTION
 
-
 class Message(Base):
     __table__ = Table('messages', metaData, autoload=True)
 
 # NOTIFICATION & INVITATION SECTION
 
-
 class Notification(Base):
     __table__ = Table('notifications', metaData, autoload=True)
-
 
 class Invitation(Base):
     __table__ = Table('invitations', metaData, autoload=True)
 
-
 class InvitationLink(Base):
     __table__ = Table('invitationLinks', metaData, autoload=True)
-
 
 class ShareLink(Base):
     __table__ = Table('shareLinks', metaData, autoload=True)
 
 # SPARE PASSWORD
 
-
 class SparePwd(Base):
     __table__ = Table('sparePwd', metaData, autoload=True)
 
 # SEEN
-
 
 class SeenNotification(Base):
     __table__ = Table('seenNotifications', metaData, autoload=True)
 
 class SeenMessage(Base):
     __table__ = Table('seenMessages', metaData, autoload=True)
-
 
 # RELATIONSHIPS
 relationships = [

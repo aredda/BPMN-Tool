@@ -42,3 +42,11 @@ def getclassname(tag: str):
 def generate_code():
     import string, secrets
     return ''.join(secrets.choice(string.ascii_letters + string.digits) for i in range(8))
+
+def get_db_creation_script():
+    f = open("resources/database.sql", "r")
+    query, line = '', f.readline()
+    while line != '':
+        query += line
+        line = f.readline()
+    return query

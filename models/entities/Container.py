@@ -99,23 +99,6 @@ class Container():
     def deleteObject(obj):
         Container.session.delete(obj)
         Container.session.flush()
-        # Container.threadSafeCommit() 
-        # Container.session.begin()
-        # Container.session.commit()
-
-    # @staticmethod
-    # def threadSafeCommit():
-    #     session = Container.scopedSession()
-    #     try:
-    #         yield session
-    #         # session.begin()
-    #         session.commit()
-    #         session.flush()
-    #     except Exception:
-    #         session.rollback()
-    #         raise
-    #     finally:
-    #         Container.scopedSession.remove()
 
     @staticmethod
     def filter(modelType, *conditions):
