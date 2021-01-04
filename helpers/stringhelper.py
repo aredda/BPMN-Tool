@@ -2,8 +2,8 @@ import xml.etree.ElementTree as et
 import xml.dom.minidom as md
 
 # BOOKMARK: engine connection string
-database_name = 'bpmntool'
-server_path = 'mysql+pymysql://root:@localhost/'
+database_name = 'bpmn-db'
+server_path = 'mysql+pymysql://root:123@localhost/'
 connection_string = server_path + database_name
 
 
@@ -35,7 +35,6 @@ def getclassname(tag: str):
             return data
 
     if classname.lower().endswith('flow'):
-        # return classname[:-4]+'Flow'
         return 'SequenceFlow'
 
     return classname

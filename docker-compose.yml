@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: 'bpmn-db'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: '123'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+      
