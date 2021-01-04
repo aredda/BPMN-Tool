@@ -18,7 +18,6 @@ CREATE TABLE relations(
     FOREIGN KEY(userTwoId) REFERENCES users(id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE projects(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(50),
@@ -61,7 +60,6 @@ CREATE TABLE history(
     FOREIGN KEY(projectId) REFERENCES projects(id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE messages(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     content TEXT,
@@ -71,7 +69,6 @@ CREATE TABLE messages(
     FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(sessionId) REFERENCES sessions(id) ON DELETE CASCADE
 );
-
 
 CREATE TABLE notifications(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -118,7 +115,6 @@ CREATE TABLE shareLinks(
     FOREIGN KEY(projectId) REFERENCES projects(id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE sparePwd(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     expirationDate DATETIME,
@@ -126,7 +122,6 @@ CREATE TABLE sparePwd(
     userId INTEGER NOT NULL,
     FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
 );
-
 
 CREATE TABLE seenNotifications(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
