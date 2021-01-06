@@ -15,4 +15,4 @@ In order to be able to run this application:
 4. Install ``docker`` and ``docker-compose``
 5. Run ``docker-compose up`` in terminal
 6. You must install all specified libraries in [requirements.txt](https://github.com/The-Deadly-Sins/BPMN-Tool/blob/master/requirements.txt) using **PIP (Python Package Installer)**
-7. You must run the database creation script that is located at [resources/database.sql](https://github.com/The-Deadly-Sins/BPMN-Tool/blob/master/resources/database.sql)
+7. Run the app, ``python app.py``
