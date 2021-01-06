@@ -5,7 +5,6 @@ from helpers.stringhelper import connection_string, server_path, database_name
 from helpers.filehelper import filetobytes
 from sqlalchemy.exc import InternalError
 
-
 class Container():
 
     metaData = None
@@ -31,29 +30,20 @@ class Container():
         Container.threadSession = Session()
         # Container.scopedSession = scoped_session(sessionmaker(bind=engine))
         Container.configured = True
+        # check if tables are created
+        table_count_result = Container.session.execute("SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + database_name + "'")
+        table_count = int(table_count_result.first()[0])
+        if table_count == 0:
+            Container.loadSchema()
 
     @staticmethod
     def connect():
         # request a connection
         engine = create_engine(connection_string)
         # try to connect to the database
-        try:
-            engine.connect()
-        except InternalError:
-            # if the database doesn't exist connect to the server
-            engine = create_engine(server_path)
-            # create database
-            engine.execute(f'CREATE DATABASE {database_name}')
-            # request connection to the created database
-            engine = create_engine(connection_string)
-            # get tables creation code
-            sql = (filetobytes('models/entities/database.sql')).decode('utf-8')
-            # loop on the statements and execute each one
-            for st in sql.replace('\\n', '').replace('\\r', '').split(';'):
-                engine.execute(st)
-        finally:
-            # return the engine
-            return create_engine(connection_string)
+        engine.connect()
+        # return the engine
+        return engine
 
     @staticmethod
     def configureRelationships(relationships):
@@ -90,10 +80,6 @@ class Container():
     def save(*objs):
         Container.session.add_all(objs)
         Container.session.flush()
-        # Container.threadSafeCommit()
-        # Container.session.begin()
-        # Container.session.commit()
-
 
     @staticmethod
     def deleteObject(obj):
@@ -108,6 +94,19 @@ class Container():
     def threadSafeFilter(modelType, *conditions):
         Container.threadSession.flush()
         return Container.threadSession.query(modelType).filter(*conditions)
+    
+    @staticmethod
+    def loadSchema():
+        # request connection to the created database
+        engine = create_engine(connection_string)
+        # get tables creation code
+        sql = (filetobytes('resources/database.sql')).decode('utf-8')
+        # loop on the statements and execute each one
+        for st in sql.replace('\\n', '').replace('\\r', '').split(';'):
+            try:
+                engine.execute(st)
+            except:
+                continue
 
 if Container.configured == False:
     Container.configure()

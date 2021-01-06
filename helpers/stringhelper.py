@@ -6,7 +6,6 @@ database_name = 'bpmn-db'
 server_path = 'mysql+pymysql://root:123@localhost/'
 connection_string = server_path + database_name
 
-
 def camel_case(word: str):
     return word[0].lower() + word[1:]
 

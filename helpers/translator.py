@@ -1,4 +1,4 @@
-default_lang = 'fr'
+default_lang = 'en'
 
 dictionary = {
     'Username:': 'Nom Utilisateur:',

@@ -5,7 +5,6 @@ from threading import Thread
 from time import sleep
 from math import sqrt, pow
 from io import BytesIO
-import canvasvg as cnvsvg
 import pickle as pk
 from resources.colors import *
 from helpers.stringhelper import to_pretty_xml
