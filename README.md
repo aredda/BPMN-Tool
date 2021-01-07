@@ -10,7 +10,7 @@ with essential editing functionalities.
 # Installation
 In order to be able to run this application:
 1. Install ``tk-dev`` if you're using Ubuntu, in order to have tkinter development files
-2. Install ``asdf``
+2. Install ``asdf`` and ``asdf python plugin``
 3. Run ``asdf install`` in terminal
 4. Install ``docker`` and ``docker-compose``
 5. Run ``docker-compose up`` in terminal
