@@ -14,6 +14,7 @@ class Window(Toplevel):
 
     DEFAULT_WIDTH = 1024
     DEFAULT_HEIGHT = 768
+    IS_MAXIMIZED = False
 
     def __init__(self, root, title='Window', width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, **args):
         Toplevel.__init__(self, root, **args)
@@ -24,6 +25,8 @@ class Window(Toplevel):
         self.title(title)
         self.config(bg=background, width=width, height=height)
         self.center()
+        self.attributes('-zoomed', Window.IS_MAXIMIZED)
+        self.bind('<Configure>', lambda e: self.change_window_state())
         
     def center(self):
         # Update the idle tasks of the window
@@ -134,3 +137,12 @@ class Window(Toplevel):
             li.pack(side=TOP, fill=X)
             separator = Frame(self.frm_popup.interior, highlightthickness=1, highlightbackground=border)
             separator.pack(side=TOP, fill=X)
+    
+    def change_window_state(self):
+        self.update()
+        ww, sw, wh, sh = int(self.winfo_width()), int(self.winfo_screenwidth()), int(self.winfo_height()), int(self.winfo_screenheight())
+        Window.IS_MAXIMIZED = ww == sw
+        print('Screen Width:', sw)
+        print('Window Width:', ww)
+        print('Screen Height:', sh)
+        print('Window Height:', wh)

@@ -48,9 +48,9 @@ class SignWindow(Window):
         # buttons
         frm_in_btns = Frame(self.frm_in, bg=background)
         frm_in_btns.pack(side=TOP, fill=X, pady=(5, 0))
-        self.btn_signin = MainButton(frm_in_btns, translate('Sign In'), 'login.png', self.btn_signin_click)
+        self.btn_signin = MainButton(frm_in_btns, translate('Sign In'), 'login.png', self.btn_signin_click, 8)
         self.btn_signin.pack(side=LEFT)
-        self.btn_viewpwd = SecondaryButton(frm_in_btns, translate('View Password'), 'eye.png', self.btn_viewpassword_click)
+        self.btn_viewpwd = SecondaryButton(frm_in_btns, translate('View Password'), 'eye.png', self.btn_viewpassword_click, 8)
         self.btn_viewpwd.pack(side=RIGHT)
         # divider
         frm_in_divider = Frame(self.frm_in, bg=border)
@@ -126,9 +126,9 @@ class SignWindow(Window):
         # buttons
         frm_up_btns = Frame(self.frm_up, bg=background)
         frm_up_btns.pack(side=BOTTOM, fill=X, pady=(0, 60))
-        self.btn_prev = DangerButton(frm_up_btns, translate('Go Back'), 'revert_history.png', self.btn_prev_click)
+        self.btn_prev = DangerButton(frm_up_btns, translate('Go Back'), 'revert_history.png', self.btn_prev_click, 8)
         self.btn_prev.pack(side=LEFT)
-        self.btn_next = SecondaryButton(frm_up_btns, translate('Next Step'), 'yes.png', self.btn_next_click)
+        self.btn_next = SecondaryButton(frm_up_btns, translate('Next Step'), 'yes.png', self.btn_next_click, 8)
         self.btn_next.pack(side=RIGHT)
         # display the first step
         self.move_to(self.current)
