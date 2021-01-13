@@ -275,7 +275,7 @@ class EditorWindow(SessionWindow):
             # save check point
             self.save_checkpoint(EditorWindow.ACTION_HIST['undo'])
             # change cursor
-            self.cnv_canvas.config(cursor='size_ne_sw')
+            self.cnv_canvas.config(cursor='sizing')
             # help panel
             self.show_help_panel(translate('Left-click in order to cancel resize mode'))
         else:

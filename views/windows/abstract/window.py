@@ -26,7 +26,7 @@ class Window(Toplevel):
         self.config(bg=background, width=width, height=height)
         self.center()
         self.attributes('-zoomed', Window.IS_MAXIMIZED)
-        self.bind('<Configure>', lambda e: self.change_window_state())
+        # self.bind('<Configure>', lambda e: self.change_window_state())
         
     def center(self):
         # Update the idle tasks of the window
