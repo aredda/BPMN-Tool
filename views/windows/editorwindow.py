@@ -596,7 +596,7 @@ class EditorWindow(SessionWindow):
                 self.DRAG_ELEMENT = None
                 self.IS_DRAGGING = False
             # reset mode if the selected mode is not a long term mode
-            if self.SELECTED_MODE not in [self.SELECT_MODE, self.MOVE_MODE]:
+            if self.SELECTED_MODE not in [self.SELECT_MODE, self.MOVE_MODE, self.LINK_MODE]:
                 self.set_mode(self.DRAG_MODE)
 
         # key press 
